@@ -1,0 +1,51 @@
+.main {
+  display: grid;
+  grid-template-columns: 1fr 200px;
+  grid-template-areas:
+    "left right"
+    "bottom bottom";
+  gap: 40px;
+  padding: 20px;
+  height: 100vh;
+  box-sizing: border-box;
+}
+
+.top-left {
+  grid-area: left;
+}
+
+.top-right {
+  grid-area: right;
+}
+
+/* This whole section is replaced */
+.task-tables-container {
+  grid-area: bottom;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  justify-content: space-between;
+  margin-top: 20px;
+}
+
+/* New wrapper class for each table */
+.home-task-wrapper {
+  flex: 1 1 48%;
+  box-sizing: border-box;
+  min-width: 300px;
+}
+
+/* Stack the tables vertically on mobile */
+@media (max-width: 768px) {
+  .main {
+    grid-template-columns: 1fr;
+    grid-template-areas:
+      "left"
+      "right"
+      "bottom";
+  }
+
+  .home-task-wrapper {
+    flex: 1 1 100%;
+  }
+}

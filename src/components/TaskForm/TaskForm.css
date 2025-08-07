@@ -1,0 +1,39 @@
+.dialog-form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 6px;
+}
+
+.dialog-form label {
+  font-weight: 500;
+  margin-bottom: 3px;
+  display: block;
+  color: #555;
+}
+
+.dialog-form .form-row {
+  margin-bottom: 8px;
+}
+
+.dialog-form .MuiTextField-root,
+.dialog-form .MuiSelect-root {
+  width: 100%;
+}
+
+.dialog-form .MuiDialogContent-root {
+  padding-top: 16px;
+}
+
+.dialog-form .MuiDialogActions-root {
+  padding: 16px;
+  justify-content: flex-end;
+}
+
+
+.MuiDialog-paper {
+  min-width: 550px;
+  max-width: 95%;
+  padding: 16px;
+  border-radius: 12px;
+}
