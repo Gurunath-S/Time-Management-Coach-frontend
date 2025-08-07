@@ -79,6 +79,17 @@ function TaskForm({ open, onSave, onClose, editTask = null, setTask }) {
             // Send to parent
             if (typeof onSave === 'function') {
                 onSave(cleanedTask);
+                setNewTask({
+                id: "",
+                title: "",
+                created_at: "",
+                due_date: "",
+                priority: "",
+                note: "",
+                reason: "",
+                status: "",
+                assigned_to: "",
+            })
             }
         };
 
