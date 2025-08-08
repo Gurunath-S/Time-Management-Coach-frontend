@@ -1,18 +1,16 @@
-import Grid from '../Grid/Grid'
+import Grid from '../Grid/Grid';
 import { useState, useEffect, useMemo } from 'react';
-import './FourQuadrants.css'
-import TaskForm from '../TaskForm/TaskForm';
 import Button from '@mui/material/Button';
 import { IoAddOutline } from "react-icons/io5";
 import Switch from '@mui/material/Switch';
-import { toast } from 'react-toastify'
+import { toast } from 'react-toastify';
 import EditPriorityTags from '../TaskForm/EditPriorityTags';
 import QuickTaskForm from '../TaskForm/QuickTaskForm';
+import TaskForm from '../TaskForm/TaskForm';
 import { MdFilterList } from 'react-icons/md';
 import { FaChevronDown, FaChevronRight } from 'react-icons/fa';
 import Chip from '@mui/material/Chip';
 import axios from 'axios';
-
 const label = { inputProps: { 'aria-label': 'Size switch demo' } };
 
 function FourQuadrants({ tasks, setTask, setHideTable, setQtasks }) {
@@ -28,7 +26,7 @@ function FourQuadrants({ tasks, setTask, setHideTable, setQtasks }) {
   const [openTagEditor, setOpenTagEditor] = useState(false);
   const [taskToTagEdit, setTaskToTagEdit] = useState(null);
 
-    // Global filter states
+  // Global filter states
   const [globalFilters, setGlobalFilters] = useState({
     complexity: [],
     type: [],
@@ -77,7 +75,6 @@ function FourQuadrants({ tasks, setTask, setHideTable, setQtasks }) {
 
   const hasActiveGlobalFilters = Object.values(globalFilters).some(arr => arr.length > 0);
 
-  
   const handleTagEdit = (task) => {
     setTaskToTagEdit(task);
     setOpenTagEditor(true);
@@ -126,6 +123,7 @@ function FourQuadrants({ tasks, setTask, setHideTable, setQtasks }) {
 
   const handleTaskSave = async (task) => {
     try {
+      const axios = (await import('axios')).default;
       if (editTask) {
         const res = await axios.put(`https://time-management-coach-backend.onrender.com/api/tasks/${task.id}`, task);
         setTask(prev => prev.map(t => t.id === task.id ? res.data : t));
@@ -232,6 +230,73 @@ function FourQuadrants({ tasks, setTask, setHideTable, setQtasks }) {
         <p>Reprioritize your tasks by changing due dates or priority to focus on what matters most.</p>
       </div>
 
+      {/* Global Filter Section */}
+      {Object.values(globalAvailableFilters).some(arr => arr.length > 0) && (
+        <div style={{ margin: '20px 15px', border: '1px solid #e0e0e0', borderRadius: '8px', backgroundColor: '#f8f9fa' }}>
+          {/* Global Filter Toggle Button */}
+          <div 
+            onClick={() => setShowGlobalFilters(!showGlobalFilters)}
+            style={{ 
+              display: 'flex', 
+              alignItems: 'center', 
+              cursor: 'pointer', 
+              padding: '12px 16px',
+              borderBottom: showGlobalFilters ? '1px solid #e0e0e0' : 'none'
+            }}
+          >
+            {showGlobalFilters ? <FaChevronDown style={{ marginRight: '8px', color: '#2196F3' }} /> : <FaChevronRight style={{ marginRight: '8px', color: '#2196F3' }} />}
+            <MdFilterList style={{ marginRight: '8px', color: '#2196F3' }} />
+            <span style={{ fontWeight: 'bold', fontSize: '1rem' }}>
+              Filter All Quadrants {hasActiveGlobalFilters && `(${Object.values(globalFilters).flat().length} active)`}
+            </span>
+            {hasActiveGlobalFilters && (
+              <Button 
+                size="small" 
+                onClick={(e) => {
+                  e.stopPropagation();
+                  clearAllGlobalFilters();
+                }}
+                style={{ marginLeft: 'auto', fontSize: '0.8rem', minWidth: 'auto', padding: '4px 12px' }}
+              >
+                Clear All Filters
+              </Button>
+            )}
+          </div>
+
+          {/* Collapsible Global Filter Content */}
+          {showGlobalFilters && (
+            <div style={{ padding: '16px' }}>
+              {Object.entries(globalAvailableFilters).map(([group, tags]) => 
+                tags.length > 0 && (
+                  <div key={group} style={{ marginBottom: '12px' }}>
+                    <span style={{ fontSize: '0.9rem', fontWeight: '600', color: '#555', marginRight: '12px', display: 'inline-block', minWidth: '80px' }}>
+                      {group.charAt(0).toUpperCase() + group.slice(1)}:
+                    </span>
+                    <div style={{ display: 'inline-block' }}>
+                      {tags.map(tag => (
+                        <Chip
+                          key={tag}
+                          label={tag}
+                          size="small"
+                          onClick={() => toggleGlobalFilter(group, tag)}
+                          style={{
+                            margin: '2px 4px',
+                            fontSize: '0.75rem',
+                            backgroundColor: globalFilters[group].includes(tag) ? '#2196F3' : '#e0e0e0',
+                            color: globalFilters[group].includes(tag) ? 'white' : '#333',
+                            cursor: 'pointer'
+                          }}
+                        />
+                      ))}
+                    </div>
+                  </div>
+                )
+              )}
+            </div>
+          )}
+        </div>
+      )}
+
       <div className="main-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '16px' }}>
         {gridData.map((grid, index) => (
           <Grid
@@ -243,6 +308,7 @@ function FourQuadrants({ tasks, setTask, setHideTable, setQtasks }) {
             isFocusMode={isFocusMode}
             onEditTask={handleEditTask}
             onEditPriorityTags={handleTagEdit}
+            globalFilters={globalFilters} // Pass global filters to each grid
           />
         ))}
       </div>
