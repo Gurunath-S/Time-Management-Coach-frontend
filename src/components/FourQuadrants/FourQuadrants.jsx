@@ -8,6 +8,9 @@ import Switch from '@mui/material/Switch';
 import { toast } from 'react-toastify'
 import EditPriorityTags from '../TaskForm/EditPriorityTags';
 import QuickTaskForm from '../TaskForm/QuickTaskForm';
+import { MdFilterList } from 'react-icons/md';
+import { FaChevronDown, FaChevronRight } from 'react-icons/fa';
+import Chip from '@mui/material/Chip';
 import axios from 'axios';
 
 const label = { inputProps: { 'aria-label': 'Size switch demo' } };
@@ -25,6 +28,56 @@ function FourQuadrants({ tasks, setTask, setHideTable, setQtasks }) {
   const [openTagEditor, setOpenTagEditor] = useState(false);
   const [taskToTagEdit, setTaskToTagEdit] = useState(null);
 
+    // Global filter states
+  const [globalFilters, setGlobalFilters] = useState({
+    complexity: [],
+    type: [],
+    category: [],
+    impact: []
+  });
+  const [showGlobalFilters, setShowGlobalFilters] = useState(false);
+
+  // Calculate available filters across all tasks
+  const globalAvailableFilters = useMemo(() => {
+    const tagCounts = { complexity: {}, type: {}, category: {}, impact: {} };
+    
+    tasks.forEach(task => {
+      if (task.priority_tags) {
+        Object.keys(tagCounts).forEach(group => {
+          if (task.priority_tags[group]) {
+            task.priority_tags[group].forEach(tag => {
+              tagCounts[group][tag] = (tagCounts[group][tag] || 0) + 1;
+            });
+          }
+        });
+      }
+    });
+
+    // Return tags with >0 tasks (you can change to >5 for production)
+    const filters = {};
+    Object.keys(tagCounts).forEach(group => {
+      filters[group] = Object.keys(tagCounts[group]).filter(tag => tagCounts[group][tag] > 0);
+    });
+
+    return filters;
+  }, [tasks]);
+
+  const toggleGlobalFilter = (group, tag) => {
+    setGlobalFilters(prev => ({
+      ...prev,
+      [group]: prev[group].includes(tag) 
+        ? prev[group].filter(f => f !== tag)
+        : [...prev[group], tag]
+    }));
+  };
+
+  const clearAllGlobalFilters = () => {
+    setGlobalFilters({ complexity: [], type: [], category: [], impact: [] });
+  };
+
+  const hasActiveGlobalFilters = Object.values(globalFilters).some(arr => arr.length > 0);
+
+  
   const handleTagEdit = (task) => {
     setTaskToTagEdit(task);
     setOpenTagEditor(true);
