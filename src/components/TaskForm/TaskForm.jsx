@@ -72,7 +72,7 @@ function TaskForm({ open, onSave, onClose, editTask = null, setTask }) {
             const cleanedTask = {
                 ...newtask,
                 created_at: new Date(newtask.created_at),
-                due_date: new Date(newtask.due_date),
+                due_date: new Date(newtask.due_date) || "",
                 id: newtask.id || uuidv4(),
             };
 
