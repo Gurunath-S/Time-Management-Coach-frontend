@@ -69,28 +69,29 @@ export default function QuickTaskModal({ open, onClose, onSave }) {
       notes,
       timeSpent: `${timeSpent} min`
     };
-    try {
-      const req = await fetch('https://time-management-coach-backend.onrender.com/api/qtasks', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(quickLog),
-    });
-    if (!req.ok) {
-                throw new Error('Failed to save Quick task');
-            }
-            onSave(prev=> [...prev, quickLog]);
-            toast.success("Quick Task entry saved.")
-            onClose();
     
-
-        }
-        catch(error) {
-            console.error("Error saving task:", error);
-            toast.error('Failed to save task');
-        }
+    try {
+      const req = await fetch('http://localhost:5000/api/qtasks', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(quickLog),
+      });
+      
+      if (!req.ok) {
+        throw new Error('Failed to save Quick task');
       }
+      
+      // Call onSave to update parent state
+      onSave(quickLog);
+      toast.success("Quick Task entry saved.")
+      onClose();
+    } catch(error) {
+      console.error("Error saving task:", error);
+      toast.error('Failed to save task');
+    }
+  };
 
   if (!open) return null;
 
@@ -158,7 +159,7 @@ export default function QuickTaskModal({ open, onClose, onSave }) {
             onChange={(e) => setNotes(e.target.value)}
           ></textarea>
 
-          <label>Total time spent (in minutes):</label>
+          <label>Total time spent (ex: 1hr 22min or 12min ):</label>
           <input
             type="number"
             min="1"
