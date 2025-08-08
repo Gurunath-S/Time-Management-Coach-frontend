@@ -74,13 +74,11 @@ function FourQuadrants({ tasks, setTask, setHideTable, setQtasks }) {
   const handleTaskSave = async (task) => {
     try {
       if (editTask) {
-        // Replace with your actual API call
-        // const res = await axios.put(`http://localhost:5000/api/tasks/${task.id}`, task);
+        const res = await axios.put(`https://time-management-coach-backend.onrender.com/api/tasks/${task.id}`, task);
         setTask(prev => prev.map(t => t.id === task.id ? task : t));
         toast.success("Task updated");
       } else {
-        // Replace with your actual API call
-        // const res = await axios.post('http://localhost:5000/api/tasks', task);
+        const res = await axios.post('https://time-management-coach-backend.onrender.com/api/tasks', task);
         setTask(prev => [...prev, task]);
         toast.success("Task created");
       }
