@@ -31,9 +31,8 @@ function FourQuadrants({ tasks, setTask, setHideTable, setQtasks }) {
 
   const handleTagSave = async (updatedTask) => {
     try {
-      // const response = await axios.put(`http://localhost:5000/api/tasks/${updatedTask.id}`, updatedTask);
-      // const savedTask = response.data;
-      setTask(prev => prev.map(t => t.id === updatedTask.id ? updatedTask : t));
+      const response = await axios.put(`https://time-management-coach-backend.onrender.com/api/tasks/${updatedTask.id}`, updatedTask);
+      setTask(prev => prev.map(t => t.id === updatedTask.id ? response.data : t));
       toast.success("Priority tags updated");
     } catch (error) {
       console.error("Error saving priority tags", error);
@@ -75,11 +74,11 @@ function FourQuadrants({ tasks, setTask, setHideTable, setQtasks }) {
     try {
       if (editTask) {
         const res = await axios.put(`https://time-management-coach-backend.onrender.com/api/tasks/${task.id}`, task);
-        setTask(prev => prev.map(t => t.id === task.id ? task : t));
+        setTask(prev => prev.map(t => t.id === task.id ? res.data : t));
         toast.success("Task updated");
       } else {
         const res = await axios.post('https://time-management-coach-backend.onrender.com/api/tasks', task);
-        setTask(prev => [...prev, task]);
+        setTask(prev => [...prev, res.data]);
         toast.success("Task created");
       }
       setEditTask(null);
