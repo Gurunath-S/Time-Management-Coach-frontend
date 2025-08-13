@@ -8,6 +8,8 @@ import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import LoginPage from './components/LoginPage/LoginPage';
 import QuickTaskHistory from './components/QtaskHistory/QuickTaskHistory';
+import EditPriorityTags from './components/EditTags/EditTags';
+import EditTaskPage from './components/EditTask/EditTask';
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [user, setUser] = useState(null);
@@ -17,7 +19,7 @@ function App() {
     if (!token) return;
 
     try {
-      const res = await fetch('https://time-management-coach-backend.onrender.com/api/profile', {
+      const res = await fetch('http://localhost:5000/api/profile', {
         headers: { Authorization: `Bearer ${token}` },
       });
       const data = await res.json();
@@ -25,6 +27,11 @@ function App() {
         setUser(data.user);
         setIsLoggedIn(true);
       }
+      // else {
+      //   localStorage.removeItem('token');
+      //   setIsLoggedIn(false);
+      //   setUser(null);
+      // }
     } catch (err) {
       console.error("Profile fetch failed", err);
     }
@@ -42,11 +49,11 @@ function App() {
         <Routes>
           <Route
             path="/"
-            element={isLoggedIn ? <Home /> : <LoginPage onLoginSuccess={fetchUserProfile} />}
+            element={isLoggedIn ? <Home isLoggedIn={isLoggedIn} /> : <LoginPage onLoginSuccess={fetchUserProfile} />}
           />
           <Route
             path="/home"
-            element={<Home />}
+            element={<Home isLoggedIn={isLoggedIn} />}
           />
           <Route
             path="/help"
@@ -60,6 +67,15 @@ function App() {
             path='/quick-task-history'
             element={<QuickTaskHistory/>}
           />
+          <Route
+            path="/edit-tags/:id"
+            element={<EditPriorityTags />}
+          />
+          <Route
+            path="/edit-tasks/:id"
+            element={<EditTaskPage/>}
+          />
+
         </Routes>
         <ToastContainer
           position="top-right"
