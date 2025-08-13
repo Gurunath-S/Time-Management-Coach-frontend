@@ -15,10 +15,6 @@ function TaskCount({ tasks, setFilterStatus }) {
     const inprogress = tasks.filter(task => task.status === "in progress").length;
     const pending = tasks.filter(task => task.status === "pending").length;
     setTaskCount({ total, completed, pending, inprogress });
-    // console.log("data total:",total)
-    // console.log("data com:",completed)
-    // console.log("data inprogress:",inprogress)
-    // console.log("data pending:",pending)
 
   }, [tasks]);
 
