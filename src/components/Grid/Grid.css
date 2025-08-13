@@ -29,3 +29,17 @@ li{
   text-align: center;
   font-size: 18px;
 }
+
+.grid-container::-webkit-scrollbar {
+  width: 6px;
+}
+
+.grid-container::-webkit-scrollbar-thumb {
+  background-color: #ccc;
+  border-radius: 3px;
+}
+
+.grid-container::-webkit-scrollbar-track {
+  background: transparent;
+}
+
