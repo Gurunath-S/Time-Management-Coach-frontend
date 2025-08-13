@@ -11,6 +11,7 @@ import { MdFilterList } from 'react-icons/md';
 import { FaChevronDown, FaChevronRight } from 'react-icons/fa';
 import Chip from '@mui/material/Chip';
 import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 const label = { inputProps: { 'aria-label': 'Size switch demo' } };
 
 function FourQuadrants({ tasks, setTask, setHideTable, setQtasks }) {
@@ -25,7 +26,7 @@ function FourQuadrants({ tasks, setTask, setHideTable, setQtasks }) {
   const [preFocusGridCount, setPreFocusGridCount] = useState({});
   const [openTagEditor, setOpenTagEditor] = useState(false);
   const [taskToTagEdit, setTaskToTagEdit] = useState(null);
-
+  const navigate = useNavigate();
   // Global filter states
   const [globalFilters, setGlobalFilters] = useState({
     complexity: [],
@@ -76,13 +77,13 @@ function FourQuadrants({ tasks, setTask, setHideTable, setQtasks }) {
   const hasActiveGlobalFilters = Object.values(globalFilters).some(arr => arr.length > 0);
 
   const handleTagEdit = (task) => {
-    setTaskToTagEdit(task);
-    setOpenTagEditor(true);
+    console.log("Edit task clicked:", task.id);
+    navigate(`/edit-tags/${task.id}`);
   };
 
   const handleTagSave = async (updatedTask) => {
     try {
-      const response = await axios.put(`https://time-management-coach-backend.onrender.com/api/tasks/${updatedTask.id}`, updatedTask);
+      const response = await axios.put(`http://localhost:5000/api/tasks/${updatedTask.id}`, updatedTask);
       setTask(prev => prev.map(t => t.id === updatedTask.id ? response.data : t));
       toast.success("Priority tags updated");
     } catch (error) {
@@ -125,11 +126,12 @@ function FourQuadrants({ tasks, setTask, setHideTable, setQtasks }) {
     try {
       const axios = (await import('axios')).default;
       if (editTask) {
-        const res = await axios.put(`https://time-management-coach-backend.onrender.com/api/tasks/${task.id}`, task);
+        const res = await axios.put(`http://localhost:5000/api/tasks/${task.id}`, task);
         setTask(prev => prev.map(t => t.id === task.id ? res.data : t));
+        console.log("Task updated:", res.data);
         toast.success("Task updated");
       } else {
-        const res = await axios.post('https://time-management-coach-backend.onrender.com/api/tasks', task);
+        const res = await axios.post('http://localhost:5000/api/tasks', task);
         setTask(prev => [...prev, res.data]);
         toast.success("Task created");
       }
@@ -141,14 +143,15 @@ function FourQuadrants({ tasks, setTask, setHideTable, setQtasks }) {
     }
   };
 
-  const handleQtaskSave = (task) => {
-    try {
-      setQtasks(prev => [...prev, task]);
-      toast.success('Quick Task created')
-    } catch (error) {
-      console.error("Error saving quick task:", error);
+    const handleQtaskSave = (task) => {
+      try {
+        if (setQtasks) {
+          setQtasks(prev => [...prev, task]);
+        }
+      } catch (error) {
+        console.error("Error saving quick task:", error);
+      }
     }
-  }
 
   const handleSwitchChange = (event) => {
     setSwitchChecked(event.target.checked);
