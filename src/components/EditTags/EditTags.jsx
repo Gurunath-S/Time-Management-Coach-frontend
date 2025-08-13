@@ -93,7 +93,7 @@ export default function EditPriorityTags() {
   useEffect(() => {
     const fetchTask = async () => {
       try {
-        const res = await fetch(`http://localhost:5000/api/tasks/${id}`);
+        const res = await fetch(`https://time-management-coach-backend.onrender.com/api/tasks/${id}`);
         if (!res.ok) throw new Error("Failed to fetch task");
         const data = await res.json();
         setTask(data);
@@ -122,7 +122,7 @@ export default function EditPriorityTags() {
   const handleSubmit = async () => {
     try {
       const updatedTask = { ...task, priority_tags: tags };
-      const res = await fetch(`http://localhost:5000/api/tasks/${id}`, {
+      const res = await fetch(`https://time-management-coach-backend.onrender.com/api/tasks/${id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(updatedTask)
