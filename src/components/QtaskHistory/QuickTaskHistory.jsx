@@ -11,7 +11,7 @@ function QuickTaskHistory() {
 
   return (
     <div className="qth-container">
-      <h2>Quick Task History</h2>
+      <h2>All Quick Task History</h2>
       <div className="qth-table-wrapper">
         <table className="qth-table">
           <thead>
