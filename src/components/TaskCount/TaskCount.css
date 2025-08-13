@@ -22,17 +22,59 @@
   cursor: pointer
 }
 
+.total:hover {
+  background-color: #19222c;
+  cursor: pointer
+}
+
+.total:active {
+  background-color: #00070e;
+  transform: translateY(2px);
+}
+
 .completed {
   background-color: #27ae60;
   cursor: pointer;
 }
+
+.completed:hover {
+  background-color: #219451;
+  cursor: pointer;
+}
+
+.completed:active {
+  background-color: #1b7a43;
+  transform: translateY(2px);
+}
+
 
 .inprogress {
   background-color: #f39c12;
   cursor: pointer
 }
 
+.inprogress:hover {
+  background-color: #e67e22;
+  cursor: pointer;
+}
+
+.inprogress:active {
+  background-color: #c26b1e;
+  transform: translateY(2px);
+}
+
+
 .pending {
   background-color: #e74c3c;
   cursor: pointer
+}
+
+.pending:hover {
+  background-color: #c0392b;
+  cursor: pointer;
+}
+
+.pending:active {
+  background-color: #a53326;
+  transform: translateY(2px);
 }
