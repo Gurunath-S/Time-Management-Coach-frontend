@@ -40,7 +40,6 @@ export default function QuickTaskModal({ open, onClose, onSave }) {
     "Household Chores",
     "Other (Personal)"
   ];
-
   const handleCheckbox = (task, type) => {
     const handler = type === 'work' ? selectedWorkTasks : selectedPersonalTasks;
     const setter = type === 'work' ? setSelectedWorkTasks : setSelectedPersonalTasks;
@@ -52,6 +51,15 @@ export default function QuickTaskModal({ open, onClose, onSave }) {
     }
   };
 
+  const handleCancel = (e) => {
+    setDate("");
+    setSelectedWorkTasks([]);
+    setSelectedPersonalTasks([]);
+    setUser(""); 
+    setNotes("");
+    setTimeSpent(""); 
+    onClose();
+  };
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -71,7 +79,7 @@ export default function QuickTaskModal({ open, onClose, onSave }) {
     };
     
     try {
-      const req = await fetch('https://time-management-coach-backend.onrender.com/api/qtasks', {
+      const req = await fetch('http://localhost:5000/api/qtasks', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -85,7 +93,16 @@ export default function QuickTaskModal({ open, onClose, onSave }) {
       
       // Call onSave to update parent state
       onSave(quickLog);
+     
+      setDate("");
+      setSelectedWorkTasks([]);
+      setSelectedPersonalTasks([]);
+      setUser(""); 
+      setNotes("");
+      setTimeSpent("");
+
       toast.success("Quick Task entry saved.")
+
       onClose();
     } catch(error) {
       console.error("Error saving task:", error);
@@ -99,7 +116,8 @@ export default function QuickTaskModal({ open, onClose, onSave }) {
     <div className="modal-overlay">
       <div className="quick-modal">
         <h2>Log Completed Quick Tasks</h2>
-        <form onSubmit={handleSubmit}>
+      <form onSubmit={handleSubmit} className="form-grid">
+        <div>
           <label>Date:</label>
           <input
             type="date"
@@ -107,8 +125,26 @@ export default function QuickTaskModal({ open, onClose, onSave }) {
             onChange={(e) => setDate(e.target.value)}
             required
           />
+        </div>
 
-          <h4 style={{marginTop:20,fontSize:16,}}>Select Tasks (Work) :</h4>
+        <div>
+          <label>Assigned To</label>
+          <select
+            name="assigned_by"
+            value={user}
+            onChange={(e)=>setUser(e.target.value)}
+            style={{marginTop: '10px',hieght: '40px',color: 'black'}}
+            required
+          >
+            <option value="" disabled>Select user</option>
+            <option value="user1">User 1</option>
+            <option value="user2">User 2</option>
+            <option value="user3">User 3</option>
+          </select>
+        </div>
+
+        <div style={{gridColumn: "1 / span 2"}}>
+          <h4>Select Tasks (Work) :</h4>
           <div className="checkbox-group">
             {workTasks.map((task, idx) => (
               <label key={idx}>
@@ -121,8 +157,10 @@ export default function QuickTaskModal({ open, onClose, onSave }) {
               </label>
             ))}
           </div>
+        </div>
 
-          <h4 style={{marginTop:25,fontSize:16}}>Select Tasks (Outside Work):</h4>
+        <div style={{gridColumn: "1 / span 2"}}>
+          <h4>Select Tasks (Outside Work):</h4>
           <div className="checkbox-group">
             {personalTasks.map((task, idx) => (
               <label key={idx}>
@@ -135,31 +173,19 @@ export default function QuickTaskModal({ open, onClose, onSave }) {
               </label>
             ))}
           </div>
+        </div>
 
-          <div className="checkbox-group">
-            <label>Assigned To</label>
-            <select
-              name="assigned_by"
-              value={user}
-              defaultValue=""
-              onChange={(e)=>setUser(e.target.value)}
-              required
-            >
-              <option value="" disabled>Select user</option>
-              <option value="user1">User 1</option>
-              <option value="user2">User 2</option>
-              <option value="user3">User 3</option>
-            </select>
-          </div>
-
+        <div style={{gridColumn: "1 / span 2"}}>
           <label>Notes:</label>
           <textarea
             placeholder="Add any notes..."
             value={notes}
             onChange={(e) => setNotes(e.target.value)}
           ></textarea>
+        </div>
 
-          <label>Total time spent (ex: 1hr 22min or 12min ):</label>
+        <div>
+          <label>Total time spent in min:</label>
           <input
             type="number"
             min="1"
@@ -167,12 +193,13 @@ export default function QuickTaskModal({ open, onClose, onSave }) {
             onChange={(e) => setTimeSpent(e.target.value)}
             required
           />
+        </div>
 
-          <div className="btn-group">
-            <button type="submit">Save</button>
-            <button type="button" style={{marginLeft:10}} onClick={onClose}>Cancel</button>
-          </div>
-        </form>
+        <div className="btn-group" style={{gridColumn: "1 / span 2"}}>
+          <button type="submit">Save</button>
+          <button type="button" onClick={handleCancel}>Cancel</button>
+        </div>
+      </form>
       </div>
     </div>
   );
