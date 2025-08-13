@@ -19,7 +19,7 @@ function App() {
     if (!token) return;
 
     try {
-      const res = await fetch('http://localhost:5000/api/profile', {
+      const res = await fetch('https://time-management-coach-backend.onrender.com/api/profile', {
         headers: { Authorization: `Bearer ${token}` },
       });
       const data = await res.json();
