@@ -24,7 +24,7 @@ function EditTaskPage() {
 
   useEffect(() => {
     if (isUpdate) {
-      fetch(`http://localhost:5000/api/tasks/${id}`)
+      fetch(`https://time-management-coach-backend.onrender.com/api/tasks/${id}`)
         .then((res) => res.json())
         .then((data) => {
           const formatDate = (dateString) => {
@@ -68,8 +68,8 @@ function EditTaskPage() {
 
     const method = isUpdate ? 'PUT' : 'POST';
     const url = isUpdate
-      ? `http://localhost:5000/api/tasks/${id}`
-      : `http://localhost:5000/api/tasks`;
+      ? `https://time-management-coach-backend.onrender.com/api/tasks/${id}`
+      : `https://time-management-coach-backend.onrender.com/api/tasks`;
 
     fetch(url, {
       method,
