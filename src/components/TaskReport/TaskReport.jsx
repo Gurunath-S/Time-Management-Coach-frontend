@@ -5,12 +5,13 @@ import './TaskReport.css'
 import Button from '@mui/material/Button';
 import TaskForm from '../TaskForm/TaskForm';
 import { toast } from 'react-toastify'
-
+import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 function TaskReport({ tasks, setTask, filterStatus }) {
   const [filteredTask, setFilteredTask] = useState(tasks);
   const [open, setOpen] = useState(false);
   const [editTask, setEditTask] = useState([]);
-
+  const navigate = useNavigate();
   useEffect(() => {
     let filtered = [];
 
@@ -28,11 +29,13 @@ function TaskReport({ tasks, setTask, filterStatus }) {
     setFilteredTask(filtered);
   }, [tasks, filterStatus]);
 
-  const handleUpdate = (task) => {
-    const updateTask = tasks.map((item, index) => task.id === item.id ? task : item)
+  const handleUpdate = async (task) => {
+    const res = await axios.put(`http://localhost:5000/api/tasks/${task.id}`, task);
+    const updateTask = tasks.map((item, index) => task.id === item.id ? res.data : item)
     setTask(updateTask)
     toast.success('Task Updated')
   }
+
   // const handledelte = () => {
   //   const updatedTasks = tasks.filter((item) => item.id !== editTask.id);
   //   setTask(updatedTasks);
@@ -117,8 +120,9 @@ function TaskReport({ tasks, setTask, filterStatus }) {
                     <button
                       className='editButton'
                       onClick={() => {
-                        setOpen(true);
-                        setEditTask(taskItem);
+                        // setOpen(true);
+                        // setEditTask(taskItem);
+                        navigate(`/edit-tasks/${taskItem.id}`);
                       }}
                       style={{ gap: 10 ,
                         borderColor: getBorderColor(),
@@ -154,13 +158,13 @@ function TaskReport({ tasks, setTask, filterStatus }) {
           </tbody>
         </table>
 
-        <TaskForm
+        {/* <TaskForm
           open={open}
           onSave={handleUpdate}
           onClose={() => setOpen(false)}
           editTask={editTask}
           isUpdate={true}
-        />
+        /> */}
 
       </div>
       </div>
@@ -169,3 +173,5 @@ function TaskReport({ tasks, setTask, filterStatus }) {
 }
 
 export default TaskReport
+
+
