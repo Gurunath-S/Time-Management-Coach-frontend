@@ -34,7 +34,6 @@ function NavComponent({user}) {
             <Nav.Link as={Link} to="/" className="nav-link-custom"><TbLogin2 />Login</Nav.Link>
            )}
             <Nav.Link as={Link} to="/help" className="nav-link-custom"><FiHelpCircle /> Help</Nav.Link>
-            {/* {console.log("aaaaaaaaaa :",user)} */}
             {user && (
               <>
                 <div className="nav-profile" onClick={() => setShowProfile(!showProfile)}>
@@ -53,6 +52,7 @@ function NavComponent({user}) {
                     <p className="profile-name">{user.name}</p>
                     <p className="profile-email">{user.email}</p>
                     <button className="logout-btn" onClick={handleLogout}>Logout</button>
+                    <button className="close-btn" onClick={() => setShowProfile(false)}>close</button>
                   </div>
                 )}
               </>
