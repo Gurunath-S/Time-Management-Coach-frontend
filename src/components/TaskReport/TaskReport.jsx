@@ -7,11 +7,13 @@ import TaskForm from '../TaskForm/TaskForm';
 import { toast } from 'react-toastify'
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+
 function TaskReport({ tasks, setTask, filterStatus }) {
   const [filteredTask, setFilteredTask] = useState(tasks);
   const [open, setOpen] = useState(false);
   const [editTask, setEditTask] = useState([]);
   const navigate = useNavigate();
+  
   useEffect(() => {
     let filtered = [];
 
@@ -23,26 +25,19 @@ function TaskReport({ tasks, setTask, filterStatus }) {
       filtered = tasks.filter(task => task.status === "in progress");
     } else {
       filtered = tasks.filter(task => task.status !== "completed");
-      // filtered = tasks;
     }
 
     setFilteredTask(filtered);
   }, [tasks, filterStatus]);
 
   const handleUpdate = async (task) => {
-    const res = await axios.put(`https://time-management-coach-backend.onrender.com/api/tasks/${task.id}`,{ headers: { Authorization: `Bearer ${localStorage.getItem('token')}`}}, task);
-    const updateTask = tasks.map((item, index) => task.id === item.id ? res.data : item)
+    const res = await axios.put(`http://localhost:5000/api/tasks/${task.id}`, task, {
+      headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
+    });
+    const updateTask = tasks.map((item) => task.id === item.id ? res.data : item)
     setTask(updateTask)
     toast.success('Task Updated')
   }
-
-  // const handledelte = () => {
-  //   const updatedTasks = tasks.filter((item) => item.id !== editTask.id);
-  //   setTask(updatedTasks);
-  //   toast.success('Task Deleted');
-  //   setEditTask(null);
-  //   setOpen(false);
-  // };
 
   const handleSearch = (value) => {
     const searchValue = value.toLowerCase();
@@ -51,19 +46,18 @@ function TaskReport({ tasks, setTask, filterStatus }) {
     );
     setFilteredTask(filteredData);
   };
+  
   const getBorderColor = () => {
-  if (filterStatus === "all") return "#335f8d";
-  if (filterStatus === "completed") return "#28a745";
-  if (filterStatus === "pending") return "#FF0000"; 
-  if (filterStatus === "in progress") return "#ffc107"; 
-};
-
+    if (filterStatus === "all") return "#335f8d";
+    if (filterStatus === "completed") return "#28a745";
+    if (filterStatus === "pending") return "#FF0000"; 
+    if (filterStatus === "in progress") return "#ffc107"; 
+  };
 
   return (
-    <>
     <div className="task-report-container">
       <div className="table-header-row">
-        <h3 className="table-label"
+        <h3 className={`table-label ${filterStatus.replace(/\s/g, '-')}-table`}
           style={{ borderLeft: `5px solid ${getBorderColor()}` }}>
           Showing: {
             filterStatus === 'all'
@@ -86,92 +80,60 @@ function TaskReport({ tasks, setTask, filterStatus }) {
       </div>
 
       <div className="table-container">
-        <table className={`${filterStatus.replace(/\s/g, '-')}-table`}>
-          <thead>
-            <tr>
-              <th className="th">Task Name</th>
-              <th className="th">Created Date</th>
-              <th className="th">Due Date</th>
-              <th className="th">Priority</th>
-              <th className="th">Status</th>
-              <th className="th">Assigned To</th>
-              <th className="th">Action</th>
-            </tr>
-          </thead>
-          <tbody>
-            {filteredTask.length === 0 ? (
+        <div className="table-wrapper">
+          <table className={`table ${filterStatus.replace(/\s/g, '-')}-table`}>
+            <thead>
               <tr>
-                <td colSpan="7" style={{ textAlign: "center", padding: "10px" }}>
-                  No tasks found
-                </td>
+                <th className="th">Task Name</th>
+                <th className="th">Created Date</th>
+                <th className="th">Due Date</th>
+                <th className="th">Priority</th>
+                <th className="th">Status</th>
+                <th className="th">Assigned To</th>
+                <th className="th">Action</th>
               </tr>
-            ) : (
-              
-                filteredTask.filter(task => Object.values(task).some(val => val !== null && val !== ''))
-                .map((taskItem, index) => (
-                <tr key={index}>
-                  <td className="td">{taskItem.title}</td>
-                  <td className="td">{new Date(taskItem.created_at).toLocaleDateString('en-GB')}</td>
-                  <td className="td">{new Date(taskItem.due_date).toLocaleDateString('en-GB')}</td>
-                  <td className="td">{taskItem.priority}</td>
-                  <td className="td">{taskItem.status}</td>
-                  <td className="td">{taskItem.assigned_to}</td>
-                  <td>
-                    <button
-                      className='editButton'
-                      onClick={() => {
-                        // setOpen(true);
-                        // setEditTask(taskItem);
-                        navigate(`/edit-tasks/${taskItem.id}`);
-                      }}
-                      style={{ gap: 10 ,
-                        borderColor: getBorderColor(),
-                        backgroundColor: getBorderColor(), 
-                        color: 'white', 
-                        borderRadius: '5px',
-                        fontSize: '14px' , 
-                        width: '100px',
-                        marginLeft: '10px',
-                        marginRight: '10px',
-                        marginTop: '10px',
-                        marginBottom: '10px',
-                        cursor: 'pointer',
-                      }}
-                    >
-                      <MdEdit fontSize={18} />
-                      Edit Task
-                    </button>
-                    {/* <button
-                      style={{ gap: 10 }}
-                      onClick={() => {
-                        setEditTask(taskItem);
-                        handledelte();
-                        
-                      }}
-                    >
-                      Delete
-                    </button> */}
+            </thead>
+            <tbody>
+              {filteredTask.length === 0 ? (
+                <tr>
+                  <td colSpan="7" className="td empty-state">
+                    No tasks found
                   </td>
                 </tr>
-              ))
-            )}
-          </tbody>
-        </table>
-
-        {/* <TaskForm
-          open={open}
-          onSave={handleUpdate}
-          onClose={() => setOpen(false)}
-          editTask={editTask}
-          isUpdate={true}
-        /> */}
-
+              ) : (
+                filteredTask
+                  .filter(task => Object.values(task).some(val => val !== null && val !== ''))
+                  .map((taskItem, index) => (
+                    <tr key={index}>
+                      <td className="td">{taskItem.title}</td>
+                      <td className="td">{new Date(taskItem.created_at).toLocaleDateString('en-GB')}</td>
+                      <td className="td">{new Date(taskItem.due_date).toLocaleDateString('en-GB')}</td>
+                      <td className="td">{taskItem.priority}</td>
+                      <td className="td">{taskItem.status}</td>
+                      <td className="td">{taskItem.assigned_to}</td>
+                      <td className="td">
+                        <button
+                          className='editButton'
+                          onClick={() => {
+                            navigate(`/edit-tasks/${taskItem.id}`);
+                          }}
+                          style={{ 
+                            backgroundColor: getBorderColor(),
+                          }}
+                        >
+                          <MdEdit fontSize={16} />
+                          Edit
+                        </button>
+                      </td>
+                    </tr>
+                  ))
+              )}
+            </tbody>
+          </table>
+        </div>
       </div>
-      </div>
-    </>
+    </div>
   );
 }
 
 export default TaskReport
-
-
