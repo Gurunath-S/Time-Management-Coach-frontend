@@ -1,4 +1,3 @@
-/* === NAVBAR STYLING === */
 .custom-navbar {
   background: linear-gradient(90deg, #4e54c8, #8f94fb);
   padding: 12px 0;
@@ -31,21 +30,6 @@
   border-bottom: 2px solid #fff;
 }
 
-/* === PROFILE DROPDOWN === */
-.profile-dropdown {
-  position: absolute;
-  top: 70px;
-  right: 30px;
-  background-color: #ffffff;
-  border-radius: 14px;
-  padding: 1.2rem 1rem;
-  width: 260px;
-  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);
-  text-align: center;
-  transition: all 0.3s ease;
-  animation: fadeIn 0.2s ease-in-out;
-}
-
 @keyframes fadeIn {
   from {
     opacity: 0;
@@ -55,15 +39,6 @@
     opacity: 1;
     transform: translateY(0);
   }
-}
-
-.profile-pic {
-  width: 72px;
-  height: 72px;
-  border-radius: 50%;
-  object-fit: cover;
-  border: 2px solid #8f94fb;
-  margin-bottom: 10px;
 }
 
 .profile-name {
@@ -84,15 +59,33 @@
   background-color: #ff5252;
   color: #fff;
   border: none;
-  padding: 8px 16px;
+  padding: 6px 14px;
   font-size: 0.9rem;
-  border-radius: 8px;
+  border-radius: 5px;
   cursor: pointer;
   transition: all 0.2s ease;
 }
 
 .logout-btn:hover {
-  background-color: #d63031;
+  background-color: #ff3232;
+  transform: scale(1.05);
+}
+
+.close-btn {
+  background-color: #6eace6;
+  color: #fff;
+  border: none;
+  padding: 6px 14px;
+  font-weight: 600;
+  margin-left: 10px;
+  font-size: 0.9rem;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.close-btn:hover {
+  background-color: #2f8de6;
   transform: scale(1.05);
 }
 
@@ -116,16 +109,6 @@
   align-items: center;
   margin-left: 15px;
 }
-
-.nav-avatar {
-  width: 40px;
-  height: 40px;
-  object-fit: cover;
-  border-radius: 50%;
-  border: 2px solid #fff;
-  transition: transform 0.2s ease;
-}
-
 .nav-avatar:hover {
   transform: scale(1.05);
 }
@@ -150,73 +133,9 @@
   to { opacity: 1; transform: translateY(0); }
 }
 
-.profile-pic {
-  width: 64px;
-  height: 64px;
-  border-radius: 50%;
-  object-fit: cover;
-  margin-bottom: 0.5rem;
-}
-.nav-avatar,
 .profile-img {
   width: 40px;
   height: 40px;
   border-radius: 50%;
   object-fit: cover;
-}
-
-
-.profile-name {
-  font-weight: 500;
-  margin: 0.5rem 0 0.2rem;
-}
-
-.profile-email {
-  font-size: 0.9rem;
-  color: #555;
-  margin: 0.2rem 0 0.8rem;
-}
-
-.logout-btn {
-  background-color: #e74c3c;
-  color: white;
-  border: none;
-  padding: 6px 12px;
-  border-radius: 6px;
-  cursor: pointer;
-}
-
-.logout-btn:hover {
-  background-color: #c0392b;
-}
-
-/* /chnages  */
-.profile-dropdown {
-  position: absolute;
-  right: 20px;
-  top: 60px;
-  background: white;
-  padding: 1rem;
-  border-radius: 8px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  width: 200px;
-  z-index: 10;
-  text-align: center;
-}
-.profile-name {
-  font-weight: 600;
-  color: #333;
-}
-.profile-email {
-  font-size: 0.9rem;
-  color: #666;
-}
-.logout-btn {
-  margin-top: 1rem;
-  background: #e74c3c;
-  color: white;
-  padding: 6px 12px;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
 }
