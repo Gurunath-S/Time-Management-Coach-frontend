@@ -28,8 +28,8 @@ function Home(isLoggedIn) {
     const taskdata = async () => {
       try {
         const [taskRes, qtaskRes] = await Promise.all([
-          axios.get('http://localhost:5000/api/tasks',{ headers: { Authorization: `Bearer ${localStorage.getItem('token')}`}}),
-          axios.get('http://localhost:5000/api/qtasks',{ headers: { Authorization: `Bearer ${localStorage.getItem('token')}`}})
+          axios.get('https://time-management-coach-backend.onrender.com/api/tasks',{ headers: { Authorization: `Bearer ${localStorage.getItem('token')}`}}),
+          axios.get('https://time-management-coach-backend.onrender.com/api/qtasks',{ headers: { Authorization: `Bearer ${localStorage.getItem('token')}`}})
         ]);
         setTask(taskRes.data);
         setQtask(qtaskRes.data);
