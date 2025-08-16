@@ -1,41 +1,45 @@
 .table {
-  width: 80%;
+  width: 100%;
   border-collapse: collapse;
   border: 1px solid #ddd;
   font-family: Arial, sans-serif;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-  transition: background-color 0.3s ease-in-out;
+  background: white;
 }
 
 .task-report-container {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  flex-direction: column;
-  margin-bottom: 40px;
+  padding: 15px;
+}
+
+.table-wrapper {
+  max-height: 400px;
+  overflow-y: auto;
+  border: 1px solid #ddd;
+  border-radius: 4px;
 }
 
 thead tr .th {
-  background-color: #343a40;
+  background-color: #335f8d;
   color: #ffffff;
-  padding: 12px 15px;
-  border: 1px solid #dee2e6;
+  padding: 12px;
+  border: 1px solid #ddd;
   text-align: left;
+  font-weight: 600;
+  position: sticky;
+  top: 0;
 }
 
 .td {
-  padding: 12px 15px;
-  border: 1px solid #dee2e6;
-  background-color: #f8f9fa;
-}
-
-tr:hover .td {
-  background-color: #e2e6ea;
-  transition: background-color 0.3s ease;
+  padding: 12px;
+  border: 1px solid #ddd;
+  background-color: #fff;
 }
 
 tr:nth-child(even) .td {
-  background-color: #f1f3f5;
+  background-color: #f9f9f9;
+}
+
+tr:hover .td {
+  background-color: #f0f0f0;
 }
 
 .table-label {
@@ -53,80 +57,32 @@ tr:nth-child(even) .td {
 
 .table-container,
 .qtask-table-container {
-  animation: fadeIn 0.3s ease-in-out;
   width: 100%;
-  max-width: none;
-  flex: 1;
-  box-sizing: border-box;
 }
 
-@media (max-width: 768px) {
-  .table {
-    font-size: 0.9rem;
-    overflow-x: auto;
-  }
-
-  .td, .th {
-    word-break: break-word;
-    padding: 8px;
-  }
-
-  .task-report-container {
-    margin-bottom: 20px;
-  }
-
-  .table-container,
-  .qtask-table-container {
-    width: 100%;
-    max-width: none;
-  }
-
-  .table-label {
-    font-size: 1rem;
-    padding: 6px 12px;
-    margin: 10px 0;
-  }
-}
-
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(5px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
 .qtask-table-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  flex-wrap: wrap;
-  margin-bottom: 10px;
-  width: 100%;
-  gap: 10px;
-}
-
-.qtask-header-right {
-  display: flex;
-  align-items: center;
+  margin-bottom: 15px;
   gap: 10px;
 }
 
 @media (max-width: 768px) {
   .qtask-table-header {
     flex-direction: column;
-    align-items: flex-start;
+    align-items: stretch;
   }
 
-  .table-label {
-    width: 100%;
-    text-align: left;
+  .table {
+    font-size: 14px;
   }
 
-  .qtask-header-right {
-    width: 100%;
-    justify-content: flex-start;
+  .td, .th {
+    padding: 8px;
+  }
+
+  .task-report-container {
+    padding: 10px;
   }
 }
