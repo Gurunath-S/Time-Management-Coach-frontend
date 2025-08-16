@@ -19,19 +19,21 @@ function App() {
     if (!token) return;
 
     try {
-      const res = await fetch('https://time-management-coach-backend.onrender.com/api/profile', {
+      const res = await fetch('http://localhost:5000/api/profile', {
         headers: { Authorization: `Bearer ${token}` },
+
       });
       const data = await res.json();
       if (data.user) {
         setUser(data.user);
         setIsLoggedIn(true);
+        typeof(isLoggedIn)
       }
-      // else {
-      //   localStorage.removeItem('token');
-      //   setIsLoggedIn(false);
-      //   setUser(null);
-      // }
+      else {
+        localStorage.removeItem('token');
+        setIsLoggedIn(false);
+        setUser(null);
+      }
     } catch (err) {
       console.error("Profile fetch failed", err);
     }
