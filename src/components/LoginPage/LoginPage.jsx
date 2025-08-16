@@ -10,7 +10,7 @@ function LoginPage({onLoginSuccess}) {
   const handleCredentialResponse = useCallback(async (response) => {
     setLoading(true);
     try {
-      const res = await fetch('https://time-management-coach-backend.onrender.com/api/auth/google-login', {
+      const res = await fetch('http://localhost:5000/api/auth/google-login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -19,10 +19,9 @@ function LoginPage({onLoginSuccess}) {
       });
 
       const data = await res.json();
-
+      
       if (res.ok) {
         localStorage.setItem('token', data.token);
-        console.log('Login success, navigating to /home');
         if(onLoginSuccess){
             await onLoginSuccess();
         }
