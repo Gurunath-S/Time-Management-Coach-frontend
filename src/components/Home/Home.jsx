@@ -21,15 +21,19 @@ function Home(isLoggedIn) {
       localStorage.removeItem('token');
       console.log("User not logged in, redirecting to login page");
       navigate('/login');
-    }else {
+    } else {
       console.log("User is logged in, fetching tasks");
     }
 
     const taskdata = async () => {
       try {
         const [taskRes, qtaskRes] = await Promise.all([
-          axios.get('https://time-management-coach-backend.onrender.com/api/tasks',{ headers: { Authorization: `Bearer ${localStorage.getItem('token')}`}}),
-          axios.get('https://time-management-coach-backend.onrender.com/api/qtasks',{ headers: { Authorization: `Bearer ${localStorage.getItem('token')}`}})
+          axios.get('http://localhost:5000/api/tasks', { 
+            headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
+          }),
+          axios.get('http://localhost:5000/api/qtasks', { 
+            headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
+          })
         ]);
         setTask(taskRes.data);
         setQtask(qtaskRes.data);
@@ -41,11 +45,10 @@ function Home(isLoggedIn) {
   }, []);
 
   const scrollToTasks = () => {
-  if (taskTableRef.current) {
-    taskTableRef.current.scrollIntoView({ behavior: "smooth" });
-  }
-};
-
+    if (taskTableRef.current) {
+      taskTableRef.current.scrollIntoView({ behavior: "smooth" });
+    }
+  };
 
   return (
     <div className="main">
@@ -59,22 +62,38 @@ function Home(isLoggedIn) {
         />
       </div>
       <div className="top-right">
-        <TaskCount tasks={task} setFilterStatus={setFilterStatus} scrollToTasks={scrollToTasks} />
+        <TaskCount 
+          tasks={task} 
+          setFilterStatus={setFilterStatus} 
+          scrollToTasks={scrollToTasks} 
+        />
       </div>
       <div className="task-tables-container">
-        <div className="main-tasks-table" ref={taskTableRef}>
-          {hideTable && (
-            <div className="bottom-row">
-              <TaskReport tasks={task} setTask={setTask} filterStatus={filterStatus} onClick={scrollToTasks}/>
-            </div>
-          )}
+        <div className="home-task-wrapper">
+          <div className="main-tasks-table" ref={taskTableRef}>
+            {hideTable && (
+              <div className="bottom-row">
+                <TaskReport 
+                  tasks={task} 
+                  setTask={setTask} 
+                  filterStatus={filterStatus} 
+                />
+              </div>
+            )}
+          </div>
         </div>
-        <div className="quick-tasks-table">
-          {hideTable && (
-            <div className="bottom-row">
-              <QtaskReport qtasks={qtask} setQtasks={setQtask} />
-            </div>
-          )}
+
+        <div className="home-task-wrapper">
+          <div className="quick-tasks-table">
+            {hideTable && (
+              <div className="bottom-row">
+                <QtaskReport 
+                  qtasks={qtask} 
+                  setQtasks={setQtask} 
+                />
+              </div>
+            )}
+          </div>
         </div>
       </div>
     </div>
