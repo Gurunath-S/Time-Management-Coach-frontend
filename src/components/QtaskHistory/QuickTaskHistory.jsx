@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+
 import './QuickTaskHistory.css';
 
 function QuickTaskHistory() {
@@ -9,9 +10,14 @@ function QuickTaskHistory() {
     if (stored) setQtasks(JSON.parse(stored));
   }, []);
 
+  const goBack = () => {
+    window.history.back();
+  };
+
   return (
     <div className="qth-container">
       <h2>All Quick Task History</h2>
+      <button className="qth-back-button" onClick={goBack}>Back</button>
       <div className="qth-table-wrapper">
         <table className="qth-table">
           <thead>
