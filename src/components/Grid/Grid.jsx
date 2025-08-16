@@ -70,7 +70,7 @@ function Grid({ title, taskList, color, colorIndex, isFocusMode, onEditTask, onE
                       <strong>{index + 1}. {task.title}</strong>
                       <br />
                       <span style={{ fontSize: '14px', color: '#666' }}>
-                        Due: {new Date(task.due_date).toLocaleDateString('en-GB')}
+                        Due: {new Date(task.due_date).toLocaleDateString('en-GB')|| " Not Set"}
                         {task?.suggestion && <strong style={{ color: "red", marginLeft: '8px' }}>{task.suggestion}</strong>}
                       </span>
                     </span>
@@ -91,7 +91,7 @@ function Grid({ title, taskList, color, colorIndex, isFocusMode, onEditTask, onE
                         onClick={() => onEditPriorityTags(task)}
                         style={{
                           minWidth: 'auto',
-                          padding: '6px 12px',
+                          padding: '2px 10px',
                           backgroundColor: '#ad5fecff',
                           color: 'white',
                           borderRadius: '8px'
