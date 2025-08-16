@@ -28,7 +28,7 @@ function QtaskReport({ qtasks, setQtasks}) {
      
       <h3 className="table-label"
       style={{ borderLeft: '5px solid #335f8d' }}>
-      Showing: All Quick Tasks
+      Showing: Todays's Quick Tasks
     </h3>
 
         <div className="qtask-table-container">
