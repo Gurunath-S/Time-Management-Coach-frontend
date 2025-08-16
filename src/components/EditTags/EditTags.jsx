@@ -90,27 +90,32 @@ export default function EditPriorityTags() {
   });
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    const fetchTask = async () => {
-      try {
-        const res = await fetch(`https://time-management-coach-backend.onrender.com/api/tasks/${id}`);
-        if (!res.ok) throw new Error("Failed to fetch task");
-        const data = await res.json();
-        setTask(data);
-        setTags(data.priority_tags || {
-          complexity: [],
-          type: [],
-          category: [],
-          impact: []
-        });
-      } catch (err) {
-        console.error(err);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchTask();
-  }, [id]);
+    useEffect(() => {
+      const fetchTask = async () => {
+        try {
+          const res = await fetch(`https://time-management-coach-backend.onrender.com/api/tasks/${id}`, {
+            headers: {
+              'Authorization': `Bearer ${localStorage.getItem('token')}`
+            }
+          });
+          if (!res.ok) throw new Error("Failed to fetch task");
+          const data = await res.json();
+          setTask(data);
+          setTags(data.priority_tags || {
+            complexity: [],
+            type: [],
+            category: [],
+            impact: []
+          });
+        } catch (err) {
+          console.error(err);
+        } finally {
+          setLoading(false);
+        }
+      };
+      fetchTask();
+    }, [id]);
+
 
   const handleChange = (group) => (event) => {
     setTags(prev => ({
@@ -119,20 +124,24 @@ export default function EditPriorityTags() {
     }));
   };
 
-  const handleSubmit = async () => {
-    try {
-      const updatedTask = { ...task, priority_tags: tags };
-      const res = await fetch(`https://time-management-coach-backend.onrender.com/api/tasks/${id}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(updatedTask)
-      });
-      if (!res.ok) throw new Error("Failed to update task");
-      navigate("/");
-    } catch (err) {
-      console.error(err);
-    }
-  };
+    const handleSubmit = async () => {
+      try {
+        const updatedTask = { ...task, priority_tags: tags };
+        const res = await fetch(`https://time-management-coach-backend.onrender.com/api/tasks/${id}`, {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${localStorage.getItem('token')}`
+          },
+          body: JSON.stringify(updatedTask)
+        });
+        if (!res.ok) throw new Error("Failed to update task");
+        navigate("/");
+      } catch (err) {
+        console.error(err);
+      }
+    };
+
 
   if (loading) {
     return (
