@@ -24,7 +24,11 @@ function EditTaskPage() {
 
   useEffect(() => {
     if (isUpdate) {
-      fetch(`https://time-management-coach-backend.onrender.com/api/tasks/${id}`)
+      fetch(`http://localhost:5000/api/tasks/${id}`, {
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
+        }
+      })
         .then((res) => res.json())
         .then((data) => {
           const formatDate = (dateString) => {
@@ -34,16 +38,28 @@ function EditTaskPage() {
             ).padStart(2, '0')}`;
           };
 
-          setTaskId(data.id);
-          setTitle(data.title);
-          setCreatedAt(formatDate(data.created_at));
-          setDueDate(data.due_date ? formatDate(data.due_date) : '');
-          setPriority(data.priority || '');
-          setNote(data.note || '');
-          setReason(data.reason || '');
-          setStatus(data.status || '');
-          setAssignedTo(data.assigned_to || '');
-        })
+            const safeData = {
+                id: data.id || '',
+                title: data.title || '',
+                created_at: data.created_at ? formatDate(data.created_at) : '',
+                due_date: data.due_date ? formatDate(data.due_date) : '',
+                priority: data.priority || '',
+                note: data.note || '',
+                reason: data.reason || '',
+                status: data.status || '',
+                assigned_to: data.assigned_to || '',
+              };
+
+              setTaskId(safeData.id);
+              setTitle(safeData.title);
+              setCreatedAt(safeData.created_at);
+              setDueDate(safeData.due_date);
+              setPriority(safeData.priority);
+              setNote(safeData.note);
+              setReason(safeData.reason);
+              setStatus(safeData.status);
+              setAssignedTo(safeData.assigned_to);
+            })
         .catch((err) => {
           console.error(err);
           toast.error('Failed to fetch task');
@@ -68,12 +84,15 @@ function EditTaskPage() {
 
     const method = isUpdate ? 'PUT' : 'POST';
     const url = isUpdate
-      ? `https://time-management-coach-backend.onrender.com/api/tasks/${id}`
-      : `https://time-management-coach-backend.onrender.com/api/tasks`;
+      ? `http://localhost:5000/api/tasks/${id}`
+      : `http://localhost:5000/api/tasks`;
 
     fetch(url, {
       method,
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${localStorage.getItem('token')}`
+      },
       body: JSON.stringify(cleanedTask),
     })
       .then((res) => {
