@@ -67,16 +67,16 @@ function TaskForm({ open, onSave, onClose, editTask = null, setTask }) {
         const handleSave = (e) => {
             e.preventDefault();
 
-            // Pass clean task back to parent (FourQuadrants)
-            onClose(); // Close the modal
+            // Passing clean task back to parent FourQuadrants
+            onClose();
             const cleanedTask = {
                 ...newtask,
                 created_at: new Date(newtask.created_at),
-                due_date: new Date(newtask.due_date) || "",
+                due_date: new Date(newtask.due_date),
                 id: newtask.id || uuidv4(),
             };
 
-            // Send to parent
+            // Send to parent FourQuadrants
             if (typeof onSave === 'function') {
                 onSave(cleanedTask);
                 setNewTask({
@@ -90,6 +90,7 @@ function TaskForm({ open, onSave, onClose, editTask = null, setTask }) {
                 status: "",
                 assigned_to: "",
             })
+   
             }
         };
 
@@ -144,7 +145,9 @@ function TaskForm({ open, onSave, onClose, editTask = null, setTask }) {
                                 name="priority"
                                 value={newtask.priority}
                                 onChange={handlechange}
-                                defaultValue="" required>
+                                defaultValue="" 
+                                style={{}}
+                                required>
                                 <MenuItem value="high">High</MenuItem>
                                 <MenuItem value="normal">Normal</MenuItem>
                                 <MenuItem value="low">Low</MenuItem>
