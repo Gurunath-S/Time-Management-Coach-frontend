@@ -94,15 +94,16 @@ function TaskForm({ open, onSave, onClose, editTask = null, setTask }) {
             }
         };
 
-
-
     return (
         <>
             <Dialog open={open}>
                 <form className="dialog-form" onSubmit={handleSave}>
-                    <DialogTitle style={{ textAlign: "center", color: 'blue' }}>{isUpdate ? 'Edit Task' : 'Add Task'}</DialogTitle>
+                    <DialogTitle style={{ textAlign: "center", color: 'blue' }}>
+                        {isUpdate ? 'Edit Task' : 'Add Task'}
+                    </DialogTitle>
                     <DialogContent>
-                        <div className="form-row">
+                        {/* Task Name - Full Width */}
+                        <div className="form-row full-width">
                             <label>Task Name</label>
                             <TextField
                                autoFocus
@@ -114,48 +115,99 @@ function TaskForm({ open, onSave, onClose, editTask = null, setTask }) {
                                 onChange={handlechange}
                             />
                         </div>
-                        <div className="form-row">
-                            <label>Task Create Date</label>
-                            <TextField
-                                
-                                required
-                                type="date"
-                                name="created_at"
-                                variant="outlined"
-                                value={newtask.created_at}
-                                InputLabelProps={{ shrink: true }}
-                                onChange={handlechange}
-                            />
-                        </div>
-                        <div className="form-row">
-                            <label>Due Date</label>
-                            <TextField
-                                type="date"
-                                name="due_date"
-                                variant="outlined"
-                                value={newtask.due_date}
-                                InputLabelProps={{ shrink: true }}
-                                onChange={handlechange}
-                            />
+
+                        {/* Two Column Layout */}
+                        <div className="form-columns">
+                            {/* Left Column */}
+                            <div className="form-column">
+                                <div className="form-row">
+                                    <label>Task Create Date</label>
+                                    <TextField
+                                        required
+                                        type="date"
+                                        name="created_at"
+                                        variant="outlined"
+                                        value={newtask.created_at}
+                                        InputLabelProps={{ shrink: true }}
+                                        onChange={handlechange}
+                                    />
+                                </div>
+
+                                <div className="form-row">
+                                    <label>Priority (Optional)</label>
+                                    <Select
+                                        name="priority"
+                                        value={newtask.priority}
+                                        onChange={handlechange}
+                                        defaultValue="" 
+                                        required>
+                                        <MenuItem value="high">High</MenuItem>
+                                        <MenuItem value="normal">Normal</MenuItem>
+                                        <MenuItem value="low">Low</MenuItem>
+                                        <MenuItem value="" disabled></MenuItem>
+                                    </Select>
+                                </div>
+
+                                <div className="form-row">
+                                    <label>Status</label>
+                                    <Select name="status"
+                                        value={newtask.status}
+                                        defaultValue=""
+                                        onChange={handlechange}
+                                        required>
+                                        <MenuItem value="completed">Completed</MenuItem>
+                                        <MenuItem value="pending">Pending</MenuItem>
+                                        <MenuItem value="in progress">In Progress</MenuItem>
+                                    </Select>
+                                </div>
+                            </div>
+
+                            {/* Right Column */}
+                            <div className="form-column">
+                                <div className="form-row">
+                                    <label>Due Date</label>
+                                    <TextField
+                                        type="date"
+                                        name="due_date"
+                                        variant="outlined"
+                                        value={newtask.due_date}
+                                        InputLabelProps={{ shrink: true }}
+                                        onChange={handlechange}
+                                    />
+                                </div>
+
+                                <div className="form-row">
+                                    <label>Assigned To</label>
+                                    <Select
+                                        name="assigned_to"
+                                        value={newtask.assigned_to}
+                                        defaultValue=""
+                                        onChange={handlechange} 
+                                        required>
+                                        <MenuItem value="user1">User 1</MenuItem>
+                                        <MenuItem value="user2">User 2</MenuItem>
+                                        <MenuItem value="user3">User 3</MenuItem>
+                                    </Select>
+                                </div>
+
+                                <div className="form-row">
+                                    <label>Note (Optional)</label>
+                                    <TextField
+                                        type="text"
+                                        name="note"
+                                        variant="outlined"
+                                        value={newtask.note || ""}
+                                        onChange={handlechange}
+                                        multiline
+                                        rows={2}
+                                    />
+                                </div>
+                            </div>
                         </div>
 
-                        <div className="form-row">
-                            <label>Priority (Optional)</label>
-                            <Select
-                                name="priority"
-                                value={newtask.priority}
-                                onChange={handlechange}
-                                defaultValue="" 
-                                style={{}}
-                                required>
-                                <MenuItem value="high">High</MenuItem>
-                                <MenuItem value="normal">Normal</MenuItem>
-                                <MenuItem value="low">Low</MenuItem>
-                                <MenuItem value="" disabled></MenuItem>
-                            </Select>
-                        </div>
+                        {/* High Priority Reason - Full Width */}
                         {newtask.priority === "high" && (
-                            <div className="form-row">
+                            <div className="form-row full-width">
                                 <label>Reason for High Priority</label>
                                 <TextField
                                 required
@@ -164,56 +216,23 @@ function TaskForm({ open, onSave, onClose, editTask = null, setTask }) {
                                 variant="outlined"
                                 value={newtask.reason || ""}
                                 onChange={handlechange}
+                                multiline
+                                rows={2}
                                 />
                             </div>
-                            )}
-
-                            <div className="form-row">
-                            <label>Note (Optional)</label>
-                            <TextField
-                                type="text"
-                                name="note"
-                                variant="outlined"
-                                value={newtask.note || ""}
-                                onChange={handlechange}
-                            />
-                            </div>
-
-                        <div className="form-row">
-                            <label>Status</label>
-                            <Select name="status"
-                              
-                                value={newtask.status}
-                                defaultValue=""
-                                onChange={handlechange}required>
-                                <MenuItem value="completed">Completed</MenuItem>
-                                <MenuItem value="pending">Pending</MenuItem>
-                                <MenuItem value="in progress">In Progress</MenuItem>
-                            </Select>
-                        </div>
-
-                        <div className="form-row">
-                            <label>Assigned To</label>
-                            <Select
-                               
-                                name="assigned_to"
-                                value={newtask.assigned_to}
-                                defaultValue=""
-                                onChange={handlechange} required>
-                                <MenuItem value="user1">User 1</MenuItem>
-                                <MenuItem value="user2">User 2</MenuItem>
-                                <MenuItem value="user3">User 3</MenuItem>
-                            </Select>
-                        </div>
+                        )}
                     </DialogContent>
 
                     <DialogActions>
-                        <Button style={{backgroundColor:"#a1a1a1ff", color:"white"}} onClick={onClose}>Cancel</Button> 
-                         <Button style={{backgroundColor:"#0b87b1ff", color:"white"}} type='submit'>Save</Button> {/*{ isUpdate ? "Edit" : "Save"} */}
+                        <Button style={{backgroundColor:"#a1a1a1ff", color:"white"}} onClick={onClose}>
+                            Cancel
+                        </Button> 
+                        <Button style={{backgroundColor:"#0b87b1ff", color:"white"}} type='submit'>
+                            Save
+                        </Button>
                     </DialogActions>
                 </form>
             </Dialog>
-
         </>
     )
 }
