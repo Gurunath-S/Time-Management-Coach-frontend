@@ -30,10 +30,55 @@
   justify-content: flex-end;
 }
 
-
 .MuiDialog-paper {
-  min-width: 550px;
+  min-width: 700px;
   max-width: 95%;
   padding: 16px;
   border-radius: 12px;
+}
+
+/* Two Column Layout */
+.form-columns {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  margin-bottom: 12px;
+}
+
+.form-column {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* Full width rows */
+.full-width {
+  grid-column: 1 / -1;
+  width: 100%;
+}
+
+/* Fix dropdown menu width */
+.dialog-form .MuiSelect-root .MuiMenu-paper {
+  min-width: auto !important;
+  max-width: 300px !important;
+}
+
+/* Override MUI Select menu positioning */
+.MuiPopover-paper {
+  min-width: auto !important;
+  max-width: 300px !important;
+}
+
+/* Mobile responsive */
+@media (max-width: 768px) {
+  .MuiDialog-paper {
+    min-width: 350px;
+    max-width: 95%;
+    margin: 10px;
+  }
+  
+  .form-columns {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
 }
