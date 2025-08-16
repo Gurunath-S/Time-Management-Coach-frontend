@@ -79,10 +79,11 @@ export default function QuickTaskModal({ open, onClose, onSave }) {
     };
     
     try {
-      const req = await fetch('https://time-management-coach-backend.onrender.com/api/qtasks', {
+      const req = await fetch('http://localhost:5000/api/qtasks', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          Authorization: `Bearer ${localStorage.getItem('token')}`
         },
         body: JSON.stringify(quickLog),
       });
