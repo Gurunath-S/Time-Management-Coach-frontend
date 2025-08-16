@@ -12,7 +12,9 @@ import { FaChevronDown, FaChevronRight } from 'react-icons/fa';
 import Chip from '@mui/material/Chip';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import './FourQuadrants.css';
 const label = { inputProps: { 'aria-label': 'Size switch demo' } };
+
 
 function FourQuadrants({ tasks, setTask, setHideTable, setQtasks }) {
   const color = ["#2196F3", "#F44336", "#000000", "#FF9800"];
@@ -35,6 +37,62 @@ function FourQuadrants({ tasks, setTask, setHideTable, setQtasks }) {
     impact: []
   });
   const [showGlobalFilters, setShowGlobalFilters] = useState(false);
+
+  useEffect(() => {
+  const saved = localStorage.getItem("focusMode");
+  if (saved) {
+    const { isFocusMode, startTime } = JSON.parse(saved);
+    if (isFocusMode) {
+      setIsFocusMode(true);
+      setStartTime(startTime);
+    }
+  }
+}, []);
+
+    useEffect(() => {
+    const categorizeTasksByPriority = (tasks) => {
+      const impUrgentGrid = [], impNotUrgentGrid = [], notImpUrgentGrid = [], notImpNotUrgentGrid = [];
+      const today = new Date();
+      const offsetToday = new Date(today.getTime() + 5.5 * 60 * 60 * 1000);
+      const todayDate = offsetToday.toISOString().split("T")[0];
+      let weekLastDate = new Date(offsetToday);
+      weekLastDate.setDate(weekLastDate.getDate() + 5);
+      weekLastDate = weekLastDate.toISOString().split("T")[0];
+
+      for (let single of tasks) {
+        if (single.status === "completed") continue;
+        const dueDate = single.due_date ? new Date(single.due_date).toISOString().split("T")[0] : null;
+        const createdAt = single.created_at ? new Date(single.created_at).toISOString().split("T")[0] : null;
+
+        if (!dueDate) {
+          notImpNotUrgentGrid.push(single);
+          continue;
+        }
+        if (dueDate === todayDate && single.priority === "high") {
+          impUrgentGrid.push(single);
+        } else if (dueDate > todayDate && dueDate <= weekLastDate && (single.priority === "high" || single.priority === "normal")) {
+          impNotUrgentGrid.push(single);
+        } else if (createdAt === todayDate && dueDate === todayDate) {
+          notImpUrgentGrid.push(single);
+        } else if (dueDate < todayDate && single.priority === "high") {
+          single.suggestion = "overdueTask";
+          impUrgentGrid.push(single);
+        } else {
+          notImpNotUrgentGrid.push(single);
+        }
+      }
+
+      const updatedTask = [
+        { title: "Important & Not Urgent", list: impNotUrgentGrid },
+        { title: "Important & Urgent", list: impUrgentGrid },
+        { title: "Not Important & Not Urgent", list: notImpNotUrgentGrid },
+        { title: "Not Important & Urgent", list: notImpUrgentGrid }
+      ];
+      setGridData(updatedTask);
+    };
+
+    categorizeTasksByPriority(tasks);
+  }, [tasks]);
 
   // Calculate available filters across all tasks
   const globalAvailableFilters = useMemo(() => {
@@ -92,46 +150,68 @@ function FourQuadrants({ tasks, setTask, setHideTable, setQtasks }) {
     }
   };
 
-  const startFocusMode = () => {
-    setIsFocusMode(true);
-    setStartTime(Date.now());
-    const initialCounts = {};
-    gridData.forEach(grid => {
-      initialCounts[grid.title] = grid.list.length;
-    });
-    setPreFocusGridCount(initialCounts);
-    toast.info("Focus Mode Started!");
-  };
+    const startFocusMode = () => {
+      const now = Date.now();
+      localStorage.setItem("focusMode", JSON.stringify({
+        isFocusMode: true,
+        startTime: now,
+      }));
+
+      setIsFocusMode(true);
+      setStartTime(now);
+
+      const initialCounts = {};
+      gridData.forEach(grid => {
+        initialCounts[grid.title] = grid.list.length;
+      });
+      setPreFocusGridCount(initialCounts);
+
+      toast.info("Focus Mode Started!");
+    };
 
   const handleEditTask = (task) => {
     setEditTask(task);
     setOpen(true);
   };
 
-  const endFocusMode = () => {
-    setIsFocusMode(false);
-    const endTime = Date.now();
-    const timeSpent = Math.floor((endTime - startTime) / 1000);
-    const postCounts = {};
-    gridData.forEach(grid => {
-      postCounts[grid.title] = grid.list.length;
-    });
-    console.log("Focus Mode Time (sec):", timeSpent);
-    console.log("Before:", preFocusGridCount);
-    console.log("After:", postCounts);
-    toast.success(`Focus Mode Ended. Time Spent: ${timeSpent}s`);
+  const formatTime = (seconds) => {
+    const hrs = Math.floor(seconds / 3600);
+    const mins = Math.floor((seconds % 3600) / 60);
+    const secs = seconds % 60;
+
+    if (hrs > 0) return `${hrs}h ${mins}m ${secs}s`;
+    if (mins > 0) return `${mins}m ${secs}s`;
+    return `${secs}s`;
   };
+
+    const endFocusMode = () => {
+      localStorage.removeItem("focusMode");
+        setIsFocusMode(false);
+        const endTime = Date.now();
+        const timeSpent = Math.floor((endTime - startTime) / 1000);
+
+        const formatted = formatTime(timeSpent);
+
+        const postCounts = {};
+        gridData.forEach(grid => {
+          postCounts[grid.title] = grid.list.length;
+        });
+
+        console.log("Focus Mode Time:", formatted);
+        toast.success(`Focus Mode Ended. Time Spent: ${formatted}`);
+     };
+
 
   const handleTaskSave = async (task) => {
     try {
       const axios = (await import('axios')).default;
       if (editTask) {
-        const res = await axios.put(`http://localhost:5000/api/tasks/${task.id}`, task);
+        const res = await axios.put(`http://localhost:5000/api/tasks/${task.id}`, task, { headers: { Authorization: `Bearer ${localStorage.getItem('token')}` } });
         setTask(prev => prev.map(t => t.id === task.id ? res.data : t));
         console.log("Task updated:", res.data);
         toast.success("Task updated");
       } else {
-        const res = await axios.post('http://localhost:5000/api/tasks', task);
+        const res = await axios.post('http://localhost:5000/api/tasks', task,{ headers: { Authorization: `Bearer ${localStorage.getItem('token')}`}});
         setTask(prev => [...prev, res.data]);
         toast.success("Task created");
       }
@@ -158,51 +238,6 @@ function FourQuadrants({ tasks, setTask, setHideTable, setQtasks }) {
     console.log("Default Switch:", event.target.checked);
     setHideTable(event.target.checked)
   };
-
-  useEffect(() => {
-    const categorizeTasksByPriority = (tasks) => {
-      const impUrgentGrid = [], impNotUrgentGrid = [], notImpUrgentGrid = [], notImpNotUrgentGrid = [];
-      const today = new Date();
-      const offsetToday = new Date(today.getTime() + 5.5 * 60 * 60 * 1000);
-      const todayDate = offsetToday.toISOString().split("T")[0];
-      let weekLastDate = new Date(offsetToday);
-      weekLastDate.setDate(weekLastDate.getDate() + 5);
-      weekLastDate = weekLastDate.toISOString().split("T")[0];
-
-      for (let single of tasks) {
-        if (single.status === "completed") continue;
-        const dueDate = single.due_date ? new Date(single.due_date).toISOString().split("T")[0] : null;
-        const createdAt = single.created_at ? new Date(single.created_at).toISOString().split("T")[0] : null;
-
-        if (!dueDate) {
-          notImpNotUrgentGrid.push(single);
-          continue;
-        }
-        if (dueDate === todayDate && single.priority === "high") {
-          impUrgentGrid.push(single);
-        } else if (dueDate > todayDate && dueDate <= weekLastDate && (single.priority === "high" || single.priority === "normal")) {
-          impNotUrgentGrid.push(single);
-        } else if (createdAt === todayDate && dueDate === todayDate) {
-          notImpUrgentGrid.push(single);
-        } else if (dueDate < todayDate && single.priority === "high") {
-          single.suggestion = "overdueTask";
-          impUrgentGrid.push(single);
-        } else {
-          notImpNotUrgentGrid.push(single);
-        }
-      }
-
-      const updatedTask = [
-        { title: "Important & Not Urgent", list: impNotUrgentGrid },
-        { title: "Important & Urgent", list: impUrgentGrid },
-        { title: "Not Important & Not Urgent", list: notImpNotUrgentGrid },
-        { title: "Not Important & Urgent", list: notImpUrgentGrid }
-      ];
-      setGridData(updatedTask);
-    };
-
-    categorizeTasksByPriority(tasks);
-  }, [tasks]);
 
   return (
     <>
