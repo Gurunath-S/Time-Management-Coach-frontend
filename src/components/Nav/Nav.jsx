@@ -24,6 +24,7 @@ function NavComponent({user}) {
 
   return (
     <Navbar collapseOnSelect expand="lg" className="custom-navbar" variant="dark">
+      {console.log(user)}
       <Container>
         <Navbar.Brand as={Link} to="/home" className="brand-title">📝 Time Management Coach</Navbar.Brand>
         <Navbar.Toggle aria-controls="responsive-navbar-nav" />
