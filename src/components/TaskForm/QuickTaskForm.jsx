@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import './QuickTaskForm.css'; // You'll style the popup here
 import { toast } from 'react-toastify'
+import BACKEND_URL from '../../../Config'
 
 export default function QuickTaskModal({ open, onClose, onSave }) {
   const [date, setDate] = useState('');
@@ -8,7 +9,7 @@ export default function QuickTaskModal({ open, onClose, onSave }) {
   const [timeSpent, setTimeSpent] = useState('');
   const [selectedWorkTasks, setSelectedWorkTasks] = useState([]);
   const [selectedPersonalTasks, setSelectedPersonalTasks] = useState([]);
-  const [user,setUser] = useState('');
+  // const [user,setUser] = useState('');
   
   const workTasks = [
     "Answer Incoming calls",
@@ -55,7 +56,7 @@ export default function QuickTaskModal({ open, onClose, onSave }) {
     setDate("");
     setSelectedWorkTasks([]);
     setSelectedPersonalTasks([]);
-    setUser(""); 
+    // setUser(""); 
     setNotes("");
     setTimeSpent(""); 
     onClose();
@@ -73,13 +74,13 @@ export default function QuickTaskModal({ open, onClose, onSave }) {
       date:new Date(date),
       workTasks: selectedWorkTasks,
       personalTasks: selectedPersonalTasks,
-      assigned_by: user,
+      // assigned_by: user,
       notes,
       timeSpent: `${timeSpent} min`
     };
     
     try {
-      const req = await fetch('https://time-management-coach-backend.onrender.com/api/qtasks', {
+      const req = await fetch(`${BACKEND_URL}/api/qtasks`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -98,7 +99,7 @@ export default function QuickTaskModal({ open, onClose, onSave }) {
       setDate("");
       setSelectedWorkTasks([]);
       setSelectedPersonalTasks([]);
-      setUser(""); 
+      // setUser(""); 
       setNotes("");
       setTimeSpent("");
 
@@ -128,7 +129,7 @@ export default function QuickTaskModal({ open, onClose, onSave }) {
           />
         </div>
 
-        <div>
+        {/* <div>
           <label>Assigned To</label>
           <select
             name="assigned_by"
@@ -142,7 +143,7 @@ export default function QuickTaskModal({ open, onClose, onSave }) {
             <option value="user2">User 2</option>
             <option value="user3">User 3</option>
           </select>
-        </div>
+        </div> */}
 
         <div style={{gridColumn: "1 / span 2"}}>
           <h4>Select Tasks (Work) :</h4>
