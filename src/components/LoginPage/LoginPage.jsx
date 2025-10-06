@@ -1,16 +1,18 @@
-import { useEffect, useCallback, useState } from 'react';
+import { useEffect, useCallback, useState, useRef } from 'react';
 import './LoginPage.css';
 import illustration from '../../assets/login-illustration.svg';
 import { useNavigate } from 'react-router-dom';
+import BACKEND_URL from '../../../Config'
 
-function LoginPage({onLoginSuccess}) {
+function LoginPage({ onLoginSuccess }) {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
+  const initRef = useRef(false); // guard to prevent double init
 
   const handleCredentialResponse = useCallback(async (response) => {
     setLoading(true);
     try {
-      const res = await fetch('https://time-management-coach-backend.onrender.com/api/auth/google-login', {
+      const res = await fetch(`${BACKEND_URL}/api/auth/google-login`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -19,32 +21,51 @@ function LoginPage({onLoginSuccess}) {
       });
 
       const data = await res.json();
-      
+
       if (res.ok) {
         localStorage.setItem('token', data.token);
-        if(onLoginSuccess){
-            await onLoginSuccess();
+
+        if (onLoginSuccess) {
+          const ok = await onLoginSuccess(); // verifies token with backend
+          if (ok) {
+            navigate('/home');
+          } else {
+            // verification failed
+            localStorage.removeItem('token');
+            navigate('/login');
+          }
+        } else {
+          navigate('/home');
         }
-        navigate('/home')
       } else {
         console.error('Login failed:', data.message);
+        // optionally show a toast
       }
-      } catch (err) {
-        console.error('Error during login:', err);
-      } finally {
-        setLoading(false);
-      }
-  }, [navigate]);
+    } catch (err) {
+      console.error('Error during login:', err);
+    } finally {
+      setLoading(false);
+    }
+  }, [navigate, onLoginSuccess]);
 
   useEffect(() => {
+    // If token exists, validate it via onLoginSuccess instead of blind navigate
     const token = localStorage.getItem('token');
-    if (token) {
-      navigate('/home');
+    if (token && onLoginSuccess) {
+      (async () => {
+        setLoading(true);
+        const ok = await onLoginSuccess();
+        setLoading(false);
+        if (ok) navigate('/home');
+        else localStorage.removeItem('token');
+      })();
       return;
     }
 
-    // Load Google One Tap
-    const scriptId = 'google-signin-script';
+    // init Google sign-in once
+    if (initRef.current) return;
+    initRef.current = true;
+
     const initGoogleSignIn = () => {
       if (window.google && window.google.accounts) {
         window.google.accounts.id.initialize({
@@ -57,22 +78,30 @@ function LoginPage({onLoginSuccess}) {
           { theme: 'outline', size: 'large', width: '300' }
         );
 
+        // Prompt can be intrusive; comment out if not wanted or call it conditionally.
         window.google.accounts.id.prompt();
       }
     };
 
-    if (!document.getElementById(scriptId)) {
-      const script = document.createElement('script');
-      script.src = 'https://accounts.google.com/gsi/client';
-      script.async = true;
-      script.defer = true;
-      script.id = scriptId;
-      script.onload = initGoogleSignIn;
-      document.body.appendChild(script);
-    } else {
+    // If you included the script in index.html, it may already be available:
+    if (window.google && window.google.accounts) {
       initGoogleSignIn();
+    } else {
+      // otherwise, dynamically add script (safe fallback)
+      const scriptId = 'google-signin-script';
+      if (!document.getElementById(scriptId)) {
+        const script = document.createElement('script');
+        script.src = 'https://accounts.google.com/gsi/client';
+        script.async = true;
+        script.defer = true;
+        script.id = scriptId;
+        script.onload = initGoogleSignIn;
+        document.body.appendChild(script);
+      } else {
+        initGoogleSignIn();
+      }
     }
-  }, [handleCredentialResponse, navigate]);
+  }, [handleCredentialResponse, navigate, onLoginSuccess]);
 
   return (
     <div className="login-container">
