@@ -1,5 +1,6 @@
+// FourQuadrants.jsx (optimized)
 import Grid from '../Grid/Grid';
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
 import Button from '@mui/material/Button';
 import { IoAddOutline } from "react-icons/io5";
 import Switch from '@mui/material/Switch';
@@ -10,17 +11,17 @@ import TaskForm from '../TaskForm/TaskForm';
 import { MdFilterList } from 'react-icons/md';
 import { FaChevronDown, FaChevronRight } from 'react-icons/fa';
 import Chip from '@mui/material/Chip';
-import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import './FourQuadrants.css';
+import api from '../../utils/api'; // use your axios wrapper (adjust path if needed)
+import BACKEND_URL from '../../../Config' // only used if api not present
+
 const label = { inputProps: { 'aria-label': 'Size switch demo' } };
 
-
-function FourQuadrants({ tasks, setTask, setHideTable, setQtasks }) {
+function FourQuadrants({ tasks = [], setTask, setHideTable, setQtasks }) {
   const color = ["#2196F3", "#F44336", "#000000", "#FF9800"];
-  const [gridData, setGridData] = useState([]);
-  const [open, setOpen] = useState(false)
-  const [openqt, setOpenqt] = useState(false)
+  const [open, setOpen] = useState(false);
+  const [openqt, setOpenqt] = useState(false);
   const [switchChecked, setSwitchChecked] = useState(true);
   const [editTask, setEditTask] = useState(null);
   const [isFocusMode, setIsFocusMode] = useState(false);
@@ -29,75 +30,81 @@ function FourQuadrants({ tasks, setTask, setHideTable, setQtasks }) {
   const [openTagEditor, setOpenTagEditor] = useState(false);
   const [taskToTagEdit, setTaskToTagEdit] = useState(null);
   const navigate = useNavigate();
-  // Global filter states
-  const [globalFilters, setGlobalFilters] = useState({
-    complexity: [],
-    type: [],
-    category: [],
-    impact: []
-  });
-  const [showGlobalFilters, setShowGlobalFilters] = useState(false);
 
+  // load focus mode from storage once
   useEffect(() => {
-  const saved = localStorage.getItem("focusMode");
-  if (saved) {
-    const { isFocusMode, startTime } = JSON.parse(saved);
-    if (isFocusMode) {
-      setIsFocusMode(true);
-      setStartTime(startTime);
+    const saved = localStorage.getItem("focusMode");
+    if (saved) {
+      const { isFocusMode: savedFocus, startTime: savedStart } = JSON.parse(saved);
+      if (savedFocus) {
+        setIsFocusMode(true);
+        setStartTime(savedStart);
+      }
     }
-  }
-}, []);
+  }, []);
 
-    useEffect(() => {
-    const categorizeTasksByPriority = (tasks) => {
-      const impUrgentGrid = [], impNotUrgentGrid = [], notImpUrgentGrid = [], notImpNotUrgentGrid = [];
-      const today = new Date();
-      const offsetToday = new Date(today.getTime() + 5.5 * 60 * 60 * 1000);
-      const todayDate = offsetToday.toISOString().split("T")[0];
-      let weekLastDate = new Date(offsetToday);
-      weekLastDate.setDate(weekLastDate.getDate() + 5);
-      weekLastDate = weekLastDate.toISOString().split("T")[0];
+  // compute numeric thresholds once per render using local timezone offset
+  const { todayDateStr, todayTs, weekLastDateStr, weekLastTs } = useMemo(() => {
+    const today = new Date();
+    const offsetMs = 5.5 * 60 * 60 * 1000; // your offset
+    const offsetToday = new Date(today.getTime() + offsetMs);
+    const todayDateStr = offsetToday.toISOString().split('T')[0];
 
-      for (let single of tasks) {
-        if (single.status === "completed") continue;
-        const dueDate = single.due_date ? new Date(single.due_date).toISOString().split("T")[0] : null;
-        const createdAt = single.created_at ? new Date(single.created_at).toISOString().split("T")[0] : null;
+    const weekLastDate = new Date(offsetToday);
+    weekLastDate.setDate(weekLastDate.getDate() + 5);
+    const weekLastDateStr = weekLastDate.toISOString().split('T')[0];
 
-        if (!dueDate) {
-          notImpNotUrgentGrid.push(single);
-          continue;
-        }
-        if (dueDate === todayDate && single.priority === "high") {
-          impUrgentGrid.push(single);
-        } else if (dueDate > todayDate && dueDate <= weekLastDate && (single.priority === "high" || single.priority === "normal")) {
-          impNotUrgentGrid.push(single);
-        } else if (createdAt === todayDate && dueDate === todayDate) {
-          notImpUrgentGrid.push(single);
-        } else if (dueDate < todayDate && single.priority === "high") {
-          single.suggestion = "overdueTask";
-          impUrgentGrid.push(single);
-        } else {
-          notImpNotUrgentGrid.push(single);
-        }
+    // timestamps at start of day (UTC) for comparisons - convert ISO date to timestamp
+    const todayTs = new Date(todayDateStr).getTime();
+    const weekLastTs = new Date(weekLastDateStr).getTime();
+
+    return { todayDateStr, todayTs, weekLastDateStr, weekLastTs };
+  }, []);
+
+
+  // derive gridData using useMemo for performance
+  const gridData = useMemo(() => {
+    const impUrgentGrid = [], impNotUrgentGrid = [], notImpUrgentGrid = [], notImpNotUrgentGrid = [];
+
+    for (let i = 0; i < tasks.length; i++) {
+      const single = tasks[i];
+      if (single.status === 'completed') continue;
+
+      // parse due_date & created_at once, as timestamps; handle missing
+      const dueTs = single.due_date ? new Date(single.due_date).getTime() : null;
+      const createdTs = single.created_at ? new Date(single.created_at).getTime() : null;
+
+      if (!dueTs) {
+        notImpNotUrgentGrid.push(single);
+        continue;
       }
 
-      const updatedTask = [
-        { title: "Important & Not Urgent", list: impNotUrgentGrid },
-        { title: "Important & Urgent", list: impUrgentGrid },
-        { title: "Not Important & Not Urgent", list: notImpNotUrgentGrid },
-        { title: "Not Important & Urgent", list: notImpUrgentGrid }
-      ];
-      setGridData(updatedTask);
-    };
+      if (dueTs === todayTs && single.priority === 'high') {
+        impUrgentGrid.push(single);
+      } else if (dueTs > todayTs && dueTs <= weekLastTs && (single.priority === 'high' || single.priority === 'normal')) {
+        impNotUrgentGrid.push(single);
+      } else if (createdTs === todayTs && dueTs === todayTs) {
+        notImpUrgentGrid.push(single);
+      } else if (dueTs < todayTs && single.priority === 'high') {
+        // Avoid mutating original object — make shallow copy if you want to set suggestion
+        const s = { ...single, suggestion: 'overdueTask' };
+        impUrgentGrid.push(s);
+      } else {
+        notImpNotUrgentGrid.push(single);
+      }
+    }
 
-    categorizeTasksByPriority(tasks);
-  }, [tasks]);
+    return [
+      { title: "Important & Not Urgent", list: impNotUrgentGrid },
+      { title: "Important & Urgent", list: impUrgentGrid },
+      { title: "Not Important & Not Urgent", list: notImpNotUrgentGrid },
+      { title: "Not Important & Urgent", list: notImpUrgentGrid }
+    ];
+  }, [tasks, todayTs, weekLastTs]);
 
-  // Calculate available filters across all tasks
+  // available filters (already memoized originally — keep it)
   const globalAvailableFilters = useMemo(() => {
     const tagCounts = { complexity: {}, type: {}, category: {}, impact: {} };
-    
     tasks.forEach(task => {
       if (task.priority_tags) {
         Object.keys(tagCounts).forEach(group => {
@@ -110,7 +117,6 @@ function FourQuadrants({ tasks, setTask, setHideTable, setQtasks }) {
       }
     });
 
-    // Return tags with >0 tasks (you can change to >5 for production)
     const filters = {};
     Object.keys(tagCounts).forEach(group => {
       filters[group] = Object.keys(tagCounts[group]).filter(tag => tagCounts[group][tag] > 0);
@@ -119,62 +125,71 @@ function FourQuadrants({ tasks, setTask, setHideTable, setQtasks }) {
     return filters;
   }, [tasks]);
 
-  const toggleGlobalFilter = (group, tag) => {
+  // global filter state
+  const [globalFilters, setGlobalFilters] = useState({
+    complexity: [],
+    type: [],
+    category: [],
+    impact: []
+  });
+  const [showGlobalFilters, setShowGlobalFilters] = useState(false);
+
+  const toggleGlobalFilter = useCallback((group, tag) => {
     setGlobalFilters(prev => ({
       ...prev,
-      [group]: prev[group].includes(tag) 
+      [group]: prev[group].includes(tag)
         ? prev[group].filter(f => f !== tag)
         : [...prev[group], tag]
     }));
-  };
+  }, []);
 
-  const clearAllGlobalFilters = () => {
+  const clearAllGlobalFilters = useCallback(() => {
     setGlobalFilters({ complexity: [], type: [], category: [], impact: [] });
-  };
+  }, []);
 
   const hasActiveGlobalFilters = Object.values(globalFilters).some(arr => arr.length > 0);
 
-  const handleTagEdit = (task) => {
-    console.log("Edit task clicked:", task.id);
+  const handleTagEdit = useCallback((task) => {
     navigate(`/edit-tags/${task.id}`);
-  };
+  }, [navigate]);
 
-  const handleTagSave = async (updatedTask) => {
+  // use api wrapper to save priority tags
+  const handleTagSave = useCallback(async (updatedTask) => {
     try {
-      const response = await axios.put(`https://time-management-coach-backend.onrender.com/api/tasks/${updatedTask.id}`, updatedTask);
+      const response = await api.put(`/api/tasks/${updatedTask.id}`, updatedTask);
       setTask(prev => prev.map(t => t.id === updatedTask.id ? response.data : t));
       toast.success("Priority tags updated");
     } catch (error) {
       console.error("Error saving priority tags", error);
       toast.error("Failed to save priority tags");
     }
-  };
+  }, [setTask]);
 
-    const startFocusMode = () => {
-      const now = Date.now();
-      localStorage.setItem("focusMode", JSON.stringify({
-        isFocusMode: true,
-        startTime: now,
-      }));
+  const startFocusMode = useCallback(() => {
+    const now = Date.now();
+    localStorage.setItem("focusMode", JSON.stringify({
+      isFocusMode: true,
+      startTime: now,
+    }));
 
-      setIsFocusMode(true);
-      setStartTime(now);
+    setIsFocusMode(true);
+    setStartTime(now);
 
-      const initialCounts = {};
-      gridData.forEach(grid => {
-        initialCounts[grid.title] = grid.list.length;
-      });
-      setPreFocusGridCount(initialCounts);
+    const initialCounts = {};
+    gridData.forEach(grid => {
+      initialCounts[grid.title] = grid.list.length;
+    });
+    setPreFocusGridCount(initialCounts);
 
-      toast.info("Focus Mode Started!");
-    };
+    toast.info("Focus Mode Started!");
+  }, [gridData]);
 
-  const handleEditTask = (task) => {
+  const handleEditTask = useCallback((task) => {
     setEditTask(task);
     setOpen(true);
-  };
+  }, []);
 
-  const formatTime = (seconds) => {
+  const formatTime = useCallback((seconds) => {
     const hrs = Math.floor(seconds / 3600);
     const mins = Math.floor((seconds % 3600) / 60);
     const secs = seconds % 60;
@@ -182,36 +197,34 @@ function FourQuadrants({ tasks, setTask, setHideTable, setQtasks }) {
     if (hrs > 0) return `${hrs}h ${mins}m ${secs}s`;
     if (mins > 0) return `${mins}m ${secs}s`;
     return `${secs}s`;
-  };
+  }, []);
 
-    const endFocusMode = () => {
-      localStorage.removeItem("focusMode");
-        setIsFocusMode(false);
-        const endTime = Date.now();
-        const timeSpent = Math.floor((endTime - startTime) / 1000);
+  const endFocusMode = useCallback(() => {
+    localStorage.removeItem("focusMode");
+    setIsFocusMode(false);
+    const endTime = Date.now();
+    const timeSpent = Math.floor((endTime - startTime) / 1000);
 
-        const formatted = formatTime(timeSpent);
+    const formatted = formatTime(timeSpent);
 
-        const postCounts = {};
-        gridData.forEach(grid => {
-          postCounts[grid.title] = grid.list.length;
-        });
+    const postCounts = {};
+    gridData.forEach(grid => {
+      postCounts[grid.title] = grid.list.length;
+    });
 
-        console.log("Focus Mode Time:", formatted);
-        toast.success(`Focus Mode Ended. Time Spent: ${formatted}`);
-     };
+    console.log("Focus Mode Time:", formatted);
+    toast.success(`Focus Mode Ended. Time Spent: ${formatted}`);
+  }, [formatTime, gridData, startTime]);
 
-
-  const handleTaskSave = async (task) => {
+  // Save task (create/update)
+  const handleTaskSave = useCallback(async (task) => {
     try {
-      const axios = (await import('axios')).default;
       if (editTask) {
-        const res = await axios.put(`https://time-management-coach-backend.onrender.com/api/tasks/${task.id}`, task, { headers: { Authorization: `Bearer ${localStorage.getItem('token')}` } });
+        const res = await api.put(`/api/tasks/${task.id}`, task);
         setTask(prev => prev.map(t => t.id === task.id ? res.data : t));
-        console.log("Task updated:", res.data);
         toast.success("Task updated");
       } else {
-        const res = await axios.post('https://time-management-coach-backend.onrender.com/api/tasks', task,{ headers: { Authorization: `Bearer ${localStorage.getItem('token')}`}});
+        const res = await api.post('/api/tasks', task);
         setTask(prev => [...prev, res.data]);
         toast.success("Task created");
       }
@@ -219,25 +232,26 @@ function FourQuadrants({ tasks, setTask, setHideTable, setQtasks }) {
       setOpen(false);
     } catch (error) {
       console.error("Failed to save task", error);
-      toast.error("Something went wrong");
+      toast.error("Failed to save task. Please check your network or try again.");
     }
-  };
+  }, [editTask, setTask]);
 
-    const handleQtaskSave = (task) => {
-      try {
-        if (setQtasks) {
-          setQtasks(prev => [...prev, task]);
-        }
-      } catch (error) {
-        console.error("Error saving quick task:", error);
+  const handleQtaskSave = useCallback((task) => {
+    try {
+      if (setQtasks) {
+        setQtasks(prev => [...prev, task]);
+        toast.success("Quick task added");
       }
+    } catch (error) {
+      console.error("Error saving quick task:", error);
+      toast.error("Failed to save quick task.");
     }
+  }, [setQtasks]);
 
-  const handleSwitchChange = (event) => {
+  const handleSwitchChange = useCallback((event) => {
     setSwitchChecked(event.target.checked);
-    console.log("Default Switch:", event.target.checked);
-    setHideTable(event.target.checked)
-  };
+    setHideTable(event.target.checked);
+  }, [setHideTable]);
 
   return (
     <>
@@ -245,7 +259,7 @@ function FourQuadrants({ tasks, setTask, setHideTable, setQtasks }) {
         <Button variant="contained" style={{ fontWeight: "bolder", marginLeft: 15 }} onClick={() => setOpen(true)}>
           <IoAddOutline /> Add Task
         </Button>
-        <Button variant="outlined" style={{ fontWeight: "bold", marginLeft: 10 }} onClick={() => startFocusMode()}>
+        <Button variant="outlined" style={{ fontWeight: "bold", marginLeft: 10 }} onClick={startFocusMode}>
           Focus Mode
         </Button>
         {isFocusMode && (
@@ -271,7 +285,6 @@ function FourQuadrants({ tasks, setTask, setHideTable, setQtasks }) {
       {/* Global Filter Section */}
       {Object.values(globalAvailableFilters).some(arr => arr.length > 0) && (
         <div style={{ margin: '20px 15px', border: '1px solid #e0e0e0', borderRadius: '8px', backgroundColor: '#f8f9fa' }}>
-          {/* Global Filter Toggle Button */}
           <div 
             onClick={() => setShowGlobalFilters(!showGlobalFilters)}
             style={{ 
@@ -301,7 +314,6 @@ function FourQuadrants({ tasks, setTask, setHideTable, setQtasks }) {
             )}
           </div>
 
-          {/* Collapsible Global Filter Content */}
           {showGlobalFilters && (
             <div style={{ padding: '16px' }}>
               {Object.entries(globalAvailableFilters).map(([group, tags]) => 
@@ -338,7 +350,7 @@ function FourQuadrants({ tasks, setTask, setHideTable, setQtasks }) {
       <div className="main-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '16px' }}>
         {gridData.map((grid, index) => (
           <Grid
-            key={index}
+            key={grid.title} // more stable key
             title={grid.title}
             taskList={grid.list}
             color={color}
@@ -346,7 +358,7 @@ function FourQuadrants({ tasks, setTask, setHideTable, setQtasks }) {
             isFocusMode={isFocusMode}
             onEditTask={handleEditTask}
             onEditPriorityTags={handleTagEdit}
-            globalFilters={globalFilters} // Pass global filters to each grid
+            globalFilters={globalFilters}
           />
         ))}
       </div>
@@ -382,4 +394,4 @@ function FourQuadrants({ tasks, setTask, setHideTable, setQtasks }) {
   );
 }
 
-export default FourQuadrants
+export default FourQuadrants;
