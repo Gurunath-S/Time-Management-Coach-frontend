@@ -7,6 +7,7 @@ import TaskForm from '../TaskForm/TaskForm';
 import { toast } from 'react-toastify'
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import BACKEND_URL from '../../../Config'
 
 function TaskReport({ tasks, setTask, filterStatus }) {
   const [filteredTask, setFilteredTask] = useState(tasks);
@@ -31,7 +32,7 @@ function TaskReport({ tasks, setTask, filterStatus }) {
   }, [tasks, filterStatus]);
 
   const handleUpdate = async (task) => {
-    const res = await axios.put(`https://time-management-coach-backend.onrender.com/api/tasks/${task.id}`, task, {
+    const res = await axios.put(`${BACKEND_URL}/api/tasks/${task.id}`, task, {
       headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
     });
     const updateTask = tasks.map((item) => task.id === item.id ? res.data : item)
@@ -89,7 +90,7 @@ function TaskReport({ tasks, setTask, filterStatus }) {
                 <th className="th">Due Date</th>
                 <th className="th">Priority</th>
                 <th className="th">Status</th>
-                <th className="th">Assigned To</th>
+                {/* <th className="th">Assigned To</th> */}
                 <th className="th">Action</th>
               </tr>
             </thead>
@@ -110,7 +111,7 @@ function TaskReport({ tasks, setTask, filterStatus }) {
                       <td className="td">{new Date(taskItem.due_date).toLocaleDateString('en-GB')}</td>
                       <td className="td">{taskItem.priority}</td>
                       <td className="td">{taskItem.status}</td>
-                      <td className="td">{taskItem.assigned_to}</td>
+                      {/* <td className="td">{taskItem.assigned_to}</td> */}
                       <td className="td">
                         <button
                           className='editButton'
