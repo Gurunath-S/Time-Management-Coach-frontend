@@ -56,7 +56,7 @@ function QtaskReport({ qtasks, setQtasks}) {
                 <th className="th">Date</th>
                 <th className="th">Work Tasks</th>
                 <th className="th">Personal Tasks</th>
-                <th className="th">Done By</th>
+                {/* <th className="th">Done By</th> */}
                 <th className="th">Notes</th>
                 <th className="th">Duration</th>
               </tr>
@@ -74,7 +74,7 @@ function QtaskReport({ qtasks, setQtasks}) {
                     <td className="td">{new Date(taskItem.date).toLocaleDateString('en-GB')}</td>
                     <td className="td">{taskItem.workTasks}</td>
                     <td className="td">{taskItem.personalTasks}</td>
-                    <td className="td">{taskItem.assigned_by}</td>
+                    {/* <td className="td">{taskItem.assigned_by}</td> */}
                     <td className="td">{taskItem.notes}</td>
                     <td className="td">{taskItem.timeSpent}</td>
                   </tr>
