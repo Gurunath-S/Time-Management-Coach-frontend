@@ -3,11 +3,12 @@ import FourQuadrants from "../FourQuadrants/FourQuadrants";
 import TaskReport from "../TaskReport/TaskReport";
 import TaskCount from "../TaskCount/TaskCount";
 import QtaskReport from "../TaskReport/QtaskReport";
-import axios from 'axios';
+import api from '../../utils/api'; // <-- use the wrapper
 import './Home.css';
 import { useNavigate } from 'react-router-dom';
+import { toast } from 'react-toastify';
 
-function Home(isLoggedIn) {
+function Home({ isLoggedIn }) {
   const [task, setTask] = useState([]);
   const [qtask, setQtask] = useState([]);
   const [hideTable, setHideTable] = useState(true);
@@ -17,33 +18,36 @@ function Home(isLoggedIn) {
   
   useEffect(() => {
     console.log("Home component mounted :", isLoggedIn);
-    if (!isLoggedIn) {
-      localStorage.removeItem('token');
-      console.log("User not logged in, redirecting to login page");
-      navigate('/login');
-    } else {
-      console.log("User is logged in, fetching tasks");
-    }
+    // if (!isLoggedIn) {
+    //   // If not logged in, remove token and redirect
+    //   localStorage.removeItem('token');
+    //   console.log("User not logged in, redirecting to login page");
+    //   navigate('/login');
+    //   return;
+    // }
 
     const taskdata = async () => {
       try {
         const [taskRes, qtaskRes] = await Promise.all([
-          axios.get('https://time-management-coach-backend.onrender.com/api/tasks', { 
-            headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
-          }),
-          axios.get('https://time-management-coach-backend.onrender.com/api/qtasks', { 
-            headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
-          })
+          api.get('/api/tasks'),
+          api.get('/api/qtasks')
         ]);
+        console.log("Fetched tasks:", taskRes);
         setTask(taskRes.data);
         setQtask(qtaskRes.data);
       } catch (err) {
-        console.error("Failed to fetch tasks or qtasks", err);
+        if (err.response && err.response.status === 401) {
+          toast.error("Session expired. Please log in again.");
+          localStorage.removeItem('token');
+          navigate('/login');
+        } else {
+          console.error("Failed to fetch tasks or qtasks", err);
+           toast.error("Failed to fetch your tasks. Please try again later.");
+        }
       }
     };
     taskdata();
   }, []);
-
   const scrollToTasks = () => {
     if (taskTableRef.current) {
       taskTableRef.current.scrollIntoView({ behavior: "smooth" });
