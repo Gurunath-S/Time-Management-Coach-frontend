@@ -23,7 +23,7 @@ function TaskForm({ open, onSave, onClose, editTask = null, setTask }) {
         note: "",
         reason: "",
         status: "",
-        assigned_to: "",
+        // assigned_to: "",
     })
 
     useEffect(() => {
@@ -51,7 +51,7 @@ function TaskForm({ open, onSave, onClose, editTask = null, setTask }) {
                 note: "",
                 reason: "",
                 status: "",
-                assigned_to: "",
+                // assigned_to: "",
             })
         }
     }, [editTask])
@@ -88,7 +88,7 @@ function TaskForm({ open, onSave, onClose, editTask = null, setTask }) {
                 note: "",
                 reason: "",
                 status: "",
-                assigned_to: "",
+                // assigned_to: "",
             })
    
             }
@@ -176,7 +176,7 @@ function TaskForm({ open, onSave, onClose, editTask = null, setTask }) {
                                     />
                                 </div>
 
-                                <div className="form-row">
+                                {/* <div className="form-row">
                                     <label>Assigned To</label>
                                     <Select
                                         name="assigned_to"
@@ -188,7 +188,7 @@ function TaskForm({ open, onSave, onClose, editTask = null, setTask }) {
                                         <MenuItem value="user2">User 2</MenuItem>
                                         <MenuItem value="user3">User 3</MenuItem>
                                     </Select>
-                                </div>
+                                </div> */}
 
                                 <div className="form-row">
                                     <label>Note (Optional)</label>
