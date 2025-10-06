@@ -20,7 +20,6 @@ function EditTaskPage() {
   const [note, setNote] = useState('');
   const [reason, setReason] = useState('');
   const [status, setStatus] = useState('');
-  const [assignedTo, setAssignedTo] = useState('');
 
   useEffect(() => {
     if (isUpdate) {
@@ -47,7 +46,7 @@ function EditTaskPage() {
                 note: data.note || '',
                 reason: data.reason || '',
                 status: data.status || '',
-                assigned_to: data.assigned_to || '',
+              
               };
 
               setTaskId(safeData.id);
@@ -58,7 +57,7 @@ function EditTaskPage() {
               setNote(safeData.note);
               setReason(safeData.reason);
               setStatus(safeData.status);
-              setAssignedTo(safeData.assigned_to);
+            
             })
         .catch((err) => {
           console.error(err);
@@ -79,7 +78,7 @@ function EditTaskPage() {
       note,
       reason,
       status,
-      assigned_to: assignedTo,
+      
     };
 
     const method = isUpdate ? 'PUT' : 'POST';
@@ -107,7 +106,7 @@ function EditTaskPage() {
         console.error(err);
         toast.error('Error saving task');
       });
-  }, [taskId, title, createdAt, dueDate, priority, note, reason, status, assignedTo, id, isUpdate, navigate]);
+  }, [taskId, title, createdAt, dueDate, priority, note, reason, status, id, isUpdate, navigate]);
 
   return (
     <div className="edit-task-container" style={{ maxWidth: '800px', margin: 'auto', padding: '20px' }}>
@@ -158,15 +157,6 @@ function EditTaskPage() {
             <MenuItem value="completed">Completed</MenuItem>
             <MenuItem value="pending">Pending</MenuItem>
             <MenuItem value="in progress">In Progress</MenuItem>
-          </Select>
-        </div>
-
-        <div className="form-row">
-          <label>Assigned To</label>
-          <Select value={assignedTo} onChange={(e) => setAssignedTo(e.target.value)} fullWidth required>
-            <MenuItem value="user1">User 1</MenuItem>
-            <MenuItem value="user2">User 2</MenuItem>
-            <MenuItem value="user3">User 3</MenuItem>
           </Select>
         </div>
 
