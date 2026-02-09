@@ -12,8 +12,8 @@ function LoginPage() {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const initRef = useRef(false);
-  const setToken = useGlobalStore(state => state.setToken);
   const initApp = useGlobalStore(state => state.initApp);
+  const loginSuccess = useGlobalStore(state => state.loginSuccess);
 
   const handleCredentialResponse = useCallback(async (response) => {
     setLoading(true);
@@ -24,9 +24,9 @@ function LoginPage() {
         body: JSON.stringify({ credential: response.credential }),
       });
       const data = await res.json();
-      if (res.ok && data.token) {
-        setToken(data.token);
-        await initApp();
+      if (res.ok && data.token && data.user) {
+        // Use optimized login: set user directly from response, skip redundant profile fetch
+        await loginSuccess(data.token, data.user);
         navigate('/home');
       } else {
         console.error('Login failed', data);
@@ -36,7 +36,7 @@ function LoginPage() {
     } finally {
       setLoading(false);
     }
-  }, [navigate, setToken, initApp]);
+  }, [navigate, loginSuccess]);
 
   useEffect(() => {
     // If token exists, bootstrap
@@ -62,7 +62,17 @@ function LoginPage() {
           callback: handleCredentialResponse,
         });
         window.google.accounts.id.renderButton(document.getElementById('google-signin'), { theme: 'outline', size: 'large', width: '300' });
-        window.google.accounts.id.prompt();
+
+        // Check if we were redirected due to an error (e.g. 401)
+        const isAuthError = sessionStorage.getItem('authError');
+        if (!isAuthError) {
+          window.google.accounts.id.prompt();
+        } else {
+          // Optional: Show a message or just don't prompt
+          console.log("Skipping auto-prompt due to auth error");
+          // Clear it so next time it works
+          sessionStorage.removeItem('authError');
+        }
       }
     };
 
@@ -101,7 +111,7 @@ function LoginPage() {
           <div className="info-card">
             <div className="ibt">
               <h4>I BACUS TECH SOLUTIONS PVT. LTD.</h4>
-             <p>
+              <p>
                 <strong>I BACUS TECH</strong> is a leading digital transformation company based in India,
                 driving innovation across industries worldwide — from startups to Fortune 500s. Our solutions span AI automation,
                 mobile apps, and cloud optimization, helping businesses unlock their full potential in a fast-moving digital world.
@@ -120,7 +130,7 @@ function LoginPage() {
             <a href="https://decisioncoach.onrender.com/" target="_blank" rel="noopener noreferrer">
               <img src={tech4uLogo} alt="TechCoach4U Logo" className="company-logo" />
             </a>
-             <br />
+            <br />
             <p><strong>Benefits:</strong></p>
             <ul>
               <li>Build better habits with structured decision-making tools</li>

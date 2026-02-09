@@ -2,7 +2,6 @@ const jwt = require('jsonwebtoken');
 const { OAuth2Client } = require('google-auth-library');
 const { PrismaClient } = require('../generated/prisma');
 
-const getBase64FromUrl = require('../utils/getBase64FromUrl');
 const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
 const prisma = new PrismaClient();
@@ -21,14 +20,19 @@ exports.googleLogin = async (req, res) => {
     let user = await prisma.user.findUnique({ where: { email } });
 
     if (!user) {
-      const base64Image = await getBase64FromUrl(picture);
+      // Store the Google picture URL directly instead of downloading/converting to base64
       user = await prisma.user.create({
-        data: { name, email, picture: base64Image },
+        data: { name, email, picture },
       });
     }
 
     const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET, { expiresIn: '12h' });
-    res.status(200).json({ token });
+    
+    // Return user data with token to avoid redundant profile fetch
+    res.status(200).json({
+      token,
+      user: { id: user.id, name: user.name, email: user.email, picture: user.picture }
+    });
 
   } catch (err) {
     console.error('Google Login Error:', err);

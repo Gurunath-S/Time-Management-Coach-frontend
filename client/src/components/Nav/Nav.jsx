@@ -1,5 +1,5 @@
 // Nav.jsx
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import Container from 'react-bootstrap/Container';
 import Nav from 'react-bootstrap/Nav';
 import Navbar from 'react-bootstrap/Navbar';
@@ -10,6 +10,17 @@ import { FaHome } from 'react-icons/fa';
 import { useNavigate, Link, useLocation } from 'react-router-dom';
 import { TbLogin2 } from "react-icons/tb";
 import ibtLogo from '../../assets/ibt-logo.png';
+
+// Handle both base64 (legacy) and URL (new) picture formats
+const getProfilePicSrc = (picture) => {
+  if (!picture) return null;
+  // If it's already a URL, use it directly
+  if (picture.startsWith('http://') || picture.startsWith('https://')) {
+    return picture;
+  }
+  // Otherwise, assume base64 and add the data URI prefix
+  return `data:image/jpeg;base64,${picture}`;
+};
 
 function NavComponent({ user, loading, isLoggedIn, onLogout }) {
   const navigate = useNavigate();
@@ -49,7 +60,7 @@ function NavComponent({ user, loading, isLoggedIn, onLogout }) {
               <>
                 <div className="nav-profile" onClick={() => setShowProfile(!showProfile)}>
                   <img
-                    src={`data:image/jpeg;base64,${user.picture}`}
+                    src={getProfilePicSrc(user.picture)}
                     alt="User"
                     className="nav-avatar"
                   />
@@ -58,7 +69,7 @@ function NavComponent({ user, loading, isLoggedIn, onLogout }) {
                 {showProfile && (
                   <div className="profile-dropdown">
                     {user?.picture && (
-                      <img src={`data:image/jpeg;base64,${user.picture}`} alt="Profile" className="profile-img" />
+                      <img src={getProfilePicSrc(user.picture)} alt="Profile" className="profile-img" />
                     )}
                     <p className="profile-name">{user.name}</p>
                     <p className="profile-email">{user.email}</p>

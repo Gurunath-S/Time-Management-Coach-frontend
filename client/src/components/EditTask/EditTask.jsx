@@ -46,6 +46,10 @@ function EditTaskPage() {
   const [tags, setTags] = useState([]);
 
   const saveTask = useGlobalStore(state => state.saveTask);
+  const tasks = useGlobalStore(state => state.tasks);
+  const isFocusMode = useGlobalStore(state => state.isFocusMode);
+  const logTaskChangeInFocusMode = useGlobalStore(state => state.logTaskChangeInFocusMode);
+  const focusCompletedTasks = useGlobalStore(state => state.focusCompletedTasks);
 
   useEffect(() => {
     if (isUpdate) {
@@ -141,16 +145,26 @@ function EditTaskPage() {
     };
 
     try {
+      // Capture old task BEFORE save for focus mode change tracking
+      const oldTask = isUpdate ? tasks.find(t => t.id === cleanedTask.id) : null;
+      
       await saveTask(cleanedTask, isUpdate);
-      // Focus mode handling
-      const focusData = JSON.parse(localStorage.getItem('focusMode') || '{}');
-      if (focusData?.isFocusMode && status === 'completed') {
-        focusData.completedTasks = focusData.completedTasks || [];
-        const existingIndex = focusData.completedTasks.findIndex(t => t.id === cleanedTask.id);
+      
+      // Log task changes in focus mode
+      if (isFocusMode && isUpdate && oldTask) {
+        logTaskChangeInFocusMode(oldTask, cleanedTask);
+      }
+      
+      // Track completed task in focus mode (using store, automatically persisted)
+      if (isFocusMode && status === 'completed') {
         const completedCopy = { ...cleanedTask, completed_at: new Date().toISOString(), status: 'completed' };
-        if (existingIndex !== -1) focusData.completedTasks[existingIndex] = completedCopy;
-        else focusData.completedTasks.push(completedCopy);
-        localStorage.setItem('focusMode', JSON.stringify(focusData));
+        const existing = focusCompletedTasks || [];
+        const existingIndex = existing.findIndex(t => t.id === cleanedTask.id);
+        if (existingIndex === -1) {
+          useGlobalStore.setState((state) => ({
+            focusCompletedTasks: [...(state.focusCompletedTasks || []), completedCopy]
+          }));
+        }
       }
 
       toast.success(isUpdate ? 'Task updated!' : 'Task created!');
@@ -159,7 +173,7 @@ function EditTaskPage() {
       console.error(err);
       toast.error('Error saving task');
     }
-  }, [taskId, title, createdAt, dueDate, priority, note, reason, status, tags, isUpdate, navigate, saveTask]);
+  }, [taskId, title, createdAt, dueDate, priority, note, reason, status, tags, isUpdate, navigate, saveTask, isFocusMode, logTaskChangeInFocusMode, focusCompletedTasks, tasks]);
 
   return (
     <div className="edit-task-container" style={{ maxWidth: '800px', margin: 'auto', padding: '20px' }}>

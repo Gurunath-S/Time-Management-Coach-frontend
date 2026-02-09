@@ -24,7 +24,7 @@ function TaskForm({ open, onSave, onClose, editTask = null, setTask }) {
     status: ''
   });
 
- 
+
   const formatDateForInput = (dateStr) => {
     if (!dateStr) return '';
     const d = new Date(dateStr);
@@ -33,40 +33,40 @@ function TaskForm({ open, onSave, onClose, editTask = null, setTask }) {
     return localDate.toISOString().split('T')[0];
   };
 
- const formatDateDisplay = (dateStr) => {
-  if (!dateStr) return '';
-  const d = new Date(dateStr);
-  if (isNaN(d.getTime())) return '';
-  const day = String(d.getDate()).padStart(2, '0');
-  const month = String(d.getMonth() + 1).padStart(2, '0');
-  const year = d.getFullYear();
-  return `${day}-${month}-${year}`;
-};
+  const formatDateDisplay = (dateStr) => {
+    if (!dateStr) return '';
+    const d = new Date(dateStr);
+    if (isNaN(d.getTime())) return '';
+    const day = String(d.getDate()).padStart(2, '0');
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const year = d.getFullYear();
+    return `${day}-${month}-${year}`;
+  };
 
 
- useEffect(() => {
-  if (open) {
-    // Reset the form whenever the dialog opens
-    if (editTask) {
-      setNewTask({
-        ...editTask,
-        created_at: editTask.created_at ? formatDateForInput(editTask.created_at) : '',
-        due_date: editTask.due_date ? formatDateForInput(editTask.due_date) : '',
-      });
-    } else {
-      setNewTask({
-        id: '',
-        title: '',
-        created_at: '',
-        due_date: '',
-        priority: '',
-        note: '',
-        reason: '',
-        status: ''
-      });
+  useEffect(() => {
+    if (open) {
+      // Reset the form whenever the dialog opens
+      if (editTask) {
+        setNewTask({
+          ...editTask,
+          created_at: editTask.created_at ? formatDateForInput(editTask.created_at) : '',
+          due_date: editTask.due_date ? formatDateForInput(editTask.due_date) : '',
+        });
+      } else {
+        setNewTask({
+          id: '',
+          title: '',
+          created_at: '',
+          due_date: '',
+          priority: '',
+          note: '',
+          reason: '',
+          status: ''
+        });
+      }
     }
-  }
-}, [open, editTask]);
+  }, [open, editTask]);
 
 
   const handlechange = (e) => {
@@ -78,24 +78,24 @@ function TaskForm({ open, onSave, onClose, editTask = null, setTask }) {
   };
 
   const handleDateChange = (e) => {
-  const { name, value } = e.target;
-  if (!value) {
-    setNewTask((prev) => ({ ...prev, [name]: '' }));
-    return;
-  }
+    const { name, value } = e.target;
+    if (!value) {
+      setNewTask((prev) => ({ ...prev, [name]: '' }));
+      return;
+    }
 
-  const selectedDate = new Date(value);
-  const currentYear = new Date().getFullYear();
+    const selectedDate = new Date(value);
+    const currentYear = new Date().getFullYear();
 
-  if (selectedDate.getFullYear() !== currentYear) {
-    alert(`Please select a date within the current year (${currentYear})`);
-    const todayStr = new Date().toISOString().split('T')[0]; // yyyy-mm-dd
-    setNewTask((prev) => ({ ...prev, [name]: todayStr }));
-    return;
-  }
+    if (selectedDate.getFullYear() !== currentYear) {
+      alert(`Please select a date within the current year (${currentYear})`);
+      const todayStr = new Date().toISOString().split('T')[0]; // yyyy-mm-dd
+      setNewTask((prev) => ({ ...prev, [name]: todayStr }));
+      return;
+    }
 
-  setNewTask((prev) => ({ ...prev, [name]: value }));
-};
+    setNewTask((prev) => ({ ...prev, [name]: value }));
+  };
 
   const handleSave = (e) => {
     e.preventDefault();
@@ -121,7 +121,7 @@ function TaskForm({ open, onSave, onClose, editTask = null, setTask }) {
     };
 
     if (typeof onSave === 'function') {
-      onSave(cleanedTask);
+      onSave(cleanedTask, isUpdate);
     }
 
     setNewTask({
@@ -163,22 +163,22 @@ function TaskForm({ open, onSave, onClose, editTask = null, setTask }) {
             <div className="form-column">
               <div className="form-row">
                 <label>Task Create Date<span style={{ color: 'red' }}>*</span></label>
-            <TextField
-            required
-            type="date"
-            name="created_at"
-            variant="outlined"
-            className="no-outline-date"
-            value={newtask.created_at}
-            InputLabelProps={{ shrink: true }}
-            onChange={handleDateChange}
-            sx={{ backgroundColor: 'transparent' }} // <- removes white bg
-            inputProps={{
-              maxLength: 10,
-              pattern: "\\d{4}-\\d{2}-\\d{2}",
-              placeholder: "YYYY-MM-DD",
-            }}
-          />    
+                <TextField
+                  required
+                  type="date"
+                  name="created_at"
+                  variant="outlined"
+                  className="no-outline-date"
+                  value={newtask.created_at}
+                  InputLabelProps={{ shrink: true }}
+                  onChange={handleDateChange}
+                  sx={{ backgroundColor: 'transparent' }} // <- removes white bg
+                  inputProps={{
+                    maxLength: 10,
+                    pattern: "\\d{4}-\\d{2}-\\d{2}",
+                    placeholder: "YYYY-MM-DD",
+                  }}
+                />
 
 
                 <small style={{ color: '#666' }}>
@@ -218,85 +218,85 @@ function TaskForm({ open, onSave, onClose, editTask = null, setTask }) {
             </div>
 
             <div className="form-column">
-<div className="form-row">
-  <label>Due Date (Optional)</label>
-  <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+              <div className="form-row">
+                <label>Due Date (Optional)</label>
+                <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
 
- <TextField
-  type="date"
-  name="due_date"
-  variant="outlined"
-  className="no-outline-date"
-  value={newtask.due_date}
-  InputLabelProps={{ shrink: true }}
-  onChange={handleDateChange}
-  sx={{ backgroundColor: 'transparent' }} // <- removes white bg
-  inputProps={{
-    style: {
-      fontSize: '16px',
-      minWidth: '135px',
-      fontFamily: 'inherit',
-    },
-  }}
-/>
+                  <TextField
+                    type="date"
+                    name="due_date"
+                    variant="outlined"
+                    className="no-outline-date"
+                    value={newtask.due_date}
+                    InputLabelProps={{ shrink: true }}
+                    onChange={handleDateChange}
+                    sx={{ backgroundColor: 'transparent' }} // <- removes white bg
+                    inputProps={{
+                      style: {
+                        fontSize: '16px',
+                        minWidth: '135px',
+                        fontFamily: 'inherit',
+                      },
+                    }}
+                  />
 
-    {newtask.due_date && (
-      <Button
-        variant="outlined"
-        size="small"
-        onClick={() =>
-          setNewTask((prev) => ({ ...prev, due_date: '' }))
-        }
-        style={{ minWidth: '110px', padding: '4px 8px' }}
-      >
-        Clear
-      </Button>
-    )}
-  </div>
-  <small style={{ color: '#666' }}>
-    Display: {formatDateDisplay(newtask.due_date)}
-  </small>
-</div>
+                  {newtask.due_date && (
+                    <Button
+                      variant="outlined"
+                      size="small"
+                      onClick={() =>
+                        setNewTask((prev) => ({ ...prev, due_date: '' }))
+                      }
+                      style={{ minWidth: '110px', padding: '4px 8px' }}
+                    >
+                      Clear
+                    </Button>
+                  )}
+                </div>
+                <small style={{ color: '#666' }}>
+                  Display: {formatDateDisplay(newtask.due_date)}
+                </small>
+              </div>
 
 
-  <div className="form-row">
-  <label>Note (Optional)</label>
-  <TextField
-    type="text"
-    name="note"
-    variant="outlined"
-    value={newtask.note || ''}
-    onChange={handlechange}
-    multiline
-    rows={4}
-    inputProps={{ maxLength: 4000 }} 
-  />
-  <small style={{ color: '#666' }}>
-    {newtask.note?.length || 0}/4000 characters
-  </small>
-</div>
+              <div className="form-row">
+                <label>Note (Optional)</label>
+                <TextField
+                  type="text"
+                  name="note"
+                  variant="outlined"
+                  value={newtask.note || ''}
+                  onChange={handlechange}
+                  multiline
+                  rows={4}
+                  inputProps={{ maxLength: 4000 }}
+                />
+                <small style={{ color: '#666' }}>
+                  {newtask.note?.length || 0}/4000 characters
+                </small>
+              </div>
 
-       
+
             </div>
           </div>
 
           {newtask.priority === 'high' && (
-  <div className="form-row full-width">
-    <label>Reason for High Priority<span style={{ color: 'red' }}>*</span></label>
+            <div className="form-row full-width">
+              <label>Reason for High Priority<span style={{ color: 'red' }}>*</span></label>
 
-    <TextField
-      required
-      type="text"
-      name="reason"
-      variant="outlined"
-      value={newtask.reason || ''}
-      onChange={handlechange}
-      multiline
-      rows={4}
-      inputProps={{ maxLength: 4000 }} 
-    />
-  </div>
-)}
+              <TextField
+                required
+                type="text"
+                name="reason"
+                variant="outlined"
+                value={newtask.reason || ''}
+                onChange={handlechange}
+                multiline
+                rows={4}
+                inputProps={{ maxLength: 4000 }}
+              />
+            </div>
+          )}
 
         </DialogContent>
 

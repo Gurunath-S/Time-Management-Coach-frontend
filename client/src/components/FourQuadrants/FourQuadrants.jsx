@@ -53,11 +53,12 @@ function FourQuadrants({ hideTable, setHideTable }) {
   // Save or update task
   const saveTaskHandler = async (task, isEdit) => {
     try {
+      // Capture old task BEFORE saveTask updates the state
+      const oldTask = isEdit ? tasks.find(t => t.id === task.id) : null;
       const savedTask = await saveTask(task, isEdit);
       if (isEdit) {
-        const oldTask = tasks.find(t => t.id === savedTask.id);
         if (isFocusMode && oldTask) {
-          await logTaskChangeInFocusMode(oldTask, savedTask);
+          logTaskChangeInFocusMode(oldTask, savedTask);
         }
         setEditTask(null);
         setOpen(false);
@@ -108,28 +109,9 @@ function FourQuadrants({ hideTable, setHideTable }) {
     }
   };
 
-  // Processed tasks (auto priority)
-  const processedTask = tasks.map(t => {
-    const { priority, reason } = autoHighPriority({
-      title: t.title,
-      note: t.note,
-      tags: t.tags || [],
-      currentPriority: t.priority,
-      currentReason: t.reason
-    });
-    return { ...t, priority, reason };
-  });
 
-  useEffect(() => {
-    const saved = localStorage.getItem("focusMode");
-    if (saved) {
-      const { isFocusMode, startTime, completedTasks } = JSON.parse(saved);
-      if (isFocusMode) {
-        // sync with store
-        // store.sync handled at init; we keep local UI in sync via store selector
-      }
-    }
-  }, []);
+
+  // Focus mode state is automatically synced by Zustand persist middleware
 
   useEffect(() => {
     const categorizeTasksByPriority = (taskList) => {

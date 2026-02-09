@@ -210,7 +210,7 @@ const config = {
       "value": "prisma-client-js"
     },
     "output": {
-      "value": "/home/guru/Documents/TMC/Time-Management-Coach-Testing/server/generated/prisma",
+      "value": "/home/guru/Documents/IBT-TECH/on-going/TMC/test/testing-tmc-tst/server/generated/prisma",
       "fromEnvVar": null
     },
     "config": {
@@ -224,7 +224,7 @@ const config = {
       }
     ],
     "previewFeatures": [],
-    "sourceFilePath": "/home/guru/Documents/TMC/Time-Management-Coach-Testing/server/prisma/schema.prisma",
+    "sourceFilePath": "/home/guru/Documents/IBT-TECH/on-going/TMC/test/testing-tmc-tst/server/prisma/schema.prisma",
     "isCustomOutput": true
   },
   "relativeEnvPaths": {
@@ -238,6 +238,7 @@ const config = {
     "db"
   ],
   "activeProvider": "mysql",
+  "postinstall": false,
   "inlineDatasources": {
     "db": {
       "url": {

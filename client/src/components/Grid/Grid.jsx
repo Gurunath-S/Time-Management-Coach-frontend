@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from "react";
-import { Link, useNavigate } from 'react-router-dom'; 
+import { Link, useNavigate } from 'react-router-dom';
 import { FaFire, FaRegClock, FaPauseCircle, FaExclamationTriangle } from "react-icons/fa";
 import Button from '@mui/material/Button';
 import { MdLabel } from 'react-icons/md';
@@ -13,7 +13,7 @@ function Grid({
   isFocusMode,
   onEditTask,
   onEditPriorityTags,
-  onFieldChange, 
+  onFieldChange,
   globalFilters,
 }) {
   const filteredTasks = useMemo(() => {
@@ -60,9 +60,9 @@ function Grid({
   };
 
   const handleEditClick = (taskID) => {
-  // prevent li click
-  navigate(`/edit-tasks/${taskID}`);
-};
+    // prevent li click
+    navigate(`/edit-tasks/${taskID}`);
+  };
 
 
 
@@ -140,7 +140,7 @@ function Grid({
                     borderRadius: "6px",
                     boxShadow: "0 1px 3px rgba(0,0,0,0.1)",
                   }}
-                  onClick={() => isFocusMode && onEditTask(task)}
+                  onClick={() => onEditTask(task)}
                 >
                   <div
                     style={{
@@ -150,98 +150,80 @@ function Grid({
                       flexWrap: "wrap",
                     }}
                   >
-<span style={{ fontSize: "16px", flex: 1, minWidth: "200px" }}>
-  <strong>
-    {index + 1}.{' '}
-    {isFocusMode ? (
-  <input
-    value={task.title}
-    onChange={(e) => handleTaskFieldChange(task.id, 'title', e.target.value)}
-    style={{
-      fontSize: '16px',
-      fontWeight: 'bold',
-      padding: '2px 4px',
-      border: 'none', 
-      outline: 'none',
-      background: 'transparent',
-    }}
-  />
-) : (
-  task.title
-)}
-  </strong>
-  <br />
-  <span style={{ fontSize: "14px", color: "#666" }}>
-    Due: {formatDate(task.due_date)}
-    {task?.suggestion && (
-      <strong style={{ color: "red", marginLeft: "8px" }}>
-        {task.suggestion}
-      </strong>
-    )}
-  </span>
-  <span style={{ fontSize: "14px", color: "#666", marginLeft: "10px" }}>
-    Time Spent: {formatTime(task.timeSpentSeconds)}
-  </span>
-</span>
+                    <span style={{ fontSize: "16px", flex: 1, minWidth: "200px" }}>
+                      <strong>
+                        {index + 1}.{' '}
+                        {isFocusMode ? (
+                          <input
+                            value={task.title}
+                            onChange={(e) => handleTaskFieldChange(task.id, 'title', e.target.value)}
+                            onClick={(e) => e.stopPropagation()}
+                            style={{
+                              fontSize: '16px',
+                              fontWeight: 'bold',
+                              padding: '2px 4px',
+                              border: 'none',
+                              outline: 'none',
+                              background: 'transparent',
+                            }}
+                          />
+                        ) : (
+                          task.title
+                        )}
+                      </strong>
+                      <br />
+                      <span style={{ fontSize: "14px", color: "#666" }}>
+                        Due: {formatDate(task.due_date)}
+                        {task?.suggestion && (
+                          <strong style={{ color: "red", marginLeft: "8px" }}>
+                            {task.suggestion}
+                          </strong>
+                        )}
+                      </span>
+                      <span style={{ fontSize: "14px", color: "#666", marginLeft: "10px" }}>
+                        Time Spent: {formatTime(task.timeSpentSeconds)}
+                      </span>
+                    </span>
 
 
 
-                  <div
-  style={{ display: "flex", alignItems: "center", gap: "8px" }}
-  onClick={(e) => e.stopPropagation()}
->
-  <span
-    style={{
-      padding: "4px 8px",
-      background:
-        task.priority === "high"
-          ? "#e57373"
-          : task.priority === "normal"
-          ? "#fff176"
-          : "#81C784",
-      borderRadius: "12px",
-      fontSize: "0.8rem",
-      fontWeight: "bold",
-      textTransform: "capitalize",
-    }}
-  >
-    {task.priority || "normal"}
-  </span>
+                    <div
+                      style={{ display: "flex", alignItems: "center", gap: "8px" }}
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      <span
+                        style={{
+                          padding: "4px 8px",
+                          background:
+                            task.priority === "high"
+                              ? "#e57373"
+                              : task.priority === "normal"
+                                ? "#fff176"
+                                : "#81C784",
+                          borderRadius: "12px",
+                          fontSize: "0.8rem",
+                          fontWeight: "bold",
+                          textTransform: "capitalize",
+                        }}
+                      >
+                        {task.priority || "normal"}
+                      </span>
 
-  <Button
-    size="small"
-    onClick={() => onEditPriorityTags(task)}
-    style={{
-      minWidth: "auto",
-      padding: "2px 10px",
-      backgroundColor: "#ad5fecff",
-      color: "white",
-      borderRadius: "8px",
-    }}
-  >
-    <MdLabel style={{ marginRight: "4px" }} />
-    Tags
-  </Button>
-
-  {isFocusMode && (
-  <button
-    onClick={(e) => handleEditClick(task.id)}
-    style={{
-      textDecoration: 'none',
-      color: 'white',
-      backgroundColor: '#1976d2',
-      padding: '4px 10px',
-      borderRadius: '8px',
-      fontSize: '0.75rem',
-      border: 'none',
-      cursor: 'pointer'
-    }}
-  >
-    Edit
-  </button>
-)}
-
-</div>
+                      <Button
+                        size="small"
+                        onClick={() => onEditPriorityTags(task)}
+                        style={{
+                          minWidth: "auto",
+                          padding: "2px 10px",
+                          backgroundColor: "#ad5fecff",
+                          color: "white",
+                          borderRadius: "8px",
+                        }}
+                      >
+                        <MdLabel style={{ marginRight: "4px" }} />
+                        Tags
+                      </Button>
+                    </div>
 
                   </div>
 
