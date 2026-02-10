@@ -4,6 +4,7 @@ import { FaFire, FaRegClock, FaPauseCircle, FaExclamationTriangle } from "react-
 import Button from '@mui/material/Button';
 import { MdLabel } from 'react-icons/md';
 import Chip from '@mui/material/Chip';
+import { format } from 'date-fns';
 
 function Grid({
   taskList = [],
@@ -45,11 +46,22 @@ function Grid({
 
   const formatDate = (dateStr) => {
     if (!dateStr) return "Not Set";
-    const d = new Date(dateStr);
-    const day = String(d.getDate()).padStart(2, "0");
-    const month = String(d.getMonth() + 1).padStart(2, "0");
-    const year = d.getFullYear();
-    return `${day} ${month} ${year}`;
+    try {
+      // If it looks like ISO date YYYY-MM-DD...
+      if (dateStr.length >= 10) {
+        const datePart = dateStr.split('T')[0];
+        const [y, m, d] = datePart.split('-');
+        if (y && m && d) {
+          return `${d}/${m}/${y.slice(-2)}`;
+        }
+      }
+
+      // Fallback
+      const d = new Date(dateStr);
+      return format(d, 'dd/MM/yy');
+    } catch {
+      return "Invalid Date";
+    }
   };
 
   const formatTime = (seconds) => {
@@ -64,6 +76,21 @@ function Grid({
     navigate(`/edit-tasks/${taskID}`);
   };
 
+  // Helper for inline editing if needed, matching original logic? 
+  // Original code had `handleTaskFieldChange` used in the input onChange 
+  // but `onFieldChange` prop is passed. 
+  // The original code passed `handleTaskFieldChange` which was undefined in the file snippet I saw?
+  // Wait, looking at line 159 of step 27: `onChange={(e) => handleTaskFieldChange(task.id, 'title', e.target.value)}`
+  // But `handleTaskFieldChange` is NOT defined in component scope in the snippet I read!
+  // It must have been missing or I missed it. 
+  // Ah, it was probably supposed to use `onFieldChange`. 
+  // Let's fix that too.
+
+  const handleTitleChange = (taskId, val) => {
+    if (onFieldChange) {
+      onFieldChange(taskId, 'title', val);
+    }
+  };
 
 
   return (
@@ -156,7 +183,7 @@ function Grid({
                         {isFocusMode ? (
                           <input
                             value={task.title}
-                            onChange={(e) => handleTaskFieldChange(task.id, 'title', e.target.value)}
+                            onChange={(e) => handleTitleChange(task.id, e.target.value)}
                             onClick={(e) => e.stopPropagation()}
                             style={{
                               fontSize: '16px',

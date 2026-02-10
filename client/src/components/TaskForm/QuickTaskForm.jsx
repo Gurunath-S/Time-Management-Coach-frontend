@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import './QuickTaskForm.css';
 import { toast } from 'react-toastify';
 import BACKEND_URL from '../../../Config';
+import { useAuthStore } from '../../store/useAuthStore'; // Clean import
+// We could use useTaskStore.fetchTasks to reload if needed, but this is a fire-and-forget save mostly.
 
 export default function QuickTaskFormPage() {
   const [date, setDate] = useState('');
@@ -9,7 +11,6 @@ export default function QuickTaskFormPage() {
   const [timeSpent, setTimeSpent] = useState('');
   const [selectedWorkTasks, setSelectedWorkTasks] = useState([]);
   const [selectedPersonalTasks, setSelectedPersonalTasks] = useState([]);
-  const [user, setUser] = useState('');
 
   // ✅ Define current year
   const currentYear = new Date().getFullYear();
@@ -46,16 +47,27 @@ export default function QuickTaskFormPage() {
   ];
 
   const handleDateChange = (e) => {
-    const selectedDate = new Date(e.target.value);
+    const val = e.target.value;
+    if (!val) {
+      setDate('');
+      return;
+    }
+    const selectedDate = new Date(val);
     const selectedYear = selectedDate.getFullYear();
 
-    if (selectedYear !== currentYear) {
+    // Since input type date returns YYYY-MM-DD, new Date() parses it as UTC.
+    // However, for year verification, getFullYear() works on local time.
+    // If user selects Jan 1st near UTC boundary, it works fine usually unless we are careful.
+    // Let's stick to simple string splitting for safety.
+    const yearStr = parseInt(val.split('-')[0]);
+
+    if (yearStr !== currentYear) {
       alert(`Please select a date from the current year (${currentYear}) only.`);
-      setDate(''); // reset invalid date
+      setDate('');
       return;
     }
 
-    setDate(e.target.value);
+    setDate(val);
   };
 
   const handleCheckbox = (task, type) => {
@@ -75,7 +87,6 @@ export default function QuickTaskFormPage() {
     setTimeSpent('');
     setSelectedWorkTasks([]);
     setSelectedPersonalTasks([]);
-    setUser('');
   };
 
   const handleSubmit = async (e) => {
@@ -86,9 +97,20 @@ export default function QuickTaskFormPage() {
       return;
     }
 
+    // Creating date object that respects LOCAL time for the user.
+    // If user chose 2026-02-10, we want to store it as 2026-02-10T00:00:00.000Z generally, 
+    // OR just send the date string if backend handles it.
+    // The previous implementation used new Date(date) which creates UTC or Local depending on browser,
+    // usually defaulting to UTC for 'YYYY-MM-DD'.
+    // We explicitly want to ensure the 'date' field in DB reflects this day.
+
+    // Best practice: Send as ISO string but force it to be the local day representation.
+    const [y, m, d] = date.split('-').map(Number);
+    const localDate = new Date(y, m - 1, d); // 0-indexed month
+
     const quickLog = {
-      id: `${Date.now()} min`,
-      date: new Date(date),
+      id: `${Date.now()} min`, // Unique enough for quick log
+      date: localDate.toISOString(), // Send ISO. Backend should handle this or forward it back safely.
       workTasks: selectedWorkTasks,
       personalTasks: selectedPersonalTasks,
       notes,
@@ -96,11 +118,14 @@ export default function QuickTaskFormPage() {
     };
 
     try {
+      const token = useAuthStore.getState().token;
+      if (!token) throw new Error("Not logged in");
+
       const req = await fetch(`${BACKEND_URL}/api/qtasks`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          Authorization: `Bearer ${localStorage.getItem('token')}`,
+          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify(quickLog),
       });
@@ -184,7 +209,7 @@ export default function QuickTaskFormPage() {
 
         <div className="btn-group">
           <button type="submit">Save</button>
-          <button type='button' onClick={()=>history.back()}>Cancel</button>
+          <button type='button' onClick={() => window.history.back()}>Cancel</button>
           <button type="button" onClick={handleReset}>Reset</button>
         </div>
       </form>

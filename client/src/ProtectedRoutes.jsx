@@ -19,25 +19,33 @@ export default function ProtectedRoutes() {
   const toastShownRef = useRef(false);
   const { isLoggedIn, isFocusMode } = useGlobalStore();
 
-  useEffect(() => {
-    const allowedPatterns = [
-      /^\/edit-tasks\/[^/]+$/,
-      /^\/focus-summary$/,
-    ];
-    const isAllowed = allowedPatterns.some((p) => p.test(location.pathname));
+  // Define allowed patterns
+  const allowedPatterns = [
+    /^\/edit-tasks\/[^/]+$/,
+    /^\/focus-summary$/,
+    /^\/edit-tags\/[^/]+$/, // Enable Edit Tags in Focus Mode
+  ];
 
-    if (isFocusMode && !isAllowed && location.pathname !== '/home') {
+  const isAllowed = allowedPatterns.some((p) => p.test(location.pathname));
+  const isTargetRestricted = isFocusMode && !isAllowed && location.pathname !== '/home';
+
+  useEffect(() => {
+    if (isTargetRestricted) {
       if (!toastShownRef.current) {
         toast.warn('Navigation disabled in Focus Mode', { toastId: 'focus-mode-warning' });
         toastShownRef.current = true;
       }
-      navigate('/home', { replace: true });
-    }
-
-    if (!isFocusMode) {
+    } else {
+      // Reset toast flag when on allowed page
       toastShownRef.current = false;
     }
-  }, [location, isFocusMode, navigate]);
+  }, [isTargetRestricted]);
+
+  // If restricted, redirect IMMEDIATELY by rendering Navigate, 
+  // instead of waiting for useEffect (which causes flicker).
+  if (isTargetRestricted) {
+    return <Navigate to="/home" replace />;
+  }
 
   return (
     <Routes>

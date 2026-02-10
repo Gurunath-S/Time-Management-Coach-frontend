@@ -1,16 +1,19 @@
-// src/components/FourQuadrants/FocusSummary.jsx
 import React, { useEffect, useState } from 'react';
 import useGlobalStore from '../../../store/useGlobalStore';
-import { Card, CardContent, Typography, Divider, Button } from '@mui/material';
+import { Card, CardContent, Typography, Divider, Button, CircularProgress, Box } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import BACKEND_URL from '../../../../Config';
+import './FocusSummary.css'; // Import the new CSS
+
 const FocusSummary = () => {
   const [sessions, setSessions] = useState([]);
+  const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
   const token = useGlobalStore(state => state.token);
 
   useEffect(() => {
     const fetchSessions = async () => {
+      setLoading(true);
       try {
         const res = await fetch(`${BACKEND_URL}/api/focus`, {
           headers: { Authorization: `Bearer ${token}` }
@@ -20,9 +23,15 @@ const FocusSummary = () => {
         setSessions(data || []);
       } catch (err) {
         console.error('Failed to fetch focus sessions', err);
+      } finally {
+        setLoading(false);
       }
     };
-    fetchSessions();
+    if (token) {
+      fetchSessions();
+    } else {
+      setLoading(false);
+    }
   }, [token]);
 
   const formatDuration = (secs) => {
@@ -38,60 +47,100 @@ const FocusSummary = () => {
     return d.toLocaleString();
   };
 
-  return (
-    <div style={{ backgroundColor: '#f0f2f5', minHeight: '100vh', padding: '40px' }}>
-      <Button variant="contained" onClick={() => navigate('/')} style={{ marginBottom: '20px' }}>Back</Button>
-      <Typography variant="h4" gutterBottom style={{ fontWeight: '300', color: '#111', marginBottom: '35px', textAlign: 'center' }}>
-        Focus Session Overview
-      </Typography>
+  const formatDateOnly = (dateStr) => {
+    const d = new Date(dateStr);
+    return d.toLocaleDateString();
+  };
 
-      {sessions.length === 0 ? (
-        <Typography variant="body1" color="textSecondary" align="center">No focus sessions found.</Typography>
+  const formatTimeOnly = (dateStr) => {
+    const d = new Date(dateStr);
+    return d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  };
+
+  return (
+    <div className="focus-summary-container">
+      <div className="focus-summary-header">
+        <Button
+          variant="outlined"
+          onClick={() => navigate('/')}
+          className="back-button"
+        >
+          &larr; Back
+        </Button>
+        <Typography variant="h4" className="page-title">
+          Focus Session Overview
+        </Typography>
+      </div>
+
+      {loading ? (
+        <div className="loading-container">
+          <CircularProgress />
+        </div>
+      ) : sessions.length === 0 ? (
+        <Typography variant="body1" color="textSecondary" align="center" style={{ marginTop: '40px' }}>
+          No focus sessions found.
+        </Typography>
       ) : (
-        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '20px', justifyContent: 'center' }}>
+        <div className="sessions-grid">
           {sessions.map((session, index) => (
-            <Card key={index} sx={{ backgroundColor: '#fff', borderRadius: '12px', border: '1px solid #e0e0e0', boxShadow: '0 2px 8px rgba(0,0,0,0.05)', padding: '24px', flex: '0 1 48%' }}>
-              <CardContent>
-                <Divider sx={{ marginBottom: '20px' }} />
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                  <Typography variant="body2" sx={{ color: '#242222' }}><strong>From:</strong> {formatDateTime(session.startTime)}</Typography>
-                  <Typography variant="body2" sx={{ color: '#242222' }}><strong>To:</strong> {formatDateTime(session.endTime)}</Typography>
-                  <Typography variant="body2" sx={{ color: '#242222' }}>
-                    <strong>Time Spent:</strong> {session.timeSpent ? formatDuration(session.timeSpent) : 'N/A'}
-                  </Typography>
+            <div key={index} className="session-card">
+              <div className="card-header">
+                <span className="session-date">{formatDateOnly(session.startTime)}</span>
+                <span className="session-duration">
+                  {session.timeSpent ? formatDuration(session.timeSpent) : '0s'}
+                </span>
+              </div>
+
+              <div className="card-body">
+                <div className="info-row">
+                  <span>Started: {formatTimeOnly(session.startTime)}</span>
+                  <span>Ended: {formatTimeOnly(session.endTime)}</span>
                 </div>
 
-                <Typography variant="subtitle2" sx={{ fontWeight: 300, color: '#161616', marginTop: '20px', marginBottom: '10px' }}>✅ Tasks Completed:</Typography>
+                <Divider sx={{ my: 2, borderColor: '#f1f5f9' }} />
+
+                <Typography variant="subtitle2" className="section-title">
+                  ✅ Tasks Completed
+                </Typography>
 
                 {session.completedTasks && session.completedTasks.length > 0 ? (
-                  <ul style={{ paddingLeft: '20px', color: '#444', marginBottom: 0 }}>
-                    {session.completedTasks.map((task, i) => <li key={i} style={{ marginBottom: '6px' }}>{task.title}</li>)}
+                  <ul className="task-list">
+                    {session.completedTasks.map((task, i) => (
+                      <li key={i} className="task-item">
+                        {task.title}
+                      </li>
+                    ))}
                   </ul>
                 ) : (
-                  <Typography variant="body2" color="text.secondary">No tasks completed in this session.</Typography>
+                  <div className="empty-state">No tasks completed.</div>
                 )}
 
                 {session.taskChanges && session.taskChanges.length > 0 && (
                   <>
-                    <Typography variant="subtitle2" sx={{ fontWeight: 300, color: '#161616', marginTop: '20px', marginBottom: '10px' }}>📝 Tasks Edited:</Typography>
-                    <ul style={{ paddingLeft: '20px', color: '#444', marginBottom: 0 }}>
+                    <Typography variant="subtitle2" className="section-title" style={{ marginTop: '24px' }}>
+                      📝 Tasks Edited
+                    </Typography>
+                    <ul className="task-list">
                       {session.taskChanges.map((change, i) => (
-                        <li key={i} style={{ marginBottom: '8px' }}>
+                        <li key={i} className="task-item" style={{ flexDirection: 'column', gap: '4px' }}>
                           <strong>{change.taskTitle || change.taskId}</strong>
-                          <ul style={{ paddingLeft: '16px', marginTop: '4px', fontSize: '0.85em', color: '#666' }}>
+                          <div className="change-log">
                             {Object.entries(change.changes || {}).map(([field, val]) => (
-                              <li key={field}>
-                                {field}: <span style={{ textDecoration: 'line-through', color: '#999' }}>{String(val.before ?? '')}</span> → <span style={{ color: '#2e7d32' }}>{String(val.after ?? '')}</span>
-                              </li>
+                              <div key={field}>
+                                <span style={{ color: '#94a3b8', fontSize: '0.8em' }}>{field}: </span>
+                                <span style={{ textDecoration: 'line-through', color: '#ef4444' }}>{String(val.before ?? '')}</span>
+                                <span style={{ margin: '0 4px', color: '#cbd5e1' }}>&rarr;</span>
+                                <span style={{ color: '#22c55e' }}>{String(val.after ?? '')}</span>
+                              </div>
                             ))}
-                          </ul>
+                          </div>
                         </li>
                       ))}
                     </ul>
                   </>
                 )}
-              </CardContent>
-            </Card>
+              </div>
+            </div>
           ))}
         </div>
       )}

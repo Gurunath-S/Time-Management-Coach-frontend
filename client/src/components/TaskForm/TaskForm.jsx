@@ -9,6 +9,11 @@ import MenuItem from '@mui/material/MenuItem';
 import './TaskForm.css';
 import { v4 as uuidv4 } from 'uuid';
 import Button from '@mui/material/Button';
+import { format } from 'date-fns';
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
+import { DatePicker } from '@mui/x-date-pickers/DatePicker';
+import enGB from 'date-fns/locale/en-GB'; // Strict dd/MM/yyyy locale
 
 function TaskForm({ open, onSave, onClose, editTask = null, setTask }) {
   const isUpdate = !!editTask;
@@ -24,29 +29,19 @@ function TaskForm({ open, onSave, onClose, editTask = null, setTask }) {
     status: ''
   });
 
-
   const formatDateForInput = (dateStr) => {
     if (!dateStr) return '';
-    const d = new Date(dateStr);
-    const offset = d.getTimezoneOffset();
-    const localDate = new Date(d.getTime() - offset * 60 * 1000);
-    return localDate.toISOString().split('T')[0];
+    try {
+      const d = new Date(dateStr);
+      if (isNaN(d.getTime())) return '';
+      return format(d, 'yyyy-MM-dd');
+    } catch {
+      return '';
+    }
   };
-
-  const formatDateDisplay = (dateStr) => {
-    if (!dateStr) return '';
-    const d = new Date(dateStr);
-    if (isNaN(d.getTime())) return '';
-    const day = String(d.getDate()).padStart(2, '0');
-    const month = String(d.getMonth() + 1).padStart(2, '0');
-    const year = d.getFullYear();
-    return `${day}-${month}-${year}`;
-  };
-
 
   useEffect(() => {
     if (open) {
-      // Reset the form whenever the dialog opens
       if (editTask) {
         setNewTask({
           ...editTask,
@@ -54,10 +49,11 @@ function TaskForm({ open, onSave, onClose, editTask = null, setTask }) {
           due_date: editTask.due_date ? formatDateForInput(editTask.due_date) : '',
         });
       } else {
+        const todayStr = format(new Date(), 'yyyy-MM-dd');
         setNewTask({
           id: '',
           title: '',
-          created_at: '',
+          created_at: todayStr, // Default to today
           due_date: '',
           priority: '',
           note: '',
@@ -77,24 +73,36 @@ function TaskForm({ open, onSave, onClose, editTask = null, setTask }) {
     }));
   };
 
-  const handleDateChange = (e) => {
-    const { name, value } = e.target;
-    if (!value) {
+  const handleDateChange = (name, newValue) => {
+    // newValue is a Date object (or null) from the picker
+    // We want to store it as YYYY-MM-DD string internally to match existing logic
+    if (!newValue || isNaN(newValue)) {
       setNewTask((prev) => ({ ...prev, [name]: '' }));
       return;
     }
 
-    const selectedDate = new Date(value);
-    const currentYear = new Date().getFullYear();
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
 
-    if (selectedDate.getFullYear() !== currentYear) {
-      alert(`Please select a date within the current year (${currentYear})`);
-      const todayStr = new Date().toISOString().split('T')[0]; // yyyy-mm-dd
-      setNewTask((prev) => ({ ...prev, [name]: todayStr }));
-      return;
+    // Validation: Past Date Check for due_date
+    if (name === 'due_date') {
+      const checkDate = new Date(newValue);
+      checkDate.setHours(0, 0, 0, 0);
+      if (checkDate < today) {
+        alert("Due date cannot be in the past.");
+        return;
+      }
     }
 
-    setNewTask((prev) => ({ ...prev, [name]: value }));
+    // Convert to YYYY-MM-DD for internal state
+    try {
+      const y = newValue.getFullYear();
+      const m = String(newValue.getMonth() + 1).padStart(2, '0');
+      const d = String(newValue.getDate()).padStart(2, '0');
+      setNewTask((prev) => ({ ...prev, [name]: `${y}-${m}-${d}` }));
+    } catch (e) {
+      console.error("Date conversion error", e);
+    }
   };
 
   const handleSave = (e) => {
@@ -113,11 +121,19 @@ function TaskForm({ open, onSave, onClose, editTask = null, setTask }) {
       return;
     }
 
+    // Helper to create date object treated as local
+    const toLocalISO = (dateStr) => {
+      if (!dateStr) return null;
+      // new Date(2023, 9, 27) -> Local.
+      const [y, m, dPart] = dateStr.split('-').map(Number);
+      return new Date(y, m - 1, dPart).toISOString();
+    };
+
     const cleanedTask = {
       ...newtask,
       id: newtask.id || uuidv4(),
-      created_at: newtask.created_at ? new Date(newtask.created_at) : null,
-      due_date: newtask.due_date ? new Date(newtask.due_date) : null,
+      created_at: newtask.created_at ? toLocalISO(newtask.created_at) : null,
+      due_date: newtask.due_date ? toLocalISO(newtask.due_date) : null,
     };
 
     if (typeof onSave === 'function') {
@@ -138,177 +154,156 @@ function TaskForm({ open, onSave, onClose, editTask = null, setTask }) {
     onClose();
   };
 
+  // Helper to parse stored string back to Date object for the Picker
+  const getDateObject = (dateStr) => {
+    if (!dateStr) return null;
+    const [y, m, d] = dateStr.split('-').map(Number);
+    return new Date(y, m - 1, d);
+  };
+
   return (
     <Dialog open={open}>
-      <form className="dialog-form" onSubmit={handleSave}>
-        <DialogTitle style={{ textAlign: 'center', color: 'blue' }}>
-          {isUpdate ? 'Edit Task' : 'Add Task'}
-        </DialogTitle>
+      <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={enGB}>
+        <form className="dialog-form" onSubmit={handleSave}>
+          <DialogTitle style={{ textAlign: 'center', color: 'blue' }}>
+            {isUpdate ? 'Edit Task' : 'Add Task'}
+          </DialogTitle>
 
-        <DialogContent>
-          <div className="form-row full-width">
-            <label>Task Name <span style={{ color: 'red' }}>*</span></label>
-            <TextField
-              autoFocus
-              required
-              type="text"
-              name="title"
-              variant="outlined"
-              value={newtask.title}
-              onChange={handlechange}
-            />
-          </div>
+          <DialogContent>
+            <div className="form-row full-width">
+              <label>Task Name <span style={{ color: 'red' }}>*</span></label>
+              <TextField
+                autoFocus
+                required
+                type="text"
+                name="title"
+                variant="outlined"
+                value={newtask.title}
+                onChange={handlechange}
+              />
+            </div>
 
-          <div className="form-columns">
-            <div className="form-column">
-              <div className="form-row">
-                <label>Task Create Date<span style={{ color: 'red' }}>*</span></label>
-                <TextField
-                  required
-                  type="date"
-                  name="created_at"
-                  variant="outlined"
-                  className="no-outline-date"
-                  value={newtask.created_at}
-                  InputLabelProps={{ shrink: true }}
-                  onChange={handleDateChange}
-                  sx={{ backgroundColor: 'transparent' }} // <- removes white bg
-                  inputProps={{
-                    maxLength: 10,
-                    pattern: "\\d{4}-\\d{2}-\\d{2}",
-                    placeholder: "YYYY-MM-DD",
-                  }}
-                />
+            <div className="form-columns">
+              <div className="form-column">
+                <div className="form-row">
+                  <label>Task Create Date<span style={{ color: 'red' }}>*</span></label>
+                  <DatePicker
+                    format="dd/MM/yyyy"
+                    value={getDateObject(newtask.created_at)}
+                    onChange={(newValue) => handleDateChange('created_at', newValue)}
+                    slotProps={{ textField: { fullWidth: true, required: true } }}
+                  />
+                </div>
 
+                <div className="form-row">
+                  <label>Priority<span style={{ color: 'red' }}>*</span></label>
+                  <Select
+                    name="priority"
+                    value={newtask.priority}
+                    onChange={handlechange}
+                    defaultValue=""
+                    required
+                  >
+                    <MenuItem value="high">High</MenuItem>
+                    <MenuItem value="normal">Normal</MenuItem>
+                    <MenuItem value="low">Low</MenuItem>
+                  </Select>
+                </div>
 
-                <small style={{ color: '#666' }}>
-                  Display: {formatDateDisplay(newtask.created_at)}
-                </small>
+                <div className="form-row">
+                  <label>Status<span style={{ color: 'red' }}>*</span></label>
+                  <Select
+                    name="status"
+                    value={newtask.status}
+                    defaultValue=""
+                    onChange={handlechange}
+                    required
+                  >
+                    <MenuItem value="completed">Completed</MenuItem>
+                    <MenuItem value="pending">Pending</MenuItem>
+                    <MenuItem value="in progress">In Progress</MenuItem>
+                  </Select>
+                </div>
               </div>
 
-              <div className="form-row">
-                <label>Priority<span style={{ color: 'red' }}>*</span></label>
-                <Select
-                  name="priority"
-                  value={newtask.priority}
-                  onChange={handlechange}
-                  defaultValue=""
-                  required
-                >
-                  <MenuItem value="high">High</MenuItem>
-                  <MenuItem value="normal">Normal</MenuItem>
-                  <MenuItem value="low">Low</MenuItem>
-                </Select>
-              </div>
+              <div className="form-column">
+                <div className="form-row">
+                  <label>Due Date (Optional)</label>
+                  <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+                    <DatePicker
+                      format="dd/MM/yyyy"
+                      value={getDateObject(newtask.due_date)}
+                      onChange={(newValue) => handleDateChange('due_date', newValue)}
+                      slotProps={{ textField: { fullWidth: true } }}
+                    />
 
-              <div className="form-row">
-                <label>Status<span style={{ color: 'red' }}>*</span></label>
-                <Select
-                  name="status"
-                  value={newtask.status}
-                  defaultValue=""
-                  onChange={handlechange}
-                  required
-                >
-                  <MenuItem value="completed">Completed</MenuItem>
-                  <MenuItem value="pending">Pending</MenuItem>
-                  <MenuItem value="in progress">In Progress</MenuItem>
-                </Select>
+                    {newtask.due_date && (
+                      <Button
+                        variant="outlined"
+                        size="small"
+                        onClick={() =>
+                          setNewTask((prev) => ({ ...prev, due_date: '' }))
+                        }
+                        style={{ minWidth: '80px', padding: '4px 8px', height: '56px' }}
+                      >
+                        Clear
+                      </Button>
+                    )}
+                  </div>
+                </div>
+
+
+                <div className="form-row">
+                  <label>Note (Optional)</label>
+                  <TextField
+                    type="text"
+                    name="note"
+                    variant="outlined"
+                    value={newtask.note || ''}
+                    onChange={handlechange}
+                    multiline
+                    rows={4}
+                    inputProps={{ maxLength: 4000 }}
+                  />
+                  <small style={{ color: '#666' }}>
+                    {newtask.note?.length || 0}/4000 characters
+                  </small>
+                </div>
+
+
               </div>
             </div>
 
-            <div className="form-column">
-              <div className="form-row">
-                <label>Due Date (Optional)</label>
-                <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+            {newtask.priority === 'high' && (
+              <div className="form-row full-width">
+                <label>Reason for High Priority<span style={{ color: 'red' }}>*</span></label>
 
-                  <TextField
-                    type="date"
-                    name="due_date"
-                    variant="outlined"
-                    className="no-outline-date"
-                    value={newtask.due_date}
-                    InputLabelProps={{ shrink: true }}
-                    onChange={handleDateChange}
-                    sx={{ backgroundColor: 'transparent' }} // <- removes white bg
-                    inputProps={{
-                      style: {
-                        fontSize: '16px',
-                        minWidth: '135px',
-                        fontFamily: 'inherit',
-                      },
-                    }}
-                  />
-
-                  {newtask.due_date && (
-                    <Button
-                      variant="outlined"
-                      size="small"
-                      onClick={() =>
-                        setNewTask((prev) => ({ ...prev, due_date: '' }))
-                      }
-                      style={{ minWidth: '110px', padding: '4px 8px' }}
-                    >
-                      Clear
-                    </Button>
-                  )}
-                </div>
-                <small style={{ color: '#666' }}>
-                  Display: {formatDateDisplay(newtask.due_date)}
-                </small>
-              </div>
-
-
-              <div className="form-row">
-                <label>Note (Optional)</label>
                 <TextField
+                  required
                   type="text"
-                  name="note"
+                  name="reason"
                   variant="outlined"
-                  value={newtask.note || ''}
+                  value={newtask.reason || ''}
                   onChange={handlechange}
                   multiline
                   rows={4}
                   inputProps={{ maxLength: 4000 }}
                 />
-                <small style={{ color: '#666' }}>
-                  {newtask.note?.length || 0}/4000 characters
-                </small>
               </div>
+            )}
 
+          </DialogContent>
 
-            </div>
-          </div>
-
-          {newtask.priority === 'high' && (
-            <div className="form-row full-width">
-              <label>Reason for High Priority<span style={{ color: 'red' }}>*</span></label>
-
-              <TextField
-                required
-                type="text"
-                name="reason"
-                variant="outlined"
-                value={newtask.reason || ''}
-                onChange={handlechange}
-                multiline
-                rows={4}
-                inputProps={{ maxLength: 4000 }}
-              />
-            </div>
-          )}
-
-        </DialogContent>
-
-        <DialogActions>
-          <Button style={{ backgroundColor: '#a1a1a1ff', color: 'white' }} onClick={onClose}>
-            Cancel
-          </Button>
-          <Button style={{ backgroundColor: '#0b87b1ff', color: 'white' }} type="submit">
-            Save
-          </Button>
-        </DialogActions>
-      </form>
+          <DialogActions>
+            <Button style={{ backgroundColor: '#a1a1a1ff', color: 'white' }} onClick={onClose}>
+              Cancel
+            </Button>
+            <Button style={{ backgroundColor: '#0b87b1ff', color: 'white' }} type="submit">
+              Save
+            </Button>
+          </DialogActions>
+        </form>
+      </LocalizationProvider>
     </Dialog>
   );
 }

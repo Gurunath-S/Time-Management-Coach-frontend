@@ -7,6 +7,7 @@ import { toast } from 'react-toastify';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import BACKEND_URL from '../../../Config';
+import { format } from 'date-fns';
 
 function TaskReport({ tasks, setTask, filterStatus }) {
   const [filteredTasks, setFilteredTasks] = useState(tasks);
@@ -63,6 +64,20 @@ function TaskReport({ tasks, setTask, filterStatus }) {
     }
   };
 
+  const formatDate = (dateStr) => {
+    if (!dateStr) return '';
+    try {
+      if (dateStr.length >= 10) {
+        const part = dateStr.split('T')[0];
+        const [y, m, d] = part.split('-');
+        if (y && m && d) return `${d}/${m}/${y.slice(-2)}`;
+      }
+      return format(new Date(dateStr), 'dd/MM/yy');
+    } catch {
+      return '';
+    }
+  };
+
   return (
     <div className="task-report-container">
       <div className="table-header-row">
@@ -74,10 +89,10 @@ function TaskReport({ tasks, setTask, filterStatus }) {
           {filterStatus === 'all'
             ? 'Ongoing Tasks (Pending + In Progress)'
             : filterStatus === 'completed'
-            ? 'Completed Tasks'
-            : filterStatus === 'pending'
-            ? 'Pending Tasks'
-            : 'In Progress Tasks'}
+              ? 'Completed Tasks'
+              : filterStatus === 'pending'
+                ? 'Pending Tasks'
+                : 'In Progress Tasks'}
         </h3>
 
         <TextField
@@ -116,14 +131,10 @@ function TaskReport({ tasks, setTask, filterStatus }) {
                     <tr key={index}>
                       <td className="td">{taskItem.title}</td>
                       <td className="td">
-                        {taskItem.created_at
-                          ? new Date(taskItem.created_at).toLocaleDateString('en-GB')
-                          : ''}
+                        {formatDate(taskItem.created_at)}
                       </td>
                       <td className="td">
-                        {taskItem.due_date
-                          ? new Date(taskItem.due_date).toLocaleDateString('en-GB')
-                          : ''}
+                        {formatDate(taskItem.due_date)}
                       </td>
                       <td className="td">{taskItem.priority}</td>
                       <td className="td">{taskItem.status}</td>

@@ -20,14 +20,31 @@ function QtaskReport({ qtasks, setQtasks }) {
   };
 
   const todaysQuickTasks = qtasks.filter((taskItem) => {
-    const taskDate = new Date(taskItem.date);
+    // We treat the stored date string as the local date reference.
+    // If it's a full ISO string, we need to extract YYYY-MM-DD.
+    if (!taskItem.date) return false;
+
+    // Parse date parts to strictly match local day
+    const taskDateStr = taskItem.date.split('T')[0];
+
+    // Get today's local date string YYYY-MM-DD
     const today = new Date();
-    return (
-      taskDate.getDate() === today.getDate() &&
-      taskDate.getMonth() === today.getMonth() &&
-      taskDate.getFullYear() === today.getFullYear()
-    );
+    // use simple formatting to avoid timezone offset issues when stringifying
+    const y = today.getFullYear();
+    const m = String(today.getMonth() + 1).padStart(2, '0');
+    const d = String(today.getDate()).padStart(2, '0');
+    const todayStr = `${y}-${m}-${d}`;
+
+    return taskDateStr === todayStr;
   });
+
+  const formatDate = (dateStr) => {
+    // Force local date display
+    if (!dateStr) return '';
+    const part = dateStr.split('T')[0];
+    const [y, m, d] = part.split('-');
+    return `${d}/${m}/${y.slice(-2)}`;
+  };
 
   return (
     <div className="task-report-container">
@@ -62,9 +79,9 @@ function QtaskReport({ qtasks, setQtasks }) {
               ) : (
                 todaysQuickTasks.map((taskItem, index) => (
                   <tr key={index}>
-                    <td className="td">{new Date(taskItem.date).toLocaleDateString('en-GB')}</td>
-                    <td className="td">{taskItem.workTasks}</td>
-                    <td className="td">{taskItem.personalTasks}</td>
+                    <td className="td">{formatDate(taskItem.date)}</td>
+                    <td className="td">{Array.isArray(taskItem.workTasks) ? taskItem.workTasks.join(', ') : taskItem.workTasks}</td>
+                    <td className="td">{Array.isArray(taskItem.personalTasks) ? taskItem.personalTasks.join(', ') : taskItem.personalTasks}</td>
                     <td className="td">{taskItem.notes}</td>
                     <td className="td">{taskItem.timeSpent}</td>
                   </tr>
