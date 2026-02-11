@@ -31,3 +31,5 @@ yarn-error.log*
 
 # Server Generated
 server/generated/
+
+AGENTS.md

@@ -2,7 +2,9 @@ import React, { useState } from 'react';
 import './QuickTaskForm.css';
 import { toast } from 'react-toastify';
 import BACKEND_URL from '../../../Config';
-import { useAuthStore } from '../../store/useAuthStore'; // Clean import
+import { useAuthStore } from '../../store/useAuthStore';
+import { MdWork } from "react-icons/md";
+import { FaHome } from "react-icons/fa";
 // We could use useTaskStore.fetchTasks to reload if needed, but this is a fire-and-forget save mostly.
 
 export default function QuickTaskFormPage() {
@@ -12,7 +14,7 @@ export default function QuickTaskFormPage() {
   const [selectedWorkTasks, setSelectedWorkTasks] = useState([]);
   const [selectedPersonalTasks, setSelectedPersonalTasks] = useState([]);
 
-  // ✅ Define current year
+  // Define current year
   const currentYear = new Date().getFullYear();
 
   const workTasks = [
@@ -143,74 +145,89 @@ export default function QuickTaskFormPage() {
   return (
     <div className="quick-task-page">
       <h2>"Time Log for Completion"</h2>
-      <form onSubmit={handleSubmit} className="form-grid">
-        <div className="form-field center-align">
-          <label>Date:</label>
-          <input
-            type="date"
-            className="full-input"
-            value={date}
-            onChange={handleDateChange}
-            required
-          />
+      <form onSubmit={handleSubmit} className="quick-task-form">
+
+        {/* Header Group: Date & Time */}
+        <div className="form-header-group">
+          <div className="form-input-wrapper">
+            <label>Date</label>
+            <input
+              type="date"
+              value={date}
+              onChange={handleDateChange}
+              required
+            />
+          </div>
+
+          <div className="form-input-wrapper">
+            <label>Time Spent (min)</label>
+            <input
+              type="number"
+              min="1"
+              value={timeSpent}
+              placeholder="e.g. 30"
+              onChange={(e) => setTimeSpent(e.target.value)}
+              required
+            />
+          </div>
         </div>
 
-        <div style={{ gridColumn: "1 / span 2" }}>
-          <h4>Select Tasks (Work):</h4>
+        {/* Work Tasks Section */}
+        <div className="form-section work-section">
+          <h4>
+            <span className="section-icon"><MdWork /></span>
+            Select Tasks (Work)
+          </h4>
           <div className="checkbox-group">
             {workTasks.map((task, idx) => (
-              <label key={idx}>
+              <label key={idx} className={`chip ${selectedWorkTasks.includes(task) ? 'active' : ''}`}>
                 <input
                   type="checkbox"
                   checked={selectedWorkTasks.includes(task)}
                   onChange={() => handleCheckbox(task, 'work')}
                 />
-                {task}
+                <span>{task}</span>
               </label>
             ))}
           </div>
         </div>
 
-        <div style={{ gridColumn: "1 / span 2" }}>
-          <h4>Select Tasks (Outside Work):</h4>
+        {/* Personal Tasks Section */}
+        <div className="form-section personal-section">
+          <h4>
+            <span className="section-icon"><FaHome /></span>
+            Select Tasks (Personal)
+          </h4>
           <div className="checkbox-group">
             {personalTasks.map((task, idx) => (
-              <label key={idx}>
+              <label key={idx} className={`chip ${selectedPersonalTasks.includes(task) ? 'active' : ''}`}>
                 <input
                   type="checkbox"
                   checked={selectedPersonalTasks.includes(task)}
                   onChange={() => handleCheckbox(task, 'personal')}
                 />
-                {task}
+                <span>{task}</span>
               </label>
             ))}
           </div>
         </div>
 
-        <div style={{ gridColumn: "1 / span 2" }}>
-          <label>Notes:</label>
+        {/* Notes Section */}
+        <div className="form-section">
+          <label>Notes</label>
           <textarea
-            placeholder="Add any notes..."
+            className="notes-input"
+            placeholder="Add any additional details..."
             value={notes}
             onChange={(e) => setNotes(e.target.value)}
           ></textarea>
         </div>
 
-        <div>
-          <label>Total time spent (min):</label>
-          <input
-            type="number"
-            min="1"
-            value={timeSpent}
-            onChange={(e) => setTimeSpent(e.target.value)}
-            required
-          />
-        </div>
-
+        {/* Actions */}
         <div className="btn-group">
-          <button type="submit">Save</button>
-          <button type='button' onClick={() => window.history.back()}>Cancel</button>
-          <button type="button" onClick={handleReset}>Reset</button>
+          <button type="button" onClick={handleReset} className="btn-reset">Reset</button>
+          <button type="button" onClick={() => window.history.back()} className="btn-cancel">Cancel</button>
+          <button type="submit" className="btn-save">Save Log</button>
         </div>
       </form>
     </div>

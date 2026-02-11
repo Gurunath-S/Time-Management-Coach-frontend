@@ -1,9 +1,12 @@
 import React, { useEffect, useState } from 'react';
-import useGlobalStore from '../../../store/useGlobalStore';
+import useGlobalStore from '../../store/useGlobalStore';
+import { IoMdCheckmarkCircleOutline } from "react-icons/io";
+import { FaRegEdit } from "react-icons/fa";
 import { Card, CardContent, Typography, Divider, Button, CircularProgress, Box } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
-import BACKEND_URL from '../../../../Config';
-import './FocusSummary.css'; // Import the new CSS
+import BACKEND_URL from '../../../Config';
+import './FocusSummary.css';
+
 
 const FocusSummary = () => {
   const [sessions, setSessions] = useState([]);
@@ -26,7 +29,8 @@ const FocusSummary = () => {
       } finally {
         setLoading(false);
       }
-    };
+    }
+
     if (token) {
       fetchSessions();
     } else {
@@ -55,6 +59,14 @@ const FocusSummary = () => {
   const formatTimeOnly = (dateStr) => {
     const d = new Date(dateStr);
     return d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  };
+
+  const formatChangeValue = (field, value) => {
+    if (!value) return '';
+    if (field.toLowerCase().includes('date')) {
+      return formatDateOnly(value);
+    }
+    return String(value);
   };
 
   return (
@@ -100,7 +112,7 @@ const FocusSummary = () => {
                 <Divider sx={{ my: 2, borderColor: '#f1f5f9' }} />
 
                 <Typography variant="subtitle2" className="section-title">
-                  ✅ Tasks Completed
+                  <IoMdCheckmarkCircleOutline /> Tasks Completed
                 </Typography>
 
                 {session.completedTasks && session.completedTasks.length > 0 ? (
@@ -118,7 +130,7 @@ const FocusSummary = () => {
                 {session.taskChanges && session.taskChanges.length > 0 && (
                   <>
                     <Typography variant="subtitle2" className="section-title" style={{ marginTop: '24px' }}>
-                      📝 Tasks Edited
+                      <FaRegEdit />Tasks Edited
                     </Typography>
                     <ul className="task-list">
                       {session.taskChanges.map((change, i) => (
@@ -128,9 +140,13 @@ const FocusSummary = () => {
                             {Object.entries(change.changes || {}).map(([field, val]) => (
                               <div key={field}>
                                 <span style={{ color: '#94a3b8', fontSize: '0.8em' }}>{field}: </span>
-                                <span style={{ textDecoration: 'line-through', color: '#ef4444' }}>{String(val.before ?? '')}</span>
+                                <span style={{ textDecoration: 'line-through', color: '#ef4444' }}>
+                                  {formatChangeValue(field, val.before)}
+                                </span>
                                 <span style={{ margin: '0 4px', color: '#cbd5e1' }}>&rarr;</span>
-                                <span style={{ color: '#22c55e' }}>{String(val.after ?? '')}</span>
+                                <span style={{ color: '#22c55e' }}>
+                                  {formatChangeValue(field, val.after)}
+                                </span>
                               </div>
                             ))}
                           </div>

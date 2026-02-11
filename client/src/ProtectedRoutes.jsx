@@ -8,7 +8,7 @@ import QuickTaskForm from './components/TaskForm/QuickTaskForm';
 import QuickTaskHistory from './components/QtaskHistory/QuickTaskHistory';
 import EditPriorityTags from './components/EditTags/EditTags';
 import EditTaskPage from './components/EditTask/EditTask';
-import FocusSummary from './components/FourQuadrants/ViewSummary/FocusSummary';
+import FocusSummary from './components/ViewSummary/FocusSummary';
 import NavComponent from './components/Nav/Nav';
 import useGlobalStore from './store/useGlobalStore';
 import { toast } from 'react-toastify';

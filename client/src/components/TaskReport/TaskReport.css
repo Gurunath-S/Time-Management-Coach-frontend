@@ -138,11 +138,18 @@ tr:hover .td {
     font-size: 14px;
   }
 
-  .td, .th {
+  .td,
+  .th {
     padding: 8px;
   }
 
   .task-report-container {
     padding: 10px;
   }
+}
+
+.task-name-col {
+  max-width: 250px;
+  word-wrap: break-word;
+  white-space: normal;
 }

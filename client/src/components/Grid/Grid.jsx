@@ -2,7 +2,7 @@ import React, { useMemo, useState } from "react";
 import { Link, useNavigate } from 'react-router-dom';
 import { FaFire, FaRegClock, FaPauseCircle, FaExclamationTriangle } from "react-icons/fa";
 import Button from '@mui/material/Button';
-import { MdLabel } from 'react-icons/md';
+import { CiEdit } from "react-icons/ci";
 import Chip from '@mui/material/Chip';
 import { format } from 'date-fns';
 
@@ -177,7 +177,7 @@ function Grid({
                       flexWrap: "wrap",
                     }}
                   >
-                    <span style={{ fontSize: "16px", flex: 1, minWidth: "200px" }}>
+                    <span style={{ fontSize: "16px", flex: 1, minWidth: "200px", wordBreak: "break-word", overflowWrap: "anywhere" }}>
                       <strong>
                         {index + 1}.{' '}
                         {isFocusMode ? (
@@ -247,7 +247,8 @@ function Grid({
                           borderRadius: "8px",
                         }}
                       >
-                        <MdLabel style={{ marginRight: "4px" }} />
+                        
+                        <CiEdit style={{ marginRight: "4px"}} size={20} />
                         Tags
                       </Button>
                     </div>

@@ -10,7 +10,7 @@
 
 .MuiDialogContent-root {
   padding: 20px 30px;
-  background-color: #f9f9f9;
+  /* background-color: #f9f9f9; */
 }
 
 .MuiFormControl-root {
@@ -45,7 +45,7 @@
 
 .MuiDialogContent-root {
   padding: 20px 30px;
-  background-color: #f9f9f9;
+  /* background-color: #f9f9f9; */
   max-height: 70vh;
   overflow-y: auto;
 }

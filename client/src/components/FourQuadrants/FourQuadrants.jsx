@@ -208,7 +208,7 @@ function FourQuadrants({ hideTable, setHideTable }) {
 
   const handleTagEdit = (task) => {
     setTaskToTagEdit(task);
-    navigate(`/edit-tags/${task.id}`);
+    navigate(`/edit-tags/${task.id}`, { state: { task } });
   };
 
   const handleQtaskSave = (task) => {

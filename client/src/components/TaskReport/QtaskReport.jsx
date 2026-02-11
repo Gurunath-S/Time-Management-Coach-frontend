@@ -20,30 +20,25 @@ function QtaskReport({ qtasks, setQtasks }) {
   };
 
   const todaysQuickTasks = qtasks.filter((taskItem) => {
-    // We treat the stored date string as the local date reference.
-    // If it's a full ISO string, we need to extract YYYY-MM-DD.
     if (!taskItem.date) return false;
 
-    // Parse date parts to strictly match local day
-    const taskDateStr = taskItem.date.split('T')[0];
-
-    // Get today's local date string YYYY-MM-DD
+    const taskDate = new Date(taskItem.date);
     const today = new Date();
-    // use simple formatting to avoid timezone offset issues when stringifying
-    const y = today.getFullYear();
-    const m = String(today.getMonth() + 1).padStart(2, '0');
-    const d = String(today.getDate()).padStart(2, '0');
-    const todayStr = `${y}-${m}-${d}`;
 
-    return taskDateStr === todayStr;
+    return (
+      taskDate.getFullYear() === today.getFullYear() &&
+      taskDate.getMonth() === today.getMonth() &&
+      taskDate.getDate() === today.getDate()
+    );
   });
 
   const formatDate = (dateStr) => {
-    // Force local date display
     if (!dateStr) return '';
-    const part = dateStr.split('T')[0];
-    const [y, m, d] = part.split('-');
-    return `${d}/${m}/${y.slice(-2)}`;
+    const d = new Date(dateStr);
+    const day = String(d.getDate()).padStart(2, '0');
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const year = d.getFullYear();
+    return `${day}/${month}/${String(year).slice(-2)}`;
   };
 
   return (

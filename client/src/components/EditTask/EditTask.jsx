@@ -1,241 +1,90 @@
 // src/components/EditTask/EditTask.jsx
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import TextField from '@mui/material/TextField';
-import Select from '@mui/material/Select';
-import MenuItem from '@mui/material/MenuItem';
-import Button from '@mui/material/Button';
-import { v4 as uuidv4 } from 'uuid';
 import { toast } from 'react-toastify';
-import './EditTask.css';
 import BACKEND_URL from '../../../Config';
-import { autoHighPriority } from '../../utils/checkimptags';
 import useGlobalStore from '../../store/useGlobalStore';
-
-const formatDateInput = (dateStr) => {
-  if (!dateStr || isNaN(new Date(dateStr))) return '';
-  const d = new Date(dateStr);
-  const year = d.getFullYear();
-  const month = String(d.getMonth() + 1).padStart(2, '0');
-  const day = String(d.getDate()).padStart(2, '0');
-  return `${year}-${month}-${day}`;
-};
-
-const formatDateDisplay = (dateStr) => {
-  if (!dateStr) return '';
-  const d = new Date(dateStr);
-  if (isNaN(d.getTime())) return '';
-  const day = String(d.getDate()).padStart(2, '0');
-  const month = String(d.getMonth() + 1).padStart(2, '0');
-  const year = d.getFullYear();
-  return `${day}-${month}-${year}`;
-};
+import TaskForm from '../TaskForm/TaskForm';
+import CircularProgress from '@mui/material/CircularProgress';
 
 function EditTaskPage() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const isUpdate = Boolean(id);
-  const [taskId, setTaskId] = useState('');
-  const [title, setTitle] = useState('');
-  const [createdAt, setCreatedAt] = useState('');
-  const [dueDate, setDueDate] = useState('');
-  const [priority, setPriority] = useState('');
-  const [note, setNote] = useState('');
-  const [reason, setReason] = useState('');
-  const [status, setStatus] = useState('');
-  const [tags, setTags] = useState([]);
+  const [task, setTask] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   const saveTask = useGlobalStore(state => state.saveTask);
-  const tasks = useGlobalStore(state => state.tasks);
+  const tasks = useGlobalStore(state => state.tasks); // Needed to find old task for logs
   const isFocusMode = useGlobalStore(state => state.isFocusMode);
   const logTaskChangeInFocusMode = useGlobalStore(state => state.logTaskChangeInFocusMode);
-  const focusCompletedTasks = useGlobalStore(state => state.focusCompletedTasks);
 
   useEffect(() => {
-    if (isUpdate) {
-      fetch(`${BACKEND_URL}/api/tasks/${id}`, {
-        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
-      })
-        .then((res) => {
-          if (!res.ok) throw new Error('Failed to fetch task');
-          return res.json();
-        })
-        .then((data) => {
-          const safeData = {
-            id: data.id || '',
-            title: data.title || '',
-            created_at: data.created_at ? formatDateInput(data.created_at) : '',
-            due_date: data.due_date ? formatDateInput(data.due_date) : '',
-            priority: data.priority || '',
-            note: data.note || '',
-            reason: data.reason || '',
-            status: data.status || '',
-            tags: data.tags || [],
-          };
-          setTags(safeData.tags);
-          setTaskId(safeData.id);
-          setTitle(safeData.title);
-          setCreatedAt(safeData.created_at || '');
-          setDueDate(safeData.due_date || '');
-          setPriority(safeData.priority);
-          setNote(safeData.note);
-          setReason(safeData.reason);
-          setStatus(safeData.status);
-        })
-        .catch((err) => {
-          console.error(err);
-          toast.error('Failed to fetch task');
+    const fetchTask = async () => {
+      try {
+        const res = await fetch(`${BACKEND_URL}/api/tasks/${id}`, {
+          headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
         });
-    }
-  }, [id, isUpdate]);
 
-  useEffect(() => {
-    const { priority: newPriority, reason: newReason } = autoHighPriority({
-      title,
-      note,
-      tags,
-      currentPriority: priority,
-      currentReason: reason
-    });
-    if (newPriority !== priority || newReason !== reason) {
-      setPriority(newPriority);
-      setReason(newReason);
-    }
-  }, [title, note, tags]);
+        if (!res.ok) throw new Error('Failed to fetch task');
 
-  const handleDateChange = (setter) => (e) => {
-    const value = e.target.value;
-    if (!value) {
-      setter('');
-      return;
-    }
-    const selectedDate = new Date(value);
-    const currentYear = new Date().getFullYear();
-    if (selectedDate.getFullYear() !== currentYear) {
-      alert(`Please select a date within the current year (${currentYear})`);
-      const todayStr = new Date().toISOString().split('T')[0];
-      setter(todayStr);
-      return;
-    }
-    setter(value);
-  };
-
-  const handleSave = useCallback(async (e) => {
-    e.preventDefault();
-    const requiredFields = [title, createdAt, priority, status];
-    if (requiredFields.some(field => !field)) {
-      alert('Please fill all required fields before saving.');
-      return;
-    }
-    if (priority === 'high' && !reason) {
-      alert('Please provide a reason for high priority.');
-      return;
-    }
-
-    const cleanedTask = {
-      id: taskId || uuidv4(),
-      title,
-      created_at: createdAt ? new Date(createdAt).toISOString() : new Date().toISOString(),
-      due_date: dueDate ? new Date(dueDate).toISOString() : null,
-      priority,
-      note,
-      reason,
-      status,
-      tags
+        const data = await res.json();
+        // Ensure data format matches what TaskForm expects (although TaskForm handles most formatting)
+        setTask(data);
+      } catch (err) {
+        console.error(err);
+        toast.error('Failed to fetch task data');
+      } finally {
+        setLoading(false);
+      }
     };
 
+    fetchTask();
+  }, [id]);
+
+  const handleSave = async (updatedTask, isUpdate) => {
     try {
-      // Capture old task BEFORE save for focus mode change tracking
-      const oldTask = isUpdate ? tasks.find(t => t.id === cleanedTask.id) : null;
-      
-      await saveTask(cleanedTask, isUpdate);
-      
-      // Log task changes in focus mode
+      // Find old task for logging purposes BEFORE saving
+      // Note: fetching from 'tasks' store might be reliable if store is synced, 
+      // but 'task' state is definitely the pre-update version.
+      const oldTask = task;
+
+      await saveTask(updatedTask, isUpdate);
+
       if (isFocusMode && isUpdate && oldTask) {
-        logTaskChangeInFocusMode(oldTask, cleanedTask);
-      }
-      
-      // Track completed task in focus mode (using store, automatically persisted)
-      if (isFocusMode && status === 'completed') {
-        const completedCopy = { ...cleanedTask, completed_at: new Date().toISOString(), status: 'completed' };
-        const existing = focusCompletedTasks || [];
-        const existingIndex = existing.findIndex(t => t.id === cleanedTask.id);
-        if (existingIndex === -1) {
-          useGlobalStore.setState((state) => ({
-            focusCompletedTasks: [...(state.focusCompletedTasks || []), completedCopy]
-          }));
-        }
+        logTaskChangeInFocusMode(oldTask, updatedTask);
       }
 
-      toast.success(isUpdate ? 'Task updated!' : 'Task created!');
-      navigate('/');
+      toast.success('Task updated successfully');
+      // Navigation is handled by onClose which TaskForm calls after onSave
     } catch (err) {
       console.error(err);
-      toast.error('Error saving task');
+      toast.error('Failed to save task');
     }
-  }, [taskId, title, createdAt, dueDate, priority, note, reason, status, tags, isUpdate, navigate, saveTask, isFocusMode, logTaskChangeInFocusMode, focusCompletedTasks, tasks]);
+  };
+
+  const handleClose = () => {
+    navigate(-1); // Go back to whatever page we came from
+  };
+
+  if (loading) {
+    return (
+      <div style={{ display: 'flex', justifyContent: 'center', marginTop: '50px' }}>
+        <CircularProgress />
+      </div>
+    );
+  }
+
+  if (!task) {
+    return <div style={{ textAlign: 'center', marginTop: '50px' }}>Task not found</div>;
+  }
 
   return (
-    <div className="edit-task-container" style={{ maxWidth: '800px', margin: 'auto', padding: '20px' }}>
-      <h1 style={{ textAlign: 'center', color: '#0b87b1' }}>{isUpdate ? 'Edit Task' : 'Add Task'}</h1>
-      <form onSubmit={handleSave} className="form-grid">
-        <div className="form-row">
-          <label>Task Name <span style={{ color: 'red' }}>*</span></label>
-          <TextField fullWidth required value={title} onChange={(e) => setTitle(e.target.value)} />
-        </div>
-
-        <div className="form-row">
-          <label>Task Create Date<span style={{ color: 'red' }}>*</span></label>
-          <TextField fullWidth type="date" value={createdAt} className="no-outline-date" onChange={handleDateChange(setCreatedAt)} />
-          <small style={{ color: '#666' }}>Display: {formatDateDisplay(createdAt)}</small>
-        </div>
-
-        <div className="form-row">
-          <label>Due Date (Optional)</label>
-          <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
-            <TextField fullWidth type="date" value={dueDate} className="no-outline-date" onChange={handleDateChange(setDueDate)} inputProps={{ maxLength: 10, pattern: "\\d{4}-\\d{2}-\\d{2}", placeholder: "YYYY-MM-DD" }} />
-            {dueDate && <Button variant="outlined" size="small" onClick={() => setDueDate('')} style={{ minWidth: '110px', padding: '4px 8px' }}>Clear</Button>}
-          </div>
-          <small style={{ color: '#666' }}>Display: {formatDateDisplay(dueDate)}</small>
-        </div>
-
-        <div className="form-row">
-          <label>Priority<span style={{ color: 'red' }}>*</span></label>
-          <Select value={priority} onChange={(e) => setPriority(e.target.value)} fullWidth>
-            <MenuItem value="high">High</MenuItem>
-            <MenuItem value="normal">Normal</MenuItem>
-            <MenuItem value="low">Low</MenuItem>
-          </Select>
-        </div>
-
-        {priority === 'high' && (
-          <div className="form-row full-width">
-            <label>Reason for High Priority<span style={{ color: 'red' }}>*</span></label>
-            <TextField fullWidth required value={reason} onChange={(e) => setReason(e.target.value)} />
-          </div>
-        )}
-
-        <div className="form-row">
-          <label>Note (Optional)</label>
-          <TextField fullWidth multiline rows={4} value={note} onChange={(e) => setNote(e.target.value)} inputProps={{ maxLength: 4000 }} />
-          <small style={{ color: note.length >= 3800 ? 'red' : '#666' }}>{note.length}/4000 characters</small>
-        </div>
-
-        <div className="form-row">
-          <label>Status<span style={{ color: 'red' }}>*</span></label>
-          <Select value={status} onChange={(e) => setStatus(e.target.value)} fullWidth required>
-            <MenuItem value="completed">Completed</MenuItem>
-            <MenuItem value="pending">Pending</MenuItem>
-            <MenuItem value="in progress">In Progress</MenuItem>
-          </Select>
-        </div>
-
-        <div className="form-actions full-width">
-          <Button variant="contained" style={{ backgroundColor: '#a1a1a1', color: 'white' }} onClick={() => navigate('/')}>Cancel</Button>
-          <Button variant="contained" style={{ backgroundColor: '#0b87b1', color: 'white' }} type="submit">Save</Button>
-        </div>
-      </form>
-    </div>
+    <TaskForm
+      open={true}
+      editTask={task}
+      onSave={handleSave}
+      onClose={handleClose}
+    />
   );
 }
 

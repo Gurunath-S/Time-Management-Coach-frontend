@@ -78,7 +78,8 @@ tr:hover .td {
     font-size: 14px;
   }
 
-  .td, .th {
+  .td,
+  .th {
     padding: 8px;
   }
 

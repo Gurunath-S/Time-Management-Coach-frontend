@@ -1,6 +1,5 @@
-// src/components/EditTags/EditTags.jsx
 import { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import Select from '@mui/material/Select';
 import MenuItem from '@mui/material/MenuItem';
 import Button from '@mui/material/Button';
@@ -84,13 +83,29 @@ const tagOptions = {
 export default function EditPriorityTags() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const [task, setTask] = useState(null);
-  const [tags, setTags] = useState({ complexity: [], type: [], category: [], impact: [] });
-  const [loading, setLoading] = useState(true);
+  const location = useLocation();
+
+  // Initialize state from location.state if available
+  const initialTask = location.state?.task || null;
+  const initialTags = initialTask?.priority_tags || { complexity: [], type: [], category: [], impact: [] };
+
+  const [task, setTask] = useState(initialTask);
+  const [tags, setTags] = useState(initialTags);
+  const [loading, setLoading] = useState(!initialTask);
 
   useEffect(() => {
+    // If we already have the task from state, we might not need to fetch, 
+    // BUT we should verify if the ID matches or if we just want fresh data.
+    // For "instant" load, we rely on state. We can fetch in background if really needed, 
+    // but typically the list view is fresh enough.
+    if (initialTask && initialTask.id === id) {
+      setLoading(false);
+      return;
+    }
+
     const fetchTask = async () => {
       try {
+        setLoading(true);
         const res = await fetch(`${BACKEND_URL}/api/tasks/${id}`, {
           headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
         });
@@ -105,7 +120,7 @@ export default function EditPriorityTags() {
       }
     };
     fetchTask();
-  }, [id]);
+  }, [id, initialTask]);
 
   useEffect(() => {
     const { priority: newPriority, reason: newReason } = autoHighPriority({

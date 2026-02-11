@@ -109,7 +109,7 @@ function TaskReport({ tasks, setTask, filterStatus }) {
           <table className={`table ${filterStatus.replace(/\s/g, '-')}-table`}>
             <thead>
               <tr>
-                <th className="th">Task Name</th>
+                <th className="th task-name-col">Task Name</th>
                 <th className="th">Created Date</th>
                 <th className="th">Due Date</th>
                 <th className="th">Priority</th>
@@ -129,7 +129,7 @@ function TaskReport({ tasks, setTask, filterStatus }) {
                   .filter((task) => Object.values(task).some((val) => val !== null && val !== ''))
                   .map((taskItem, index) => (
                     <tr key={index}>
-                      <td className="td">{taskItem.title}</td>
+                      <td className="td task-name-col" title={taskItem.title}>{taskItem.title}</td>
                       <td className="td">
                         {formatDate(taskItem.created_at)}
                       </td>

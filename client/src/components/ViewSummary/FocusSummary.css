@@ -122,6 +122,8 @@
     display: flex;
     align-items: flex-start;
     gap: 10px;
+    word-break: break-word;
+    overflow-wrap: anywhere;
 }
 
 .task-item::before {
