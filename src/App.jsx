@@ -4,7 +4,7 @@ import Home from './components/Home/Home';
 import HelpPage from './components/HelpPage/HelpPage';
 import NavComponent from './components/Nav/Nav';
 import { useState, useEffect, useCallback } from 'react';
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import LoginPage from './components/LoginPage/LoginPage';
@@ -13,13 +13,25 @@ import EditPriorityTags from './components/EditTags/EditTags';
 import EditTaskPage from './components/EditTask/EditTask';
 import BACKEND_URL from '../Config';
 import { toast } from 'react-toastify';
+import ReactGA from "react-ga4";
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [authChecked, setAuthChecked] = useState(false);
+  
+  const location = useLocation();
 
+   useEffect(() => {
+    if (import.meta.env.VITE_GA_ID) {
+      ReactGA.send({
+        hitType: "pageview",
+        page: location.pathname + location.search,
+      });
+    }
+  }, [location]);
+  
   function isTokenExpired(token) {
     if (!token) return true;
     try {
