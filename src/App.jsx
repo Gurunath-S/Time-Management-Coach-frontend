@@ -156,14 +156,14 @@ function AppContent() {
       <Routes>
         <Route
           path="/"
-          element={isLoggedIn ? <Home isLoggedIn={isLoggedIn} : <LoginPage onLoginSuccess={fetchUserProfile} />}
+          element={isLoggedIn ? <Home isLoggedIn={isLoggedIn} /> : <LoginPage onLoginSuccess={fetchUserProfile} />}
         />
         <Route
           path="/home"
-          element={isLoggedIn ? <Home isLoggedIn={isLoggedIn} : <LoginPage onLoginSuccess={fetchUserProfile} />}
+          element={isLoggedIn ? <Home isLoggedIn={isLoggedIn} /> : <LoginPage onLoginSuccess={fetchUserProfile} />}
         />
         <Route path="/help" element={<HelpPage />} />
-        <Route path="/login" element={isLoggedIn ? <Home isLoggedIn={isLoggedIn} : <LoginPage onLoginSuccess={fetchUserProfile} />} />
+        <Route path="/login" element={isLoggedIn ? <Home isLoggedIn={isLoggedIn} /> : <LoginPage onLoginSuccess={fetchUserProfile} />} />
         <Route path="/quick-task-history" element={<QuickTaskHistory />} />
         <Route path="/edit-tags/:id" element={<EditPriorityTags />} />
         <Route path="/edit-tasks/:id" element={<EditTaskPage />} />
