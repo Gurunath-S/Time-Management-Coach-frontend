@@ -4,26 +4,26 @@ import Home from './components/Home/Home';
 import HelpPage from './components/HelpPage/HelpPage';
 import NavComponent from './components/Nav/Nav';
 import { useState, useEffect, useCallback } from 'react';
-import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom';
-import { ToastContainer } from 'react-toastify';
+import { BrowserRouter, Routes, Route, useLocation, useNavigate } from 'react-router-dom';
+import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import LoginPage from './components/LoginPage/LoginPage';
 import QuickTaskHistory from './components/QtaskHistory/QuickTaskHistory';
 import EditPriorityTags from './components/EditTags/EditTags';
 import EditTaskPage from './components/EditTask/EditTask';
 import BACKEND_URL from '../Config';
-import { toast } from 'react-toastify';
 import ReactGA from "react-ga4";
 
-function App() {
+function AppContent() {
+  const location = useLocation();
+  const navigate = useNavigate();
+
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [authChecked, setAuthChecked] = useState(false);
-  
-  const location = useLocation();
 
-   useEffect(() => {
+  useEffect(() => {
     if (import.meta.env.VITE_GA_ID) {
       ReactGA.send({
         hitType: "pageview",
@@ -31,15 +31,13 @@ function App() {
       });
     }
   }, [location]);
-  
+
   function isTokenExpired(token) {
     if (!token) return true;
     try {
       const payload = JSON.parse(atob(token.split('.')[1]));
-      // exp is seconds since epoch
-      return payload.exp < Math.floor(Date.now()/1000);
-    } catch (e) {
-      // broken token -> treat as expired
+      return payload.exp < Math.floor(Date.now() / 1000);
+    } catch {
       return true;
     }
   }
@@ -47,12 +45,13 @@ function App() {
   const fetchUserProfile = useCallback(async () => {
     setLoading(true);
     const token = localStorage.getItem('token');
+
     if (!token || isTokenExpired(token)) {
       localStorage.removeItem('token');
       setUser(null);
       setIsLoggedIn(false);
       setLoading(false);
-      setAuthChecked(true); // ✅
+      setAuthChecked(true);
       return false;
     }
 
@@ -61,58 +60,38 @@ function App() {
         headers: { Authorization: `Bearer ${token}` },
       });
 
-      if (!res.ok) {
-        toast.error("Session expired. Please log in again.");
-        localStorage.removeItem('token');
-        setUser(null);
-        setIsLoggedIn(false);
-        setLoading(false);
-        setAuthChecked(true); 
-        return false;
-      }
+      if (!res.ok) throw new Error();
 
       const data = await res.json();
-      if (data.user) {
-        setUser(data.user);
-        setIsLoggedIn(true);
-        setLoading(false);
-        setAuthChecked(true); 
-        return true;
-      } else {
-        localStorage.removeItem('token');
-        setUser(null);
-        setIsLoggedIn(false);
-        setLoading(false);
-        setAuthChecked(true); 
-        return false;
-      }
-    } catch (err) {
-      console.error('Profile fetch failed', err);
-      toast.error("Unable to connect to server. Please try again later.");
+      setUser(data.user);
+      setIsLoggedIn(true);
+      setLoading(false);
+      setAuthChecked(true);
+      return true;
+    } catch {
+      toast.error("Session expired. Please log in again.");
       localStorage.removeItem('token');
       setUser(null);
       setIsLoggedIn(false);
       setLoading(false);
-      setAuthChecked(true); 
+      setAuthChecked(true);
       return false;
     }
   }, []);
 
-
   useEffect(() => {
     const token = localStorage.getItem('token');
+
     if (token && !isTokenExpired(token)) {
-      // stay logged in immediately
       setIsLoggedIn(true);
       setLoading(false);
       setAuthChecked(true);
 
-      // optional: fetch user profile in background to update user info
       fetchUserProfile().then(profileFetched => {
         if (!profileFetched) {
           setIsLoggedIn(false);
           setUser(null);
-          navigate('/login'); // only redirect if profile actually invalid
+          navigate('/login');
         }
       });
     } else {
@@ -122,47 +101,43 @@ function App() {
       setAuthChecked(true);
     }
 
-    // listen to global logout event
     const onLogoutEvent = () => {
       localStorage.removeItem('token');
       setUser(null);
       setIsLoggedIn(false);
       setLoading(false);
     };
+
     window.addEventListener('logout', onLogoutEvent);
     return () => window.removeEventListener('logout', onLogoutEvent);
-  }, [fetchUserProfile]);
-
+  }, [fetchUserProfile, navigate]);
 
   useEffect(() => {
-      const handleOffline = () => {
-        toast.error("You're offline. Check your internet connection.");
-      };
-      const handleOnline = () => {
-        toast.info("Back online!");
-      };
+    const handleOffline = () => {
+      toast.error("You're offline. Check your internet connection.");
+    };
 
-      window.addEventListener('offline', handleOffline);
-      window.addEventListener('online', handleOnline);
+    const handleOnline = () => {
+      toast.info("Back online!");
+    };
 
-      // Cleanup when component unmounts
-      return () => {
-        window.removeEventListener('offline', handleOffline);
-        window.removeEventListener('online', handleOnline);
-      };
-    }, []);
+    window.addEventListener('offline', handleOffline);
+    window.addEventListener('online', handleOnline);
 
+    return () => {
+      window.removeEventListener('offline', handleOffline);
+      window.removeEventListener('online', handleOnline);
+    };
+  }, []);
 
-  // handle logout in a React-way and pass to NavComponent
   const handleLogout = () => {
-    localStorage.removeItem('token');        // only token removed
-    if (window.google && window.google.accounts && window.google.accounts.id) {
+    localStorage.removeItem('token');
+    if (window.google?.accounts?.id) {
       window.google.accounts.id.disableAutoSelect();
     }
     setUser(null);
     setIsLoggedIn(false);
     setLoading(false);
-    // Nav will call navigate('/login') after calling onLogout
   };
 
   if (!authChecked) {
@@ -170,7 +145,7 @@ function App() {
   }
 
   return (
-    <BrowserRouter>
+    <>
       <NavComponent
         user={user}
         loading={loading}
@@ -181,20 +156,28 @@ function App() {
       <Routes>
         <Route
           path="/"
-          element={isLoggedIn ? <Home isLoggedIn={isLoggedIn} /> : <LoginPage onLoginSuccess={fetchUserProfile} />}
+          element={isLoggedIn ? <Home isLoggedIn={isLoggedIn} : <LoginPage onLoginSuccess={fetchUserProfile} />}
         />
         <Route
           path="/home"
-          element={isLoggedIn ? <Home isLoggedIn={isLoggedIn} /> : <LoginPage onLoginSuccess={fetchUserProfile} />}
+          element={isLoggedIn ? <Home isLoggedIn={isLoggedIn} : <LoginPage onLoginSuccess={fetchUserProfile} />}
         />
         <Route path="/help" element={<HelpPage />} />
-        <Route path="/login" element={isLoggedIn ? <Home isLoggedIn={isLoggedIn} /> : <LoginPage onLoginSuccess={fetchUserProfile} />} />
+        <Route path="/login" element={isLoggedIn ? <Home isLoggedIn={isLoggedIn} : <LoginPage onLoginSuccess={fetchUserProfile} />} />
         <Route path="/quick-task-history" element={<QuickTaskHistory />} />
         <Route path="/edit-tags/:id" element={<EditPriorityTags />} />
         <Route path="/edit-tasks/:id" element={<EditTaskPage />} />
       </Routes>
 
       <ToastContainer position="top-right" autoClose={1500} />
+    </>
+  );
+}
+
+function App() {
+  return (
+    <BrowserRouter>
+      <AppContent />
     </BrowserRouter>
   );
 }
