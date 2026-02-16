@@ -35,7 +35,7 @@ function NavComponent({ user, loading, isLoggedIn, onLogout }) {
   const showLoginLink = !user && !loading && location.pathname !== '/login';
 
   return (
-     <Navbar collapseOnSelect expand="lg" className="custom-navbar" variant="dark">
+    <Navbar collapseOnSelect expand="lg" className="custom-navbar" variant="dark">
       <><img src={ibtLogo} alt="Ibacus Logo" className="logo" /></>
       <Container>
         <Navbar.Brand as={Link} to="/home" className="brand-title">📝 Time Management Coach</Navbar.Brand>
@@ -58,7 +58,12 @@ function NavComponent({ user, loading, isLoggedIn, onLogout }) {
 
             {user && (
               <>
-                <div className="nav-profile" onClick={() => setShowProfile(!showProfile)}>
+                <div
+                  className="nav-profile"
+                  onClick={() => setShowProfile(!showProfile)}
+                  onMouseEnter={() => setShowProfile(true)}
+                  onMouseLeave={() => setShowProfile(false)}
+                >
                   <img
                     src={getProfilePicSrc(user.picture)}
                     alt="User"
@@ -67,7 +72,11 @@ function NavComponent({ user, loading, isLoggedIn, onLogout }) {
                 </div>
 
                 {showProfile && (
-                  <div className="profile-dropdown">
+                  <div
+                    className="profile-dropdown"
+                    onMouseEnter={() => setShowProfile(true)}
+                    onMouseLeave={() => setShowProfile(false)}
+                  >
                     {user?.picture && (
                       <img src={getProfilePicSrc(user.picture)} alt="Profile" className="profile-img" />
                     )}

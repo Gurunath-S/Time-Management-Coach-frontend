@@ -14,11 +14,12 @@ export const useGlobalStore = (selector) => {
   const focus = useFocusStore();
 
   const initApp = useCallback(async () => {
-    await useAuthStore.getState().checkAuth();
-    // Re-read isLoggedIn from the fresh state
-    if (useAuthStore.getState().isLoggedIn) {
-      await useTaskStore.getState().fetchTasks();
+    const authPromise = useAuthStore.getState().checkAuth();
+    // If we have a token locally, start fetching tasks immediately in parallel
+    if (useAuthStore.getState().token) {
+      useTaskStore.getState().fetchTasks();
     }
+    await authPromise;
   }, []);
 
   const combined = {

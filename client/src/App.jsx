@@ -2,33 +2,46 @@
 import './App.css';
 import NavComponent from './components/Nav/Nav';
 import ProtectedRoutes from './ProtectedRoutes';
-import { BrowserRouter } from 'react-router-dom';
+import { BrowserRouter, useLocation } from 'react-router-dom';
 import { ToastContainer } from 'react-toastify';
 import useGlobalStore from './store/useGlobalStore';
 import 'react-toastify/dist/ReactToastify.css';
 import { useEffect } from 'react';
+import ReactGA from "react-ga4";
 
-function App() {
+function AppContent() {
+  const location = useLocation();
   const { user, isLoggedIn, loadingAuth, authChecked, initApp, logout } = useGlobalStore();
 
   useEffect(() => {
-    // bootstrap auth + tasks + focus
     initApp();
-    // listen to global logout
-    const onLogout = () => {
-      // already handled in store.logout but keep compatibility with old code
-    };
+
+    const onLogout = () => {};
     window.addEventListener('logout', onLogout);
     return () => window.removeEventListener('logout', onLogout);
   }, [initApp]);
+
+  useEffect(() => {
+    if (import.meta.env.VITE_GA_ID) {
+      ReactGA.send({
+        hitType: "pageview",
+        page: location.pathname + location.search,
+      });
+    }
+  }, [location]);
 
   if (!authChecked) {
     return <div style={{ padding: 50, textAlign: 'center' }}>Checking session...</div>;
   }
 
   return (
-    <BrowserRouter>
-      <NavComponent user={user} loading={loadingAuth} isLoggedIn={isLoggedIn} onLogout={logout} />
+    <>
+      <NavComponent
+        user={user}
+        loading={loadingAuth}
+        isLoggedIn={isLoggedIn}
+        onLogout={logout}
+      />
       <br />
       <ProtectedRoutes />
       <ToastContainer
@@ -43,6 +56,14 @@ function App() {
         pauseOnHover
         theme="light"
       />
+    </>
+  );
+}
+
+function App() {
+  return (
+    <BrowserRouter>
+      <AppContent />
     </BrowserRouter>
   );
 }

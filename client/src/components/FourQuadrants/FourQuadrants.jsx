@@ -46,9 +46,7 @@ function FourQuadrants({ hideTable, setHideTable }) {
 
   const activeTasks = useMemo(() => tasks.filter(task => task.status !== 'completed'), [tasks]);
 
-  useEffect(() => {
-    fetchTasks().catch(err => console.error('fetchTasks error', err));
-  }, [fetchTasks]);
+
 
   // Save or update task
   const saveTaskHandler = async (task, isEdit) => {

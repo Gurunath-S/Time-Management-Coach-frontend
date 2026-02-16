@@ -4,6 +4,7 @@ import { toast } from 'react-toastify';
 import BACKEND_URL from '../../../Config';
 import { useAuthStore } from '../../store/useAuthStore';
 import { MdWork } from "react-icons/md";
+import { IoArrowBack } from "react-icons/io5";
 import { FaHome } from "react-icons/fa";
 // We could use useTaskStore.fetchTasks to reload if needed, but this is a fire-and-forget save mostly.
 
@@ -13,6 +14,7 @@ export default function QuickTaskFormPage() {
   const [timeSpent, setTimeSpent] = useState('');
   const [selectedWorkTasks, setSelectedWorkTasks] = useState([]);
   const [selectedPersonalTasks, setSelectedPersonalTasks] = useState([]);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Define current year
   const currentYear = new Date().getFullYear();
@@ -55,7 +57,6 @@ export default function QuickTaskFormPage() {
       return;
     }
     const selectedDate = new Date(val);
-    const selectedYear = selectedDate.getFullYear();
 
     // Since input type date returns YYYY-MM-DD, new Date() parses it as UTC.
     // However, for year verification, getFullYear() works on local time.
@@ -94,10 +95,14 @@ export default function QuickTaskFormPage() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    if (isSubmitting) return;
+
     if (!date || !timeSpent || (selectedWorkTasks.length === 0 && selectedPersonalTasks.length === 0)) {
       alert("Please fill all required fields and select at least one task.");
       return;
     }
+
+    setIsSubmitting(true);
 
     // Creating date object that respects LOCAL time for the user.
     // If user chose 2026-02-10, we want to store it as 2026-02-10T00:00:00.000Z generally, 
@@ -139,12 +144,33 @@ export default function QuickTaskFormPage() {
     } catch (error) {
       console.error("Error saving task:", error);
       toast.error('Failed to save task');
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
   return (
     <div className="quick-task-page">
-      <h2>"Time Log for Completion"</h2>
+      <div className="quick-task-header" style={{ display: 'flex', alignItems: 'center', marginBottom: '20px' }}>
+        <button
+          onClick={() => window.history.back()}
+          style={{
+            background: 'none',
+            border: 'none',
+            cursor: 'pointer',
+            fontSize: '1.5rem',
+            marginRight: '10px',
+            display: 'flex',
+            alignItems: 'center',
+            color: '#333'
+          }}
+          aria-label="Go back"
+        >
+          <IoArrowBack />
+          Back
+        </button>
+        <h2 style={{ margin: 0 }}>"Time Log for Completion"</h2>
+      </div>
       <form onSubmit={handleSubmit} className="quick-task-form">
 
         {/* Header Group: Date & Time */}
@@ -227,7 +253,9 @@ export default function QuickTaskFormPage() {
         <div className="btn-group">
           <button type="button" onClick={handleReset} className="btn-reset">Reset</button>
           <button type="button" onClick={() => window.history.back()} className="btn-cancel">Cancel</button>
-          <button type="submit" className="btn-save">Save Log</button>
+          <button type="submit" className="btn-save" disabled={isSubmitting}>
+            {isSubmitting ? 'Saving...' : 'Save Log'}
+          </button>
         </div>
       </form>
     </div>

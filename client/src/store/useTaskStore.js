@@ -12,6 +12,7 @@ export const useTaskStore = create((set, get) => ({
     error: null,
 
     fetchTasks: async () => {
+        if (get().loadingTasks) return;
         set({ loadingTasks: true, error: null });
         const token = useAuthStore.getState().token;
         if (!token) {
