@@ -1,122 +1,263 @@
+/* ===== EDIT TAGS PAGE - MODERN REDESIGN ===== */
+
+/* Container */
 .edit-priority-container {
   max-width: 900px;
-  margin: auto;
-  padding: 30px;
-  background: linear-gradient(145deg, rgba(255, 255, 255, 0.9), rgba(240, 248, 255, 0.7));
-  backdrop-filter: blur(14px) saturate(180%);
-  border-radius: 20px;
-  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.12);
-  animation: fadeSlideUp 0.5s ease-in-out;
-  border: 1px solid rgba(255, 255, 255, 0.3);
+  margin: 40px auto;
+  padding: 40px;
+  background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+  border-radius: 24px;
+  box-shadow:
+    0 4px 6px -1px rgba(0, 0, 0, 0.1),
+    0 2px 4px -1px rgba(0, 0, 0, 0.06),
+    0 20px 25px -5px rgba(0, 0, 0, 0.1);
+  border: 1px solid rgba(226, 232, 240, 0.8);
+  animation: fadeSlideUp 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* Title */
+/* Page Title */
 .edit-priority-container h1 {
-  font-size: 2rem;
+  font-size: 2.25rem;
   font-weight: 700;
-  color: #0b87b1;
-  margin-bottom: 16px;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+  background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin-bottom: 8px;
+  letter-spacing: -0.025em;
+  line-height: 1.2;
 }
 
-/* Task info text */
+/* Task Information Section */
 .edit-priority-container p {
-  font-size: 1rem;
-  color: #444;
-  margin: 6px 0;
-  line-height: 1.4;
-  overflow-wrap: break-word;
-  word-break: break-word;
+  font-size: 0.95rem;
+  color: #64748b;
+  margin: 8px 0;
+  line-height: 1.6;
+  font-weight: 500;
 }
 
-/* Form control styling */
+.edit-priority-container p:first-of-type {
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 2px solid #e2e8f0;
+}
+
+/* Task Info Styling */
+.edit-priority-container p strong,
+.edit-priority-container p::first-letter {
+  color: #334155;
+}
+
+/* Form Controls Container */
 .edit-priority-container .MuiFormControl-root {
-  background: #fff;
-  border-radius: 14px;
-  padding: 10px 12px;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
-  transition: all 0.25s ease;
+  margin-bottom: 20px !important;
+  background: #ffffff;
+  border-radius: 16px;
+  padding: 0;
+  box-shadow:
+    0 1px 3px 0 rgba(0, 0, 0, 0.1),
+    0 1px 2px 0 rgba(0, 0, 0, 0.06);
+  border: 1px solid #e2e8f0;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  overflow: hidden;
 }
 
 .edit-priority-container .MuiFormControl-root:hover {
   transform: translateY(-2px);
-  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.1);
+  box-shadow:
+    0 4px 6px -1px rgba(0, 0, 0, 0.1),
+    0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  border-color: #cbd5e1;
 }
 
-/* Select box text */
+.edit-priority-container .MuiFormControl-root:focus-within {
+  border-color: #0ea5e9;
+  box-shadow:
+    0 0 0 3px rgba(14, 165, 233, 0.1),
+    0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+/* Input Labels */
+.edit-priority-container .MuiInputLabel-root {
+  background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%) !important;
+  color: #ffffff !important;
+  font-weight: 600 !important;
+  font-size: 0.875rem !important;
+  padding: 8px 16px !important;
+  border-radius: 12px !important;
+  letter-spacing: 0.025em;
+  text-transform: uppercase;
+  box-shadow: 0 2px 4px rgba(14, 165, 233, 0.2);
+}
+
+/* Select Input */
 .edit-priority-container .MuiSelect-select {
+  padding: 16px 14px !important;
   font-weight: 500;
   font-size: 0.95rem;
+  color: #1e293b;
+  min-height: 24px !important;
 }
 
-/* Menu dropdown styling (only when opened from this component) */
+.edit-priority-container .MuiOutlinedInput-notchedOutline {
+  border: none !important;
+}
+
+/* Dropdown Menu */
 .edit-priority-container .MuiPaper-root.MuiMenu-paper {
-  border-radius: 12px !important;
-  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15) !important;
-  padding: 6px 0;
+  border-radius: 16px !important;
+  box-shadow:
+    0 20px 25px -5px rgba(0, 0, 0, 0.1),
+    0 10px 10px -5px rgba(0, 0, 0, 0.04) !important;
+  border: 1px solid #e2e8f0;
+  margin-top: 8px;
+  max-height: 400px !important;
 }
 
-/* Menu items */
+/* Menu Items */
 .edit-priority-container .MuiMenuItem-root {
-  font-size: 0.92rem !important;
-  border-radius: 8px;
-  margin: 2px 6px;
-  transition: background 0.15s ease-in-out, transform 0.15s ease-in-out;
+  font-size: 0.9rem !important;
+  padding: 12px 16px !important;
+  margin: 4px 8px !important;
+  border-radius: 10px !important;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  color: #334155;
+  font-weight: 500;
 }
 
 .edit-priority-container .MuiMenuItem-root:hover {
-  background-color: rgba(11, 135, 177, 0.08) !important;
-  transform: scale(1.02);
+  background: linear-gradient(135deg, rgba(14, 165, 233, 0.08) 0%, rgba(2, 132, 199, 0.08) 100%) !important;
+  transform: translateX(4px);
 }
 
-/* Button row */
+.edit-priority-container .MuiMenuItem-root.Mui-selected {
+  background: linear-gradient(135deg, rgba(14, 165, 233, 0.12) 0%, rgba(2, 132, 199, 0.12) 100%) !important;
+}
+
+.edit-priority-container .MuiMenuItem-root.Mui-selected:hover {
+  background: linear-gradient(135deg, rgba(14, 165, 233, 0.16) 0%, rgba(2, 132, 199, 0.16) 100%) !important;
+}
+
+/* Checkboxes */
+.edit-priority-container .MuiCheckbox-root {
+  color: #94a3b8 !important;
+}
+
+.edit-priority-container .MuiCheckbox-root.Mui-checked {
+  color: #0ea5e9 !important;
+}
+
+/* List Item Text */
+.edit-priority-container .MuiListItemText-primary {
+  font-weight: 500 !important;
+  color: #334155 !important;
+  line-height: 1.5 !important;
+}
+
+/* Button Container */
 .edit-priority-container .button-row {
   display: flex;
-  gap: 14px;
-  margin-top: 24px;
+  gap: 16px;
+  margin-top: 32px;
+  padding-top: 24px;
+  border-top: 2px solid #e2e8f0;
 }
 
-/* Cancel button */
-.edit-priority-container .button-cancel {
-  background: #a1a1a1 !important;
-  color: white !important;
-  font-weight: 500 !important;
-  border-radius: 12px !important;
-  padding: 10px 20px !important;
-  letter-spacing: 0.5px;
-  transition: all 0.25s ease-in-out;
-}
-
-.edit-priority-container .button-cancel:hover {
-  background: #888 !important;
-  transform: translateY(-1px);
-}
-
-/* Save button */
-.edit-priority-container .button-save {
-  background: #0b87b1 !important;
-  color: white !important;
+/* Buttons Base Style */
+.edit-priority-container button {
+  flex: 1;
+  padding: 14px 28px !important;
+  border-radius: 14px !important;
   font-weight: 600 !important;
-  border-radius: 12px !important;
-  padding: 10px 20px !important;
-  letter-spacing: 0.5px;
-  transition: all 0.25s ease-in-out;
+  font-size: 1rem !important;
+  letter-spacing: 0.025em;
+  text-transform: none !important;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
-.edit-priority-container .button-save:hover {
-  background: #096b8b !important;
-  transform: translateY(-1px);
+/* Cancel Button */
+.edit-priority-container button:first-child {
+  background: linear-gradient(135deg, #64748b 0%, #475569 100%) !important;
+  color: #ffffff !important;
 }
 
-/* Animation */
+.edit-priority-container button:first-child:hover {
+  background: linear-gradient(135deg, #475569 0%, #334155 100%) !important;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+/* Save Button */
+.edit-priority-container button:last-child {
+  background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%) !important;
+  color: #ffffff !important;
+}
+
+.edit-priority-container button:last-child:hover {
+  background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%) !important;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(14, 165, 233, 0.4);
+}
+
+.edit-priority-container button:active {
+  transform: translateY(0) !important;
+}
+
+/* Animations */
 @keyframes fadeSlideUp {
   from {
     opacity: 0;
-    transform: translateY(10px);
+    transform: translateY(20px);
   }
 
   to {
     opacity: 1;
     transform: translateY(0);
   }
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .edit-priority-container {
+    margin: 20px;
+    padding: 24px;
+  }
+
+  .edit-priority-container h1 {
+    font-size: 1.75rem;
+  }
+
+  .edit-priority-container .button-row {
+    flex-direction: column;
+  }
+
+  .edit-priority-container button {
+    width: 100%;
+  }
+}
+
+/* Loading State */
+.edit-priority-container .MuiCircularProgress-root {
+  color: #0ea5e9 !important;
+}
+
+/* Scrollbar Styling for Dropdown */
+.edit-priority-container .MuiMenu-list::-webkit-scrollbar {
+  width: 8px;
+}
+
+.edit-priority-container .MuiMenu-list::-webkit-scrollbar-track {
+  background: #f1f5f9;
+  border-radius: 10px;
+}
+
+.edit-priority-container .MuiMenu-list::-webkit-scrollbar-thumb {
+  background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%);
+  border-radius: 10px;
+}
+
+.edit-priority-container .MuiMenu-list::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
 }

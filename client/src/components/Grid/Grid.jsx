@@ -47,29 +47,21 @@ function Grid({
   const formatDate = (dateStr) => {
     if (!dateStr) return "Not Set";
     try {
-      // If it looks like ISO date YYYY-MM-DD...
-      if (dateStr.length >= 10) {
-        const datePart = dateStr.split('T')[0];
-        const [y, m, d] = datePart.split('-');
-        if (y && m && d) {
-          return `${d}/${m}/${y.slice(-2)}`;
-        }
-      }
-
-      // Fallback
+      // Handle YYYY-MM-DD manually to avoid timezone issues if possible, 
+      // or just trust date-fns with correct parsing if input is ISO.
+      // The previous code had a manual split. Let's strictly use date-fns for formatting.
       const d = new Date(dateStr);
-      return format(d, 'dd/MM/yy');
+      // Check for invalid date
+      if (isNaN(d.getTime())) return "Invalid Date";
+      return format(d, 'dd MMM yyyy');
     } catch {
       return "Invalid Date";
     }
   };
 
-  const formatTime = (seconds) => {
-    const secs = Number(seconds) || 0;
-    const mins = Math.floor(secs / 60);
-    const remSecs = secs % 60;
-    return `${mins.toString().padStart(2, "0")}:${remSecs.toString().padStart(2, "0")}`;
-  };
+
+
+
 
   const handleEditClick = (taskID) => {
     // prevent li click
@@ -207,9 +199,7 @@ function Grid({
                           </strong>
                         )}
                       </span>
-                      <span style={{ fontSize: "14px", color: "#666", marginLeft: "10px" }}>
-                        Time Spent: {formatTime(task.timeSpentSeconds)}
-                      </span>
+
                     </span>
 
 
@@ -247,8 +237,8 @@ function Grid({
                           borderRadius: "8px",
                         }}
                       >
-                        
-                        <CiEdit style={{ marginRight: "4px"}} size={20} />
+
+                        <CiEdit style={{ marginRight: "4px" }} size={20} />
                         Tags
                       </Button>
                     </div>

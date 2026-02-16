@@ -67,12 +67,7 @@ function TaskReport({ tasks, setTask, filterStatus }) {
   const formatDate = (dateStr) => {
     if (!dateStr) return '';
     try {
-      if (dateStr.length >= 10) {
-        const part = dateStr.split('T')[0];
-        const [y, m, d] = part.split('-');
-        if (y && m && d) return `${d}/${m}/${y.slice(-2)}`;
-      }
-      return format(new Date(dateStr), 'dd/MM/yy');
+      return format(new Date(dateStr), 'dd MMM yyyy');
     } catch {
       return '';
     }

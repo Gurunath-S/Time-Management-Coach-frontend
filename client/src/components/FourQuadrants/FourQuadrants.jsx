@@ -173,6 +173,8 @@ function FourQuadrants({ hideTable, setHideTable }) {
     categorizeTasksByPriority(activeTasks);
   }, [activeTasks]);
 
+
+
   const globalAvailableFilters = useMemo(() => {
     const tagCounts = { complexity: {}, type: {}, category: {}, impact: {} };
     activeTasks.forEach(task => {

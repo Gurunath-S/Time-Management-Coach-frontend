@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { format } from 'date-fns';
 
 import './QuickTaskHistory.css';
 
@@ -16,11 +17,11 @@ function QuickTaskHistory() {
 
   const formatDate = (dateStr) => {
     if (!dateStr) return "Not Set";
-    const d = new Date(dateStr);
-    const day = String(d.getDate()).padStart(2, '0');
-    const month = String(d.getMonth() + 1).padStart(2, '0');
-    const year = d.getFullYear();
-    return `${day} ${month} ${year}`;
+    try {
+      return format(new Date(dateStr), 'dd MMM yyyy');
+    } catch (e) {
+      return "Invalid Date";
+    }
   };
 
   return (

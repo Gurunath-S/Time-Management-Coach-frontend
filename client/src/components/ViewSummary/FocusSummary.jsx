@@ -139,7 +139,7 @@ const FocusSummary = () => {
                           <div className="change-log">
                             {Object.entries(change.changes || {}).map(([field, val]) => (
                               <div key={field}>
-                                <span style={{ color: '#94a3b8', fontSize: '0.8em' }}>{field}: </span>
+                                <span style={{ color: '#94a3b8', fontSize: '0.8em', textTransform: 'capitalize', fontWeight: 'bolder' }}>{field}: </span>
                                 <span style={{ textDecoration: 'line-through', color: '#ef4444' }}>
                                   {formatChangeValue(field, val.before)}
                                 </span>

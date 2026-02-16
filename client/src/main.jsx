@@ -11,8 +11,8 @@ if (import.meta.env.VITE_GA_ID) {
 
 createRoot(document.getElementById('root')).render(
   <GoogleOAuthProvider clientId={import.meta.env.VITE_GOOGLE_CLIENT_ID}>
-  <StrictMode>
-    <App />
-  </StrictMode>
+    <StrictMode>
+      <App />
+    </StrictMode>
   </GoogleOAuthProvider>,
 )

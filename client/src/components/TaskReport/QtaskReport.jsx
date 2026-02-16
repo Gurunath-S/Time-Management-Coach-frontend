@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { format } from 'date-fns';
 import Button from '@mui/material/Button';
 import { toast } from 'react-toastify';
 import { useNavigate } from 'react-router-dom';
@@ -34,11 +35,11 @@ function QtaskReport({ qtasks, setQtasks }) {
 
   const formatDate = (dateStr) => {
     if (!dateStr) return '';
-    const d = new Date(dateStr);
-    const day = String(d.getDate()).padStart(2, '0');
-    const month = String(d.getMonth() + 1).padStart(2, '0');
-    const year = d.getFullYear();
-    return `${day}/${month}/${String(year).slice(-2)}`;
+    try {
+      return format(new Date(dateStr), 'dd MMM yyyy');
+    } catch {
+      return "Invalid Date";
+    }
   };
 
   return (

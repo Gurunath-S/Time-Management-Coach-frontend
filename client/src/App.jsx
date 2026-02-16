@@ -16,7 +16,7 @@ function AppContent() {
   useEffect(() => {
     initApp();
 
-    const onLogout = () => {};
+    const onLogout = () => { };
     window.addEventListener('logout', onLogout);
     return () => window.removeEventListener('logout', onLogout);
   }, [initApp]);
