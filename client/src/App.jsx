@@ -7,6 +7,8 @@ import 'react-toastify/dist/ReactToastify.css';
 import { useEffect } from 'react';
 import ReactGA from "react-ga4";
 
+import { useFocusStore } from './store/useFocusStore';
+
 function AppContent() {
   const location = useLocation();
   const { user, isLoggedIn, loadingAuth, authChecked, initApp, logout } = useGlobalStore();
@@ -14,7 +16,9 @@ function AppContent() {
   useEffect(() => {
     initApp();
 
-    const onLogout = () => { };
+    const onLogout = () => {
+      useFocusStore.setState({ isFocusMode: false });
+    };
     window.addEventListener('logout', onLogout);
     return () => window.removeEventListener('logout', onLogout);
   }, [initApp]);
@@ -26,7 +30,7 @@ function AppContent() {
         page: location.pathname + location.search,
       });
     }
-  }, [location]);
+  }, [location.pathname, location.search]);
 
   if (!authChecked) {
     return <div style={{ padding: 50, textAlign: 'center' }}>Checking session...</div>;
