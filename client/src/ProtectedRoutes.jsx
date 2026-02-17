@@ -10,6 +10,7 @@ import EditTaskPage from './components/EditTask/EditTask';
 import FocusSummary from './components/ViewSummary/FocusSummary';
 import NavComponent from './components/Nav/Nav';
 import useGlobalStore from './store/useGlobalStore';
+import { useFocusStore } from './store/useFocusStore';
 import { toast } from 'react-toastify';
 
 export default function ProtectedRoutes() {
@@ -17,6 +18,13 @@ export default function ProtectedRoutes() {
   const navigate = useNavigate();
   const toastShownRef = useRef(false);
   const { isLoggedIn, isFocusMode } = useGlobalStore();
+
+  // Clear focus mode if user is not logged in
+  useEffect(() => {
+    if (!isLoggedIn && isFocusMode) {
+      useFocusStore.setState({ isFocusMode: false });
+    }
+  }, [isLoggedIn, isFocusMode]);
 
   // Define allowed patterns whch is view or go to page 
   const allowedPatterns = [
