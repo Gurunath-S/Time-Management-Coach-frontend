@@ -31,7 +31,7 @@ exports.saveFocusSession = async (req, res) => {
 
 exports.getFocusSessions = async (req, res) => {
   try {
-    // Limit to recent 20 sessions for faster loading
+    // for now i Limited to recent 20 sessions for faster loading need to discuss sir regarding this 
     const limit = parseInt(req.query.limit) || 20;
     const sessions = await prisma.focusSession.findMany({
       where: { userId: Number(req.userId) },
@@ -76,7 +76,6 @@ exports.logTaskChange = async (req, res) => {
   }
 };
 
-// Helper to get and clear pending changes for a user
 exports.getPendingChanges = (userId) => {
   const sessionKey = `user_${userId}`;
   const changes = pendingTaskChanges.get(sessionKey) || [];

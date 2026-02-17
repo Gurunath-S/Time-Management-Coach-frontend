@@ -1,4 +1,3 @@
-// src/components/FourQuadrants/FourQuadrants.jsx
 import Grid from '../Grid/Grid';
 import { useState, useEffect, useMemo } from 'react';
 import Button from '@mui/material/Button';
@@ -46,12 +45,8 @@ function FourQuadrants({ hideTable, setHideTable }) {
 
   const activeTasks = useMemo(() => tasks.filter(task => task.status !== 'completed'), [tasks]);
 
-
-
-  // Save or update task
   const saveTaskHandler = async (task, isEdit) => {
     try {
-      // Capture old task BEFORE saveTask updates the state
       const oldTask = isEdit ? tasks.find(t => t.id === task.id) : null;
       const savedTask = await saveTask(task, isEdit);
       if (isEdit) {
@@ -79,8 +74,6 @@ function FourQuadrants({ hideTable, setHideTable }) {
     if (isFocusMode && oldTask && newTask) {
       await logTaskChangeInFocusMode(oldTask, newTask);
     }
-
-    // Optimistically update server
     try {
       await axios.put(`${BACKEND_URL}/api/tasks/${taskId}`, newTask, {
         headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }

@@ -46,7 +46,6 @@ function HelpPage() {
             </p>
           </div>
 
-          {/* New section for Auto-Important Tags */}
           <div className='autoimp' style={{ marginTop: '2rem', padding: '1rem', backgroundColor: '#f9f9f9', borderRadius: '8px'}}>
             <h5>Auto-Important Tags</h5>
             <p>

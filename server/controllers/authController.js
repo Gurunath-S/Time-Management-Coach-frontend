@@ -20,7 +20,7 @@ exports.googleLogin = async (req, res) => {
     let user = await prisma.user.findUnique({ where: { email } });
 
     if (!user) {
-      // Store the Google picture URL directly instead of downloading/converting to base64
+      // Storing the Google picture URL directly instead of downloading/converting to base64
       user = await prisma.user.create({
         data: { name, email, picture },
       });

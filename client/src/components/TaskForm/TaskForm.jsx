@@ -13,7 +13,7 @@ import { format } from 'date-fns';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
-import enGB from 'date-fns/locale/en-GB'; // Strict dd/MM/yyyy locale
+import enGB from 'date-fns/locale/en-GB';
 
 function TaskForm({ open, onSave, onClose, editTask = null, setTask }) {
   const isUpdate = !!editTask;
@@ -74,8 +74,6 @@ function TaskForm({ open, onSave, onClose, editTask = null, setTask }) {
   };
 
   const handleDateChange = (name, newValue) => {
-    // newValue is a Date object (or null) from the picker
-    // We want to store it as YYYY-MM-DD string internally to match existing logic
     if (!newValue || isNaN(newValue)) {
       setNewTask((prev) => ({ ...prev, [name]: '' }));
       return;
@@ -84,7 +82,6 @@ function TaskForm({ open, onSave, onClose, editTask = null, setTask }) {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
-    // Validation: Past Date Check for due_date
     if (name === 'due_date') {
       const checkDate = new Date(newValue);
       checkDate.setHours(0, 0, 0, 0);
@@ -94,7 +91,6 @@ function TaskForm({ open, onSave, onClose, editTask = null, setTask }) {
       }
     }
 
-    // Convert to YYYY-MM-DD for internal state
     try {
       const y = newValue.getFullYear();
       const m = String(newValue.getMonth() + 1).padStart(2, '0');
@@ -121,10 +117,8 @@ function TaskForm({ open, onSave, onClose, editTask = null, setTask }) {
       return;
     }
 
-    // Helper to create date object treated as local
     const toLocalISO = (dateStr) => {
       if (!dateStr) return null;
-      // new Date(2023, 9, 27) -> Local.
       const [y, m, dPart] = dateStr.split('-').map(Number);
       return new Date(y, m - 1, dPart).toISOString();
     };
@@ -154,7 +148,6 @@ function TaskForm({ open, onSave, onClose, editTask = null, setTask }) {
     onClose();
   };
 
-  // Helper to parse stored string back to Date object for the Picker
   const getDateObject = (dateStr) => {
     if (!dateStr) return null;
     const [y, m, d] = dateStr.split('-').map(Number);

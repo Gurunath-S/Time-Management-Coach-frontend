@@ -1,10 +1,9 @@
-// src/utils/api.js
 import axios from 'axios';
 import BACKEND_URL from '../../Config';
 
 const api = axios.create({
   baseURL: BACKEND_URL,
-  // timeout: 10000, // optional
+  // timeout: 10000,
 });
 
 api.interceptors.request.use((config) => {
@@ -17,7 +16,7 @@ api.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response && error.response.status === 401) {
-      // Server says token invalid/expired -> broadcast logout
+      //if Server say token invalid/expired or not crt then broadcast logout
       window.dispatchEvent(new Event('logout'));
     }
     return Promise.reject(error);

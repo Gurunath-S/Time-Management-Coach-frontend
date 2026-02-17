@@ -6,7 +6,6 @@ import { useAuthStore } from '../../store/useAuthStore';
 import { MdWork } from "react-icons/md";
 import { IoArrowBack } from "react-icons/io5";
 import { FaHome } from "react-icons/fa";
-// We could use useTaskStore.fetchTasks to reload if needed, but this is a fire-and-forget save mostly.
 
 export default function QuickTaskFormPage() {
   const [date, setDate] = useState('');
@@ -57,11 +56,6 @@ export default function QuickTaskFormPage() {
       return;
     }
     const selectedDate = new Date(val);
-
-    // Since input type date returns YYYY-MM-DD, new Date() parses it as UTC.
-    // However, for year verification, getFullYear() works on local time.
-    // If user selects Jan 1st near UTC boundary, it works fine usually unless we are careful.
-    // Let's stick to simple string splitting for safety.
     const yearStr = parseInt(val.split('-')[0]);
 
     if (yearStr !== currentYear) {
@@ -103,21 +97,12 @@ export default function QuickTaskFormPage() {
     }
 
     setIsSubmitting(true);
-
-    // Creating date object that respects LOCAL time for the user.
-    // If user chose 2026-02-10, we want to store it as 2026-02-10T00:00:00.000Z generally, 
-    // OR just send the date string if backend handles it.
-    // The previous implementation used new Date(date) which creates UTC or Local depending on browser,
-    // usually defaulting to UTC for 'YYYY-MM-DD'.
-    // We explicitly want to ensure the 'date' field in DB reflects this day.
-
-    // Best practice: Send as ISO string but force it to be the local day representation.
     const [y, m, d] = date.split('-').map(Number);
     const localDate = new Date(y, m - 1, d); // 0-indexed month
 
     const quickLog = {
       id: `${Date.now()} min`, // Unique enough for quick log
-      date: localDate.toISOString(), // Send ISO. Backend should handle this or forward it back safely.
+      date: localDate.toISOString(), // Sending ISO Backend should handle this or forward it back safely.
       workTasks: selectedWorkTasks,
       personalTasks: selectedPersonalTasks,
       notes,

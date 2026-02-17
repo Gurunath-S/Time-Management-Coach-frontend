@@ -12,8 +12,8 @@ exports.getQTasks = async (req, res) => {
 exports.createQTask = async (req, res) => {
   const { date, workTasks, personalTasks, notes, timeSpent } = req.body;
 
-  console.log("Incoming Quick Task Body:", req.body);
-  console.log("User ID from token:", req.userId);
+  // console.log("Incoming Quick Task Body:", req.body);
+  // console.log("User ID from token:", req.userId);
 
   try {
     const qtask = await prisma.qtask.create({
@@ -27,7 +27,7 @@ exports.createQTask = async (req, res) => {
       },
     });
 
-    console.log(" TimeLog created:", qtask);
+    // console.log(" TimeLog created:", qtask);
     res.status(201).json(qtask);
   } catch (err) {
     console.error("Error inside TimeLog:", err);

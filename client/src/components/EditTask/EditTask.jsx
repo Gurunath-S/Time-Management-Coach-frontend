@@ -1,4 +1,3 @@
-// src/components/EditTask/EditTask.jsx
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
@@ -14,7 +13,7 @@ function EditTaskPage() {
   const [loading, setLoading] = useState(true);
 
   const saveTask = useGlobalStore(state => state.saveTask);
-  const tasks = useGlobalStore(state => state.tasks); // Needed to find old task for logs
+  const tasks = useGlobalStore(state => state.tasks);
   const isFocusMode = useGlobalStore(state => state.isFocusMode);
   const logTaskChangeInFocusMode = useGlobalStore(state => state.logTaskChangeInFocusMode);
 
@@ -28,7 +27,6 @@ function EditTaskPage() {
         if (!res.ok) throw new Error('Failed to fetch task');
 
         const data = await res.json();
-        // Ensure data format matches what TaskForm expects (although TaskForm handles most formatting)
         setTask(data);
       } catch (err) {
         console.error(err);
@@ -43,9 +41,6 @@ function EditTaskPage() {
 
   const handleSave = async (updatedTask, isUpdate) => {
     try {
-      // Find old task for logging purposes BEFORE saving
-      // Note: fetching from 'tasks' store might be reliable if store is synced, 
-      // but 'task' state is definitely the pre-update version.
       const oldTask = task;
 
       await saveTask(updatedTask, isUpdate);
@@ -55,7 +50,6 @@ function EditTaskPage() {
       }
 
       toast.success('Task updated successfully');
-      // Navigation is handled by onClose which TaskForm calls after onSave
     } catch (err) {
       console.error(err);
       toast.error('Failed to save task');
@@ -63,7 +57,7 @@ function EditTaskPage() {
   };
 
   const handleClose = () => {
-    navigate(-1); // Go back to whatever page we came from
+    navigate(-1);
   };
 
   if (loading) {

@@ -1,4 +1,3 @@
-// Nav.jsx
 import { useState } from 'react';
 import Container from 'react-bootstrap/Container';
 import Nav from 'react-bootstrap/Nav';
@@ -42,13 +41,11 @@ function NavComponent({ user, loading, isLoggedIn, onLogout }) {
         <Navbar.Toggle aria-controls="responsive-navbar-nav" />
         <Navbar.Collapse id="responsive-navbar-nav">
           <Nav className="ms-auto align-items-center">
-            {/* show home link if user exists */}
             {loading ? (
               <span className="nav-loading">...</span>
             ) : isLoggedIn && user ? (
               <Nav.Link as={Link} to="/home" className="nav-link-custom"><FaHome /> Home</Nav.Link>
             ) : (
-              // if no user and not on login page, show the login link
               showLoginLink && (
                 <Nav.Link as={Link} to="/login" className="nav-link-custom"><TbLogin2 /> Login</Nav.Link>
               )

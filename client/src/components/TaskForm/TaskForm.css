@@ -9,13 +9,13 @@
   font-weight: 600;
   margin-bottom: 6px;
   display: block;
-  color: #3b82f6; /* Modern Blue */
+  color: #3b82f6;
   font-size: 0.9rem;
   letter-spacing: 0.3px;
 }
 
 .dialog-form .form-row {
-  margin-bottom: 0; /* Handled by flex gap */
+  margin-bottom: 0;
   position: relative;
 }
 
@@ -24,7 +24,6 @@
   width: 100%;
 }
 
-/* Custom Input Styling Override to match "Neat" look */
 .MuiOutlinedInput-root {
   border-radius: 8px !important;
   background-color: #f8fafc;
@@ -58,7 +57,7 @@
   max-width: 95%;
   border-radius: 16px !important;
   box-shadow: 0 10px 40px rgba(0,0,0,0.15) !important;
-  overflow: visible !important; /* Allow popovers to overflow if needed, but Dialog handles scroll */
+  overflow: visible !important;
 }
 
 .MuiDialogTitle-root {
@@ -71,7 +70,6 @@
   text-align: left !important;
 }
 
-/* Two Column Layout */
 .form-columns {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -84,13 +82,11 @@
   gap: 16px;
 }
 
-/* Full width rows */
 .full-width {
   grid-column: 1 / -1;
   width: 100%;
 }
 
-/* Date Display Helper Text */
 .form-row small {
   display: inline-block;
   margin-top: 4px;
@@ -103,13 +99,11 @@
   border-radius: 12px;
 }
 
-/* Fix dropdown menu width */
 .dialog-form .MuiSelect-root .MuiMenu-paper {
   min-width: auto !important;
   max-width: 300px !important;
 }
 
-/* Override MUI Select menu positioning */
 .MuiPopover-paper {
   min-width: auto !important;
   max-width: 300px !important;
@@ -117,7 +111,6 @@
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06) !important;
 }
 
-/* Mobile responsive */
 @media (max-width: 768px) {
   .MuiDialog-paper {
     min-width: 350px;
@@ -131,17 +124,15 @@
   }
 }
 
-/* Remove outline and background for date fields */
 .no-outline-date .MuiOutlinedInput-root {
-  border: 1px solid #e2e8f0; /* Restoring subtle border */
+  border: 1px solid #e2e8f0;
   background-color: #fff; 
 }
 
 .no-outline-date .MuiOutlinedInput-notchedOutline {
-  border: none; /* Hide default MUI outline to use custom border */
+  border: none;
 }
 
-/* Buttons */
 .MuiButton-root {
   text-transform: none !important;
   font-weight: 600 !important;

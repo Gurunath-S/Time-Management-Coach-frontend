@@ -1,4 +1,3 @@
-// src/ProtectedRoutes.jsx
 import { Routes, Route, useLocation, useNavigate, Navigate } from 'react-router-dom';
 import { useEffect, useRef } from 'react';
 import Home from './components/Home/Home';
@@ -19,11 +18,11 @@ export default function ProtectedRoutes() {
   const toastShownRef = useRef(false);
   const { isLoggedIn, isFocusMode } = useGlobalStore();
 
-  // Define allowed patterns
+  // Define allowed patterns whch is view or go to page 
   const allowedPatterns = [
     /^\/edit-tasks\/[^/]+$/,
     /^\/focus-summary$/,
-    /^\/edit-tags\/[^/]+$/, // Enable Edit Tags in Focus Mode
+    /^\/edit-tags\/[^/]+$/,
   ];
 
   const isAllowed = allowedPatterns.some((p) => p.test(location.pathname));
@@ -36,13 +35,10 @@ export default function ProtectedRoutes() {
         toastShownRef.current = true;
       }
     } else {
-      // Reset toast flag when on allowed page
       toastShownRef.current = false;
     }
   }, [isTargetRestricted]);
 
-  // If restricted, redirect IMMEDIATELY by rendering Navigate, 
-  // instead of waiting for useEffect (which causes flicker).
   if (isTargetRestricted) {
     return <Navigate to="/home" replace />;
   }

@@ -1,4 +1,3 @@
-// src/components/LoginPage/LoginPage.jsx
 import { useEffect, useCallback, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import BACKEND_URL from '../../../Config';
@@ -25,7 +24,6 @@ function LoginPage() {
       });
       const data = await res.json();
       if (res.ok && data.token && data.user) {
-        // Use optimized login: set user directly from response, skip redundant profile fetch
         await loginSuccess(data.token, data.user);
         navigate('/home');
       } else {
@@ -68,9 +66,7 @@ function LoginPage() {
         if (!isAuthError) {
           window.google.accounts.id.prompt();
         } else {
-          // Optional: Show a message or just don't prompt
           console.log("Skipping auto-prompt due to auth error");
-          // Clear it so next time it works
           sessionStorage.removeItem('authError');
         }
       }

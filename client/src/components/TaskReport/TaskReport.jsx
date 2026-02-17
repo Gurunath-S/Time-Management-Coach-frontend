@@ -23,7 +23,6 @@ function TaskReport({ tasks, setTask, filterStatus }) {
     } else if (filterStatus === 'in progress') {
       filtered = tasks.filter((task) => task.status === 'in progress');
     } else {
-      // 'all' or any other: show all except completed
       filtered = tasks.filter((task) => task.status !== 'completed');
     }
 

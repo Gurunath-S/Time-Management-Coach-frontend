@@ -94,10 +94,6 @@ export default function EditPriorityTags() {
   const [loading, setLoading] = useState(!initialTask);
 
   useEffect(() => {
-    // If we already have the task from state, we might not need to fetch, 
-    // BUT we should verify if the ID matches or if we just want fresh data.
-    // For "instant" load, we rely on state. We can fetch in background if really needed, 
-    // but typically the list view is fresh enough.
     if (initialTask && initialTask.id === id) {
       setLoading(false);
       return;

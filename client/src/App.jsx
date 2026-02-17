@@ -1,5 +1,3 @@
-// src/App.jsx
-import './App.css';
 import NavComponent from './components/Nav/Nav';
 import ProtectedRoutes from './ProtectedRoutes';
 import { BrowserRouter, useLocation } from 'react-router-dom';

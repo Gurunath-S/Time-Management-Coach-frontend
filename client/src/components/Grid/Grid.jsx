@@ -47,11 +47,7 @@ function Grid({
   const formatDate = (dateStr) => {
     if (!dateStr) return "Not Set";
     try {
-      // Handle YYYY-MM-DD manually to avoid timezone issues if possible, 
-      // or just trust date-fns with correct parsing if input is ISO.
-      // The previous code had a manual split. Let's strictly use date-fns for formatting.
       const d = new Date(dateStr);
-      // Check for invalid date
       if (isNaN(d.getTime())) return "Invalid Date";
       return format(d, 'dd MMM yyyy');
     } catch {
@@ -59,24 +55,10 @@ function Grid({
     }
   };
 
-
-
-
-
   const handleEditClick = (taskID) => {
     // prevent li click
     navigate(`/edit-tasks/${taskID}`);
   };
-
-  // Helper for inline editing if needed, matching original logic? 
-  // Original code had `handleTaskFieldChange` used in the input onChange 
-  // but `onFieldChange` prop is passed. 
-  // The original code passed `handleTaskFieldChange` which was undefined in the file snippet I saw?
-  // Wait, looking at line 159 of step 27: `onChange={(e) => handleTaskFieldChange(task.id, 'title', e.target.value)}`
-  // But `handleTaskFieldChange` is NOT defined in component scope in the snippet I read!
-  // It must have been missing or I missed it. 
-  // Ah, it was probably supposed to use `onFieldChange`. 
-  // Let's fix that too.
 
   const handleTitleChange = (taskId, val) => {
     if (onFieldChange) {
@@ -97,7 +79,7 @@ function Grid({
         flexDirection: "column",
       }}
     >
-      {/* Header */}
+
       <div style={{ flexShrink: 0 }}>
         <h4
           style={{
@@ -281,7 +263,7 @@ function Grid({
                             cursor: "pointer",
                           }}
                           onClick={(e) => {
-                            e.stopPropagation(); // Prevent triggering task click
+                            e.stopPropagation(); 
                             toggleTags(task.id);
                           }}
                         />

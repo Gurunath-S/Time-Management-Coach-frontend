@@ -31,7 +31,6 @@
   min-width: 300px;
 }
 
-/* Stack tables vertically on mobile */
 @media (max-width: 768px) {
   .main {
     grid-template-columns: 1fr;

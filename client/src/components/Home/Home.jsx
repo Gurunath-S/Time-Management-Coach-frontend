@@ -1,4 +1,3 @@
-// src/components/Home/Home.jsx
 import { useEffect, useRef, useState } from 'react';
 import FourQuadrants from '../FourQuadrants/FourQuadrants';
 import TaskReport from '../TaskReport/TaskReport';
