@@ -5,7 +5,7 @@ import { ToastContainer } from 'react-toastify';
 import useGlobalStore from './store/useGlobalStore';
 import 'react-toastify/dist/ReactToastify.css';
 import { useEffect } from 'react';
-
+import ReactGA from "react-ga4";
 
 import { useFocusStore } from './store/useFocusStore';
 
@@ -23,7 +23,14 @@ function AppContent() {
     return () => window.removeEventListener('logout', onLogout);
   }, [initApp]);
 
-  /* GA Removed */
+  useEffect(() => {
+    if (import.meta.env.VITE_GA_ID) {
+      ReactGA.send({
+        hitType: "pageview",
+        page: location.pathname + location.search,
+      });
+    }
+  }, [location]);
 
   if (!authChecked) {
     return <div style={{ padding: 50, textAlign: 'center' }}>Checking session...</div>;
