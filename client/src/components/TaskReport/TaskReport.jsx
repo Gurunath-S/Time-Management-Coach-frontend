@@ -45,7 +45,7 @@ function TaskReport({ tasks, setTask, filterStatus }) {
   const handleSearch = (searchTerm) => {
     const lowerSearchTerm = searchTerm.toLowerCase();
     const filteredData = tasks.filter((task) =>
-      task.title.toLowerCase().startsWith(lowerSearchTerm)
+      task.title.toLowerCase().includes(lowerSearchTerm)
     );
     setFilteredTasks(filteredData);
   };

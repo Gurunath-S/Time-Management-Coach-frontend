@@ -6,7 +6,12 @@ import ReactGA from "react-ga4";
 
 
 if (import.meta.env.VITE_GA_ID) {
-  ReactGA.initialize(import.meta.env.VITE_GA_ID);
+  ReactGA.initialize(import.meta.env.VITE_GA_ID, {
+    gaOptions: {
+      cookieDomain: 'auto',
+      cookieFlags: 'SameSite=None;Secure'
+    }
+  });
 }
 
 createRoot(document.getElementById('root')).render(
