@@ -7,6 +7,7 @@ import './QuickTaskForm.css';
 import { toast } from 'react-toastify';
 import BACKEND_URL from '../../../Config';
 import { useAuthStore } from '../../store/useAuthStore';
+import useGlobalStore from '../../store/useGlobalStore';
 import { MdWork } from "react-icons/md";
 import { IoArrowBack } from "react-icons/io5";
 import { FaHome } from "react-icons/fa";
@@ -141,10 +142,21 @@ export default function QuickTaskFormPage({ open, onClose }) {
         body: JSON.stringify(quickLog),
       });
 
-      if (!req.ok) throw new Error('Failed to save Time Log');
+      if (!req.ok) {
+        let errorData = {};
+        try {
+          errorData = await req.json();
+        } catch (e) { }
+        console.error("Backend Error Data:", errorData);
+        throw new Error(errorData.message || 'Failed to save Time Log');
+      }
 
       toast.success("Time Log entry saved.");
       handleReset();
+
+      // Ensure frontend global store syncs with the database immediately 
+      // so the Time Log tables update right after the modal closes
+      await useGlobalStore.getState().fetchTasks();
 
       if (typeof onClose === 'function') {
         onClose();

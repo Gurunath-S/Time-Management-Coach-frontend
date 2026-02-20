@@ -66,7 +66,7 @@
   width: 100%;
   border-collapse: separate;
   border-spacing: 0;
-  table-layout: auto;
+  table-layout: fixed;
 }
 
 .qth-th,
@@ -86,15 +86,36 @@
   top: 0;
   z-index: 10;
   border-bottom: 2px solid #c9d6e2;
+  border-right: 1px solid #c9d6e2;
+}
+
+.qth-th:last-child {
+  border-right: none;
 }
 
 .qth-td {
   color: #374151;
   border-bottom: 1px solid #e5e7eb;
+  border-right: 1px solid #e5e7eb;
   font-size: 0.875rem;
   transition: background-color 0.2s ease;
   background-color: #ffffff;
-  white-space: nowrap;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  white-space: normal;
+}
+
+.qth-td:last-child {
+  border-right: none;
+}
+
+/* Long task columns — constrained width with wrapping */
+.qth-td-break {
+  max-width: 220px;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  white-space: normal;
+  text-align: left;
 }
 
 /* Remove bottom border on last row */

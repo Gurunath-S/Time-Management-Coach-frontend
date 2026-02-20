@@ -45,7 +45,11 @@ function FourQuadrants({ hideTable, setHideTable }) {
   const logTaskChangeInFocusMode = useGlobalStore(state => state.logTaskChangeInFocusMode);
   const focusCompletedTasks = useGlobalStore(state => state.focusCompletedTasks);
 
-  const activeTasks = useMemo(() => tasks.filter(task => task.status !== 'completed'), [tasks]);
+  const activeTasks = useMemo(() => tasks.filter(task =>
+    task.status !== 'completed' &&
+    task.status !== 'cancelled' &&
+    task.status !== 'deferred'
+  ), [tasks]);
 
   const saveTaskHandler = async (task, isEdit) => {
     try {

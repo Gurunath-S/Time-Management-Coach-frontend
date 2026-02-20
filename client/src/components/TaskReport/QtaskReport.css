@@ -55,16 +55,38 @@ thead tr .th {
   top: 0;
   z-index: 10;
   border-bottom: 2px solid #c9d6e2;
+  border-right: 1px solid #c9d6e2;
+}
+
+thead tr .th:last-child {
+  border-right: none;
 }
 
 .td {
   padding: 16px 24px;
   text-align: center;
   border-bottom: 1px solid #e5e7eb;
+  border-right: 1px solid #e5e7eb;
   background-color: #ffffff;
   color: #374151;
   font-size: 0.875rem;
   transition: background-color 0.2s ease;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  white-space: normal;
+}
+
+.td:last-child {
+  border-right: none;
+}
+
+/* Constrained width for long task columns */
+.task-col {
+  max-width: 220px;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  white-space: normal;
+  text-align: left;
 }
 
 /* Remove bottom border on last row */

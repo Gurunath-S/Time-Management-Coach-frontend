@@ -63,9 +63,9 @@ function QuickTaskHistory() {
               qtasks.map((taskItem, index) => (
                 <tr key={index}>
                   <td className="qth-td">{formatDate(taskItem.date) || "-"}</td>
-                  <td className="qth-td">{taskItem.workTasks || "-"}</td>
-                  <td className="qth-td">{taskItem.personalTasks || "-"}</td>
-                  <td className="qth-td">{taskItem.notes || "-"}</td>
+                  <td className="qth-td qth-td-break">{taskItem.workTasks || "-"}</td>
+                  <td className="qth-td qth-td-break">{taskItem.personalTasks || "-"}</td>
+                  <td className="qth-td qth-td-break">{taskItem.notes || "-"}</td>
                   <td className="qth-td">{taskItem.timeSpent || "-"}</td>
                 </tr>
               ))

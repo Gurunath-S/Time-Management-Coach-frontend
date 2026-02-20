@@ -5,9 +5,9 @@
 }
 
 .task-box {
-  display: flex;              
-  align-items: center;        
-  justify-content: center; 
+  display: flex;
+  align-items: center;
+  justify-content: center;
   padding: 15px;
   border-radius: 8px;
   font-weight: bold;
@@ -31,7 +31,7 @@
 .total:active {
   background-color: #00070e;
   transform: translateY(2px);
-  
+
 }
 
 .completed {
@@ -81,5 +81,37 @@
 
 .pending:active {
   background-color: #a53326;
+  transform: translateY(2px);
+}
+
+.deferred {
+  background-color: #9b59b6;
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.1s ease;
+}
+
+.deferred:hover {
+  background-color: #8e44ad;
+  cursor: pointer;
+}
+
+.deferred:active {
+  background-color: #732d91;
+  transform: translateY(2px);
+}
+
+.cancelled {
+  background-color: #7f8c8d;
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.1s ease;
+}
+
+.cancelled:hover {
+  background-color: #95a5a6;
+  cursor: pointer;
+}
+
+.cancelled:active {
+  background-color: #bdc3c7;
   transform: translateY(2px);
 }

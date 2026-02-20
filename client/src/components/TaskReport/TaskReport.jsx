@@ -27,6 +27,10 @@ function TaskReport({ tasks, setTask, filterStatus }) {
       filtered = tasks.filter((task) => task.status === 'pending');
     } else if (filterStatus === 'in progress') {
       filtered = tasks.filter((task) => task.status === 'in progress');
+    } else if (filterStatus === 'cancelled') {
+      filtered = tasks.filter((task) => task.status === 'cancelled');
+    } else if (filterStatus === 'deferred') {
+      filtered = tasks.filter((task) => task.status === 'deferred');
     } else {
       filtered = tasks.filter((task) => task.status !== 'completed');
     }
@@ -79,6 +83,10 @@ function TaskReport({ tasks, setTask, filterStatus }) {
         return '#FF0000'; // red
       case 'in progress':
         return '#ffc107'; // yellow
+      case 'cancelled':
+        return '#7f8c8d'; // grey
+      case 'deferred':
+        return '#9b59b6'; // purple
       default:
         return '#335f8d'; // default blue for 'all'
     }
@@ -102,12 +110,18 @@ function TaskReport({ tasks, setTask, filterStatus }) {
         >
           Showing:{' '}
           {filterStatus === 'all'
-            ? 'Ongoing Tasks (Pending + In Progress)'
+            ? 'All Active Tasks'
             : filterStatus === 'completed'
               ? 'Completed Tasks'
               : filterStatus === 'pending'
                 ? 'Pending Tasks'
-                : 'In Progress Tasks'}
+                : filterStatus === 'in progress'
+                  ? 'In Progress Tasks'
+                  : filterStatus === 'cancelled'
+                    ? 'Cancelled Tasks'
+                    : filterStatus === 'deferred'
+                      ? 'Deferred Tasks'
+                      : 'Tasks'}
         </h3>
 
         <TextField

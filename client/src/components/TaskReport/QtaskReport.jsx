@@ -90,9 +90,9 @@ function QtaskReport({ qtasks, setQtasks }) {
                   <tr key={index}>
                     <td className="td">{index + 1}</td>
                     <td className="td">{formatDate(taskItem.date) || "-"}</td>
-                    <td className="td">{Array.isArray(taskItem.workTasks) ? taskItem.workTasks.join(', ') || "-" : taskItem.workTasks || "-"}</td>
-                    <td className="td">{Array.isArray(taskItem.personalTasks) ? taskItem.personalTasks.join(', ') || "-" : taskItem.personalTasks || "-"}</td>
-                    <td className="td">{taskItem.notes || "-"}</td>
+                    <td className="td task-col">{Array.isArray(taskItem.workTasks) ? taskItem.workTasks.join(', ') || "-" : taskItem.workTasks || "-"}</td>
+                    <td className="td task-col">{Array.isArray(taskItem.personalTasks) ? taskItem.personalTasks.join(', ') || "-" : taskItem.personalTasks || "-"}</td>
+                    <td className="td task-col">{taskItem.notes || "-"}</td>
                     <td className="td">{taskItem.timeSpent || "-"}</td>
                   </tr>
                 ))
