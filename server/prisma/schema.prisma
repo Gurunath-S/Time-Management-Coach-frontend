@@ -38,9 +38,9 @@ model Task {
 model Qtask {
   id             String          @id @default(uuid())
   date           DateTime
-  workTasks      String
-  personalTasks  String
-  notes          String
+  workTasks      String          @db.LongText
+  personalTasks  String          @db.LongText
+  notes          String          @db.LongText
   timeSpent      String
   userId         Int
   user           User            @relation(fields: [userId], references: [id])
