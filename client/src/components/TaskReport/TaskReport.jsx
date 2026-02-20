@@ -4,14 +4,19 @@ import { MdEdit } from 'react-icons/md';
 import './TaskReport.css';
 import Button from '@mui/material/Button';
 import { toast } from 'react-toastify';
-import axios from 'axios';
+import TaskForm from '../TaskForm/TaskForm';
+import useGlobalStore from '../../store/useGlobalStore';
 import { useNavigate } from 'react-router-dom';
 import BACKEND_URL from '../../../Config';
 import { format } from 'date-fns';
 
 function TaskReport({ tasks, setTask, filterStatus }) {
   const [filteredTasks, setFilteredTasks] = useState(tasks);
+  const [open, setOpen] = useState(false);
+  const [editTask, setEditTask] = useState(null);
+
   const navigate = useNavigate();
+  const { saveTask, isFocusMode, logTaskChangeInFocusMode } = useGlobalStore();
 
   useEffect(() => {
     let filtered = [];
@@ -26,20 +31,36 @@ function TaskReport({ tasks, setTask, filterStatus }) {
       filtered = tasks.filter((task) => task.status !== 'completed');
     }
 
+    // Sort the filtered tasks chronologically (newest first) by created_at date
+    filtered.sort((a, b) => {
+      const dateA = new Date(a.created_at || 0);
+      const dateB = new Date(b.created_at || 0);
+      return dateB - dateA;
+    });
+
     setFilteredTasks(filtered);
   }, [tasks, filterStatus]);
 
-  const handleUpdate = async (task) => {
+  const saveTaskHandler = async (task) => {
     try {
-      const res = await axios.put(`${BACKEND_URL}/api/tasks/${task.id}`, task, {
-        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
-      });
-      const updatedTasks = tasks.map((item) => (item.id === task.id ? res.data : item));
-      setTask(updatedTasks);
-      toast.success('Task Updated');
+      const oldTask = tasks.find((t) => t.id === task.id);
+      const savedTask = await saveTask(task, true); // true indicates it's an update
+
+      if (isFocusMode && oldTask) {
+        logTaskChangeInFocusMode(oldTask, savedTask);
+      }
+
+      setEditTask(null);
+      setOpen(false);
     } catch (error) {
+      console.error('Failed to update task via modal', error);
       toast.error('Failed to update task');
     }
+  };
+
+  const handleEditClick = (task) => {
+    setEditTask(task);
+    setOpen(true);
   };
 
   const handleSearch = (searchTerm) => {
@@ -103,6 +124,7 @@ function TaskReport({ tasks, setTask, filterStatus }) {
           <table className={`table ${filterStatus.replace(/\s/g, '-')}-table`}>
             <thead>
               <tr>
+                <th className="th">S.No</th>
                 <th className="th task-name-col">Task Name</th>
                 <th className="th">Created Date</th>
                 <th className="th">Due Date</th>
@@ -114,7 +136,7 @@ function TaskReport({ tasks, setTask, filterStatus }) {
             <tbody>
               {filteredTasks.length === 0 ? (
                 <tr>
-                  <td colSpan="7" className="td empty-state">
+                  <td colSpan="8" className="td empty-state">
                     No tasks found
                   </td>
                 </tr>
@@ -123,19 +145,20 @@ function TaskReport({ tasks, setTask, filterStatus }) {
                   .filter((task) => Object.values(task).some((val) => val !== null && val !== ''))
                   .map((taskItem, index) => (
                     <tr key={index}>
-                      <td className="td task-name-col" title={taskItem.title}>{taskItem.title}</td>
+                      <td className="td">{index + 1}</td>
+                      <td className="td task-name-col" title={taskItem.title}>{taskItem.title || "-"}</td>
                       <td className="td">
-                        {formatDate(taskItem.created_at)}
+                        {formatDate(taskItem.created_at) || "-"}
                       </td>
                       <td className="td">
-                        {formatDate(taskItem.due_date)}
+                        {formatDate(taskItem.due_date) || "-"}
                       </td>
-                      <td className="td">{taskItem.priority}</td>
-                      <td className="td">{taskItem.status}</td>
+                      <td className="td">{taskItem.priority || "-"}</td>
+                      <td className="td">{taskItem.status || "-"}</td>
                       <td className="td">
                         <button
                           className="editButton"
-                          onClick={() => navigate(`/edit-tasks/${taskItem.id}`)}
+                          onClick={() => handleEditClick(taskItem)}
                           style={{ backgroundColor: getBorderColor() }}
                         >
                           <MdEdit fontSize={16} style={{ marginRight: 4 }} />
@@ -149,6 +172,17 @@ function TaskReport({ tasks, setTask, filterStatus }) {
           </table>
         </div>
       </div>
+
+      <TaskForm
+        open={open}
+        onSave={saveTaskHandler}
+        onClose={() => {
+          setOpen(false);
+          setEditTask(null);
+        }}
+        isUpdate={!!editTask}
+        editTask={editTask}
+      />
     </div>
   );
 }

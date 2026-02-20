@@ -1,46 +1,32 @@
 .custom-navbar {
   background: linear-gradient(90deg, #4e54c8, #8f94fb);
-  padding: 8px 0px;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+  padding: 10px 0;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  z-index: 1000;
   position: relative;
-  left: 2px;
-  z-index: 10;
 }
 
 .brand-title {
   font-weight: 700;
-  font-size: 1.8rem;
-  letter-spacing: 0.8px;
+  font-size: 1.4rem;
+  letter-spacing: 0.5px;
   color: #fff !important;
   font-family: 'Segoe UI', sans-serif;
+  margin: 0;
+  white-space: nowrap;
+  /* Added spacing */
+  line-height: 1.2;
 }
 
-.logo {
-  width: 72px;
-  height: 55px;
-  border-radius: 3px;
-  position: relative;
-  cursor: pointer;
-  margin-right: 350px;
-  left: 30px;
+.nav-logo {
+  height: 48px;
+  width: auto;
+  border-radius: 4px;
+  transition: transform 0.2s ease;
 }
 
-.nav-avatar {
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  cursor: pointer;
-}
-
-.profile-dropdown {
-  position: absolute;
-  top: 60px;
-  right: 10px;
-  background: white;
-  padding: 10px;
-  border-radius: 6px;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-  z-index: 1000;
+.nav-logo:hover {
+  transform: scale(1.05);
 }
 
 .nav-link-custom {
@@ -59,63 +45,11 @@
   border-bottom: 2px solid #fff;
 }
 
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(-10%);
-  }
-
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-.profile-name {
-  font-weight: 600;
-  color: #333;
-  font-size: 1.05rem;
-  margin-bottom: 4px;
-}
-
-.profile-email {
-  font-size: 0.9rem;
-  color: #666;
-  margin-bottom: 12px;
-}
-
-.logout-btn {
-  background-color: #ff5252;
-  color: #fff;
-  border: none;
-  padding: 6px 14px;
-  font-size: 0.9rem;
-  border-radius: 5px;
+.nav-profile {
   cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.logout-btn:hover {
-  background-color: #ff3232;
-  transform: scale(1.05);
-}
-
-.close-btn {
-  background-color: #6eace6;
-  color: #fff;
-  border: none;
-  padding: 6px 14px;
-  font-weight: 600;
-  margin-left: 10px;
-  font-size: 0.9rem;
-  border-radius: 5px;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.close-btn:hover {
-  background-color: #2f8de6;
-  transform: scale(1.05);
+  display: flex;
+  align-items: center;
+  margin-left: 15px;
 }
 
 .nav-avatar {
@@ -128,34 +62,39 @@
 }
 
 .nav-avatar:hover {
-  transform: scale(1.1);
-  cursor: pointer;
-}
-
-.nav-profile {
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  margin-left: 15px;
-}
-
-.nav-avatar:hover {
   transform: scale(1.05);
+  cursor: pointer;
 }
 
 .profile-dropdown {
   position: absolute;
-  right: 20px;
-  top: 50px;
+  right: 0;
+  left: auto;
+  top: 60%;
+  margin-top: 10px;
   background: white;
   border: 1px solid #ddd;
   border-radius: 12px;
-  padding: 1rem;
-  z-index: 999;
-  width: 240px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  padding: 1.5rem;
+  z-index: 1050;
+  width: 260px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
   text-align: center;
   animation: fadeIn 0.3s ease;
+}
+
+/* Adjust dropdown position for mobile */
+@media (max-width: 991px) {
+  .profile-dropdown {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) !important;
+    width: 90%;
+    max-width: 320px;
+    margin: 0;
+    right: auto;
+  }
 }
 
 @keyframes fadeIn {
@@ -171,8 +110,60 @@
 }
 
 .profile-img {
-  width: 40px;
-  height: 40px;
+  width: 60px;
+  height: 60px;
   border-radius: 50%;
   object-fit: cover;
+  margin-bottom: 12px;
+  border: 3px solid #f0f2f5;
+}
+
+.profile-name {
+  font-weight: 600;
+  color: #333;
+  font-size: 1.1rem;
+  margin-bottom: 4px;
+}
+
+.profile-email {
+  font-size: 0.9rem;
+  color: #666;
+  margin-bottom: 16px;
+}
+
+.logout-btn {
+  background-color: #ff5252;
+  color: #fff;
+  border: none;
+  padding: 8px 20px;
+  font-size: 0.9rem;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-weight: 500;
+}
+
+.logout-btn:hover {
+  background-color: #ff3232;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(255, 82, 82, 0.3);
+}
+
+.close-btn {
+  background-color: #6eace6;
+  color: #fff;
+  border: none;
+  padding: 8px 20px;
+  font-weight: 500;
+  margin-left: 10px;
+  font-size: 0.9rem;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.close-btn:hover {
+  background-color: #2f8de6;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(110, 172, 230, 0.3);
 }

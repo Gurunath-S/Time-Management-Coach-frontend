@@ -9,7 +9,7 @@ import { FaHome } from 'react-icons/fa';
 import { useNavigate, Link, useLocation } from 'react-router-dom';
 import { TbLogin2 } from "react-icons/tb";
 import ibtLogo from '../../assets/ibt-logo.png';
-
+import tmc from '../../assets/tmc-main.png';
 // Handle both base64 (legacy) and URL (new) picture formats
 const getProfilePicSrc = (picture) => {
   if (!picture) return null;
@@ -21,7 +21,7 @@ const getProfilePicSrc = (picture) => {
   return `data:image/jpeg;base64,${picture}`;
 };
 
-function NavComponent({ user, loading, isLoggedIn, onLogout }) {
+function NavComponent({ user, loading, isLoggedIn, onLogout, isFocusMode }) {
   const navigate = useNavigate();
   const location = useLocation();
   const [showProfile, setShowProfile] = useState(false);
@@ -35,9 +35,17 @@ function NavComponent({ user, loading, isLoggedIn, onLogout }) {
 
   return (
     <Navbar collapseOnSelect expand="lg" className="custom-navbar" variant="dark">
-      <><img src={ibtLogo} alt="Ibacus Logo" className="logo" /></>
-      <Container>
-        <Navbar.Brand as={Link} to="/home" className="brand-title">📝 Time Management Coach</Navbar.Brand>
+      <Container fluid className="position-relative">
+        <Navbar.Brand as={Link} to="https://www.ibacustech.com/" className="d-flex align-items-center me-auto">
+          <img src={ibtLogo} alt="Ibacus Logo" className="nav-logo" />
+        </Navbar.Brand>
+
+        <div className="mx-auto position-absolute top-0 start-50 translate-middle-x d-flex align-items-center h-100" style={{ pointerEvents: 'none' }}>
+          <div className="d-flex align-items-center" style={{ pointerEvents: 'auto' }}>
+            <img src={tmc} alt="tmc-Logo" className="nav-logo me-2" />
+            <span className="brand-title d-none d-lg-block">Time Management Coach</span>
+          </div>
+        </div>
         <Navbar.Toggle aria-controls="responsive-navbar-nav" />
         <Navbar.Collapse id="responsive-navbar-nav">
           <Nav className="ms-auto align-items-center">
@@ -51,7 +59,17 @@ function NavComponent({ user, loading, isLoggedIn, onLogout }) {
               )
             )}
 
-            <Nav.Link as={Link} to="/help" className="nav-link-custom"><FiHelpCircle /> Help</Nav.Link>
+            <Nav.Link
+              as={Link}
+              to="/help"
+              className="nav-link-custom"
+              style={{
+                pointerEvents: isFocusMode ? 'none' : 'auto',
+                opacity: isFocusMode ? 0.5 : 1
+              }}
+            >
+              <FiHelpCircle /> Help
+            </Nav.Link>
 
             {user && (
               <>
@@ -80,7 +98,7 @@ function NavComponent({ user, loading, isLoggedIn, onLogout }) {
                     <p className="profile-name">{user.name}</p>
                     <p className="profile-email">{user.email}</p>
                     <button className="logout-btn" onClick={handleLogout}>Logout</button>
-                    <button className="close-btn" onClick={() => setShowProfile(false)}>close</button>
+                    {/* <button className="close-btn" onClick={() => setShowProfile(false)}>close</button> */}
                   </div>
                 )}
               </>

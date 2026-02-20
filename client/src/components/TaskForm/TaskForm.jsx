@@ -79,18 +79,6 @@ function TaskForm({ open, onSave, onClose, editTask = null, setTask }) {
       return;
     }
 
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-
-    if (name === 'due_date') {
-      const checkDate = new Date(newValue);
-      checkDate.setHours(0, 0, 0, 0);
-      if (checkDate < today) {
-        alert("Due date cannot be in the past.");
-        return;
-      }
-    }
-
     try {
       const y = newValue.getFullYear();
       const m = String(newValue.getMonth() + 1).padStart(2, '0');
@@ -110,6 +98,17 @@ function TaskForm({ open, onSave, onClose, editTask = null, setTask }) {
     if (missingFields.length > 0) {
       alert(`Please fill all required fields: ${missingFields.join(', ')}`);
       return;
+    }
+
+    // Validate due date is not before created date
+    if (newtask.due_date) {
+      const dueDate = getDateObject(newtask.due_date);
+      const createdDate = getDateObject(newtask.created_at);
+
+      if (dueDate && createdDate && dueDate < createdDate) {
+        alert("Due date cannot be before the created date.");
+        return;
+      }
     }
 
     if (newtask.priority === 'high' && !newtask.reason) {
@@ -151,7 +150,11 @@ function TaskForm({ open, onSave, onClose, editTask = null, setTask }) {
   const getDateObject = (dateStr) => {
     if (!dateStr) return null;
     const [y, m, d] = dateStr.split('-').map(Number);
-    return new Date(y, m - 1, d);
+    const date = new Date(y, m - 1, d);
+    if (y < 100) {
+      date.setFullYear(y);
+    }
+    return date;
   };
 
   return (

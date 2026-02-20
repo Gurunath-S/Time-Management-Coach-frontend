@@ -1,10 +1,5 @@
 .quick-task-page {
-  min-height: 100vh;
-  padding: 40px 20px;
   font-family: 'Inter', system-ui, sans-serif;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
 }
 
 .quick-task-page h2 {
@@ -18,10 +13,7 @@
 .quick-task-form {
   background: white;
   width: 100%;
-  max-width: 800px;
-  border-radius: 20px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
-  padding: 32px;
+  padding: 0;
   display: flex;
   flex-direction: column;
   gap: 32px;

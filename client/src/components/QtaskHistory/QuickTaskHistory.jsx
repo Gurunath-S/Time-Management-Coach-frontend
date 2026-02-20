@@ -8,7 +8,16 @@ function QuickTaskHistory() {
 
   useEffect(() => {
     const stored = localStorage.getItem('quickTasks');
-    if (stored) setQtasks(JSON.parse(stored));
+    if (stored) {
+      const parsedTasks = JSON.parse(stored);
+      // Sort in descending chronological order (newest first)
+      parsedTasks.sort((a, b) => {
+        const dateA = new Date(a.date || 0);
+        const dateB = new Date(b.date || 0);
+        return dateB - dateA;
+      });
+      setQtasks(parsedTasks);
+    }
   }, []);
 
   const goBack = () => {
@@ -26,8 +35,12 @@ function QuickTaskHistory() {
 
   return (
     <div className="qth-container">
-      <h2>All Time Log History</h2>
-      <button className="qth-back-button" onClick={goBack}>Back</button>
+      <div className="qth-header-row">
+        <button className="qth-back-button" onClick={goBack}>Back</button>
+        <h2>All Time Log History</h2>
+        {/* Invisible spacer to balance the back button and ensure exact centering of the h2 */}
+        <div style={{ width: '80px', visibility: 'hidden' }}>Spacer</div>
+      </div>
       <div className="qth-table-wrapper">
         <table className="qth-table">
           <thead>
@@ -49,11 +62,11 @@ function QuickTaskHistory() {
             ) : (
               qtasks.map((taskItem, index) => (
                 <tr key={index}>
-                  <td className="qth-td">{formatDate(taskItem.date)}</td>
-                  <td className="qth-td">{taskItem.workTasks}</td>
-                  <td className="qth-td">{taskItem.personalTasks}</td>
-                  <td className="qth-td">{taskItem.notes}</td>
-                  <td className="qth-td">{taskItem.timeSpent}</td>
+                  <td className="qth-td">{formatDate(taskItem.date) || "-"}</td>
+                  <td className="qth-td">{taskItem.workTasks || "-"}</td>
+                  <td className="qth-td">{taskItem.personalTasks || "-"}</td>
+                  <td className="qth-td">{taskItem.notes || "-"}</td>
+                  <td className="qth-td">{taskItem.timeSpent || "-"}</td>
                 </tr>
               ))
             )}

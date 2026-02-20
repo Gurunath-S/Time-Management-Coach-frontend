@@ -8,16 +8,31 @@ import { useEffect } from 'react';
 import ReactGA from "react-ga4";
 
 import { useFocusStore } from './store/useFocusStore';
+import { useTaskStore } from './store/useTaskStore';
 
 function AppContent() {
   const location = useLocation();
   const { user, isLoggedIn, loadingAuth, authChecked, initApp, logout } = useGlobalStore();
+  const isFocusMode = useGlobalStore(state => state.isFocusMode);
 
   useEffect(() => {
     initApp();
 
     const onLogout = () => {
-      useFocusStore.setState({ isFocusMode: false });
+      // Clear focus state completely to prevent data bleed
+      useFocusStore.setState({
+        isFocusMode: false,
+        focusStartTime: null,
+        focusCompletedTasks: [],
+        focusTaskChanges: []
+      });
+      // Clear task state completely to prevent data bleed between users
+      useTaskStore.setState({
+        tasks: [],
+        qtasks: [],
+        error: null,
+        loadingTasks: false
+      });
     };
     window.addEventListener('logout', onLogout);
     return () => window.removeEventListener('logout', onLogout);
@@ -43,8 +58,8 @@ function AppContent() {
         loading={loadingAuth}
         isLoggedIn={isLoggedIn}
         onLogout={logout}
+        isFocusMode={isFocusMode}
       />
-      <br />
       <ProtectedRoutes />
       <ToastContainer
         position="top-right"

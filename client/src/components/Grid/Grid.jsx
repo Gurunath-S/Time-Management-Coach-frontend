@@ -133,7 +133,7 @@ function Grid({
                 <li
                   key={task.id || index}
                   style={{
-                    cursor: isFocusMode ? "pointer" : "default",
+                    cursor: "pointer",
                     padding: "12px",
                     margin: "8px 0",
                     backgroundColor: "#fff",
@@ -154,23 +154,7 @@ function Grid({
                     <span style={{ fontSize: "16px", flex: 1, minWidth: "200px", wordBreak: "break-word", overflowWrap: "anywhere" }}>
                       <strong>
                         {index + 1}.{' '}
-                        {isFocusMode ? (
-                          <input
-                            value={task.title}
-                            onChange={(e) => handleTitleChange(task.id, e.target.value)}
-                            onClick={(e) => e.stopPropagation()}
-                            style={{
-                              fontSize: '16px',
-                              fontWeight: 'bold',
-                              padding: '2px 4px',
-                              border: 'none',
-                              outline: 'none',
-                              background: 'transparent',
-                            }}
-                          />
-                        ) : (
-                          task.title
-                        )}
+                        {task.title}
                       </strong>
                       <br />
                       <span style={{ fontSize: "14px", color: "#666" }}>
@@ -263,7 +247,7 @@ function Grid({
                             cursor: "pointer",
                           }}
                           onClick={(e) => {
-                            e.stopPropagation(); 
+                            e.stopPropagation();
                             toggleTags(task.id);
                           }}
                         />

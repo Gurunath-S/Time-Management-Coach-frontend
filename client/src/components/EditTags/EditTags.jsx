@@ -175,7 +175,7 @@ export default function EditPriorityTags() {
 
       {Object.entries(tagOptions).map(([group, options]) => (
         <FormControl fullWidth style={{ marginBottom: 10 }} key={group}>
-          <InputLabel style={{ backgroundColor: '#0b87b179', borderRadius: '10%', padding: 5, color: 'black' }}>
+          <InputLabel>
             {group.charAt(0).toUpperCase() + group.slice(1)}
           </InputLabel>
           <Select

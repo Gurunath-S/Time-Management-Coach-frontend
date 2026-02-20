@@ -6,7 +6,8 @@ import Switch from '@mui/material/Switch';
 import { toast } from 'react-toastify';
 import EditPriorityTags from '../TaskForm/EditPriorityTags';
 import TaskForm from '../TaskForm/TaskForm';
-import { MdFilterList } from 'react-icons/md';
+import QuickTaskFormPage from '../TaskForm/QuickTaskForm';
+import { MdFilterList, MdOutlineTipsAndUpdates } from 'react-icons/md';
 import { FaChevronDown, FaChevronRight } from 'react-icons/fa';
 import Chip from '@mui/material/Chip';
 import { useNavigate, Link } from 'react-router-dom';
@@ -28,6 +29,7 @@ function FourQuadrants({ hideTable, setHideTable }) {
   const [taskToTagEdit, setTaskToTagEdit] = useState(null);
   const [globalFilters, setGlobalFilters] = useState({ complexity: [], type: [], category: [], impact: [] });
   const [showGlobalFilters, setShowGlobalFilters] = useState(false);
+  const [openTimeLog, setOpenTimeLog] = useState(false);
 
   const navigate = useNavigate();
 
@@ -141,16 +143,43 @@ function FourQuadrants({ hideTable, setHideTable }) {
 
         if (!dueDate) {
           notImpNotUrgentGrid.push({ ...single, priority, suggestion });
-        } else if (dueDate < todayDate && priority === "high") {
-          impUrgentGrid.push({ ...single, priority, suggestion: suggestion || "overdueTask" });
-        } else if (dueDate === todayDate && priority === "high") {
-          impUrgentGrid.push({ ...single, priority, suggestion });
-        } else if (dueDate > todayDate && dueDate <= weekLastDate && (priority === "high" || priority === "normal")) {
-          impNotUrgentGrid.push({ ...single, priority, suggestion });
-        } else if (createdAt === todayDate && dueDate === todayDate) {
-          notImpUrgentGrid.push({ ...single, priority, suggestion });
         } else {
-          notImpNotUrgentGrid.push({ ...single, priority, suggestion });
+          // Check for Overdue
+          if (dueDate < todayDate) {
+            const finalSuggestion = suggestion ? suggestion : "Overdue";
+            if (priority === 'high') {
+              impUrgentGrid.push({ ...single, priority, suggestion: finalSuggestion });
+            } else {
+              // Not High + Overdue -> Not Imp & Urgent
+              notImpUrgentGrid.push({ ...single, priority, suggestion: finalSuggestion });
+            }
+          }
+          // Check for Due Today
+          else if (dueDate === todayDate) {
+            if (priority === 'high') {
+              impUrgentGrid.push({ ...single, priority, suggestion });
+            } else {
+              // Not High + Due Today -> Not Imp & Urgent
+              notImpUrgentGrid.push({ ...single, priority, suggestion });
+            }
+          }
+          // Check for Due This Week (Tomorrow to +5 days)
+          else if (dueDate <= weekLastDate) {
+            if (priority === 'high') {
+              impNotUrgentGrid.push({ ...single, priority, suggestion });
+            } else {
+              // Not High + Due Week -> Not Imp & Urgent
+              notImpUrgentGrid.push({ ...single, priority, suggestion });
+            }
+          }
+          // Due > Week (Future)
+          else {
+            if (priority === 'high') {
+              impNotUrgentGrid.push({ ...single, priority, suggestion });
+            } else {
+              notImpNotUrgentGrid.push({ ...single, priority, suggestion });
+            }
+          }
         }
       });
 
@@ -227,44 +256,62 @@ function FourQuadrants({ hideTable, setHideTable }) {
 
   return (
     <>
-      <div>
-        <div style={{ marginBottom: '20px' }}>
-          <div>
-            <Button variant="contained" style={{ fontWeight: "bolder", marginLeft: 15 }} onClick={() => setOpen(true)}>
+      <div className="action-bar-container">
+        {/* Info Banner */}
+        <div className="info-banner">
+          <div className="info-banner-icon">
+            <MdOutlineTipsAndUpdates />
+          </div>
+          <div className="info-banner-content">
+            <p><strong>Aim to focus on Important and Not Urgent tasks</strong> to avoid these becoming urgent.</p>
+            <p>Reprioritize your tasks by changing due dates or priority to focus on what matters most.</p>
+          </div>
+        </div>
+
+        {/* Action Bar */}
+        <div className="action-bar">
+          <div className="action-buttons">
+            <Button
+              variant="contained"
+              style={{ fontWeight: "bolder" }}
+              onClick={() => setOpen(true)}
+            >
               <IoAddOutline /> Add Task
             </Button>
+
+            <Button
+              variant="contained"
+              color="primary"
+              style={{ fontWeight: "bolder" }}
+              disabled={isFocusMode}
+              onClick={() => setOpenTimeLog(true)}
+            >
+              <IoAddOutline /> Add Time Log
+            </Button>
+
             <Button
               variant={isFocusMode ? "contained" : "outlined"}
               color={isFocusMode ? "error" : "primary"}
-              style={{ fontWeight: "bold", marginLeft: 10 }}
+              style={{ fontWeight: "bold" }}
               onClick={isFocusMode ? endFocus : startFocus}
             >
               {isFocusMode ? "Exit Focus Mode" : "Focus Mode"}
             </Button>
 
-            <Button variant="contained" style={{ fontWeight: "bold", marginLeft: 10 }} onClick={() => navigate("/focus-summary")}>
+            <Button
+              variant="contained"
+              style={{ fontWeight: "bold" }}
+              onClick={() => navigate("/focus-summary")}
+            >
               View Focus Summary
             </Button>
           </div>
 
-          <div style={{ marginTop: '12px' }}>
-            <Link to="/time-log" style={{ textDecoration: 'none' }}>
-              <Button variant="contained" color="primary" style={{ fontWeight: "bolder", marginLeft: 15 }}>
-                <IoAddOutline /> Add Time Log
-              </Button>
-            </Link>
+          <div className="action-toggles">
+            <label htmlFor="toggleSwitch" name="toggle">Show Table</label>
+            <Switch {...label} checked={hideTable} onChange={handleSwitchChange} size="medium" id='toggleSwitch' name="toggle" />
           </div>
         </div>
-
-        <div style={{ display: 'flex', alignItems: 'center', marginLeft: 15 }}>
-          <label htmlFor="toggleSwitch" name="toggle">Toggle to show table</label>
-          <Switch {...label} checked={switchChecked} onChange={handleSwitchChange} size="medium" id='toggleSwitch' name="toggle" />
-        </div>
-      </div>
-
-      <div className='gird-content'>
-        <p>Aim to focus on Important and Not Urgent tasks to avoid these becoming urgent.</p>
-        <p>Reprioritize your tasks by changing due dates or priority to focus on what matters most.</p>
       </div>
 
       {Object.values(globalAvailableFilters).some(arr => arr.length > 0) && (
@@ -340,6 +387,11 @@ function FourQuadrants({ hideTable, setHideTable }) {
         task={taskToTagEdit}
         onSave={handleTagSave}
         onEditPriorityTags={handleTagEdit}
+      />
+
+      <QuickTaskFormPage
+        open={openTimeLog}
+        onClose={() => setOpenTimeLog(false)}
       />
     </>
   );

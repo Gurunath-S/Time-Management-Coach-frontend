@@ -5,6 +5,7 @@ import { FaRegEdit } from "react-icons/fa";
 import { Card, CardContent, Typography, Divider, Button, CircularProgress, Box } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import BACKEND_URL from '../../../Config';
+import { format } from 'date-fns';
 import './FocusSummary.css';
 
 
@@ -23,7 +24,30 @@ const FocusSummary = () => {
         });
         if (!res.ok) throw new Error('Failed to fetch focus sessions');
         const data = await res.json();
-        setSessions(data || []);
+
+        // Sort sessions in descending chronological order (newest first)
+        const sortedSessions = (data || []).sort((a, b) => {
+          const dateA = new Date(a.startTime || 0);
+          const dateB = new Date(b.startTime || 0);
+          return dateB - dateA;
+        });
+
+        // Prepend active session if Focus Mode is ON
+        const { isFocusMode, focusStartTime, focusCompletedTasks, focusTaskChanges } = useGlobalStore.getState();
+        if (isFocusMode && focusStartTime) {
+          const activeSession = {
+            id: 'active-session', // Dummy ID
+            isActive: true,
+            startTime: new Date(focusStartTime).toISOString(),
+            endTime: new Date().toISOString(), // Mock end time as now
+            timeSpent: Math.floor((Date.now() - focusStartTime) / 1000),
+            completedTasks: focusCompletedTasks,
+            taskChanges: focusTaskChanges,
+          };
+          setSessions([activeSession, ...sortedSessions]);
+        } else {
+          setSessions(sortedSessions);
+        }
       } catch (err) {
         console.error('Failed to fetch focus sessions', err);
       } finally {
@@ -52,8 +76,12 @@ const FocusSummary = () => {
   };
 
   const formatDateOnly = (dateStr) => {
-    const d = new Date(dateStr);
-    return d.toLocaleDateString();
+    if (!dateStr) return '';
+    try {
+      return format(new Date(dateStr), 'dd MMM yyyy');
+    } catch {
+      return 'Invalid Date';
+    }
   };
 
   const formatTimeOnly = (dateStr) => {
@@ -95,18 +123,21 @@ const FocusSummary = () => {
       ) : (
         <div className="sessions-grid">
           {sessions.map((session, index) => (
-            <div key={index} className="session-card">
+            <div key={index} className="session-card" style={session.isActive ? { border: '2px solid #3b82f6', boxShadow: '0 4px 12px rgba(59, 130, 246, 0.2)' } : {}}>
               <div className="card-header">
-                <span className="session-date">{formatDateOnly(session.startTime)}</span>
+                <div>
+                  <span className="session-date">{formatDateOnly(session.startTime)}</span>
+                  {session.isActive && <span style={{ marginLeft: '10px', backgroundColor: '#3b82f6', color: 'white', padding: '2px 8px', borderRadius: '12px', fontSize: '0.8rem', fontWeight: 'bold' }}>Active Now</span>}
+                </div>
                 <span className="session-duration">
-                  {session.timeSpent ? formatDuration(session.timeSpent) : '0s'}
+                  {session.isActive ? 'Ongoing...' : (session.timeSpent ? formatDuration(session.timeSpent) : '0s')}
                 </span>
               </div>
 
               <div className="card-body">
                 <div className="info-row">
                   <span>Started: {formatTimeOnly(session.startTime)}</span>
-                  <span>Ended: {formatTimeOnly(session.endTime)}</span>
+                  <span>{session.isActive ? 'Currently Active' : `Ended: ${formatTimeOnly(session.endTime)}`}</span>
                 </div>
 
                 <Divider sx={{ my: 2, borderColor: '#f1f5f9' }} />

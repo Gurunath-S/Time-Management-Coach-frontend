@@ -56,8 +56,8 @@
   min-width: 650px;
   max-width: 95%;
   border-radius: 16px !important;
-  box-shadow: 0 10px 40px rgba(0,0,0,0.15) !important;
-  overflow: visible !important;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15) !important;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15) !important;
 }
 
 .MuiDialogTitle-root {
@@ -117,7 +117,7 @@
     max-width: 95%;
     margin: 10px;
   }
-  
+
   .form-columns {
     grid-template-columns: 1fr;
     gap: 16px;
@@ -126,7 +126,7 @@
 
 .no-outline-date .MuiOutlinedInput-root {
   border: 1px solid #e2e8f0;
-  background-color: #fff; 
+  background-color: #fff;
 }
 
 .no-outline-date .MuiOutlinedInput-notchedOutline {
@@ -143,7 +143,5 @@
 
 .MuiButton-root:hover {
   transform: translateY(-1px);
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
-
-

@@ -24,6 +24,10 @@ function Home({ isLoggedIn }) {
   }, [fetchTasks]);
 
   const scrollToTasks = () => {
+    if (!hideTable) {
+      toast.info('Table view is currently turned off. Please toggle "Show Table" to view the list.', { autoClose: 1500 });
+      return;
+    }
     if (taskTableRef.current) {
       taskTableRef.current.scrollIntoView({ behavior: 'smooth' });
     }

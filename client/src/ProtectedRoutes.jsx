@@ -16,7 +16,7 @@ import { toast } from 'react-toastify';
 export default function ProtectedRoutes() {
   const location = useLocation();
   const navigate = useNavigate();
-  const toastShownRef = useRef(false);
+  const prevRestrictedRef = useRef(false);
   const { isLoggedIn, isFocusMode } = useGlobalStore();
 
   // Clear focus mode if user is not logged in
@@ -34,17 +34,17 @@ export default function ProtectedRoutes() {
   ];
 
   const isAllowed = allowedPatterns.some((p) => p.test(location.pathname));
-  const isTargetRestricted = isFocusMode && !isAllowed && location.pathname !== '/home';
+  const isTargetRestricted = isFocusMode && !isAllowed && location.pathname !== '/home' && location.pathname !== '/';
 
   useEffect(() => {
-    if (isTargetRestricted) {
-      if (!toastShownRef.current) {
-        toast.warn('Navigation disabled in Focus Mode', { toastId: 'focus-mode-warning' });
-        toastShownRef.current = true;
-      }
-    } else {
-      toastShownRef.current = false;
+    // Only show toast when transitioning FROM unrestricted TO restricted
+    // This means user just tried to navigate to a blocked page
+    if (isTargetRestricted && !prevRestrictedRef.current) {
+      toast.warn('Navigation disabled in Focus Mode', { toastId: 'focus-mode-warning' });
     }
+
+    // Update the ref for next render
+    prevRestrictedRef.current = isTargetRestricted;
   }, [isTargetRestricted]);
 
   if (isTargetRestricted) {
@@ -55,7 +55,7 @@ export default function ProtectedRoutes() {
     <Routes>
       <Route path="/" element={isLoggedIn ? <Home isLoggedIn={isLoggedIn} /> : <LoginPage />} />
       <Route path="/home" element={<RequireAuth><Home isLoggedIn={isLoggedIn} /></RequireAuth>} />
-      <Route path="/help" element={<RequireAuth><HelpPage /></RequireAuth>} />
+      <Route path="/help" element={<HelpPage />} />
       <Route path="/login" element={<LoginPage />} />
       <Route path="/time-log" element={<RequireAuth><QuickTaskForm /></RequireAuth>} />
       <Route path="/quick-task-history" element={<RequireAuth><QuickTaskHistory /></RequireAuth>} />
