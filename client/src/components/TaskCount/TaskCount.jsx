@@ -7,7 +7,7 @@ function TaskCount({ tasks, setFilterStatus, scrollToTasks }) {
     pending: 0,
     inprogress: 0,
     cancelled: 0,
-    deferred: 0
+    delegated: 0
   });
 
 
@@ -17,8 +17,8 @@ function TaskCount({ tasks, setFilterStatus, scrollToTasks }) {
     const inprogress = tasks.filter(task => task.status === "in progress").length;
     const pending = tasks.filter(task => task.status === "pending").length;
     const cancelled = tasks.filter(task => task.status === "cancelled").length;
-    const deferred = tasks.filter(task => task.status === "deferred").length;
-    setTaskCount({ total, completed, pending, inprogress, cancelled, deferred });
+    const delegated = tasks.filter(task => task.status === "delegated").length;
+    setTaskCount({ total, completed, pending, inprogress, cancelled, delegated });
 
   }, [tasks]);
 
@@ -36,7 +36,7 @@ function TaskCount({ tasks, setFilterStatus, scrollToTasks }) {
       <div className="task-box completed" onClick={() => handleClick("completed")}>Completed: {taskCount.completed}</div>
       <div className="task-box inprogress" onClick={() => handleClick("in progress")}>In Progress: {taskCount.inprogress}</div>
       <div className="task-box pending" onClick={() => handleClick("pending")}>Pending: {taskCount.pending}</div>
-      <div className="task-box deferred" onClick={() => handleClick("deferred")}>Deferred: {taskCount.deferred}</div>
+      <div className="task-box delegated" onClick={() => handleClick("delegated")}>Delegated: {taskCount.delegated}</div>
       <div className="task-box cancelled" onClick={() => handleClick("cancelled")}>Cancelled: {taskCount.cancelled}</div>
     </div>
   );

@@ -8,6 +8,7 @@ import FormControl from '@mui/material/FormControl';
 import Checkbox from '@mui/material/Checkbox';
 import ListItemText from '@mui/material/ListItemText';
 import CircularProgress from '@mui/material/CircularProgress';
+import { toast } from 'react-toastify';
 import './EditTags.css';
 import BACKEND_URL from '../../../Config';
 import { autoHighPriority } from '../../utils/checkimptags';
@@ -153,9 +154,11 @@ export default function EditPriorityTags() {
         body: JSON.stringify(updatedTask)
       });
       if (!res.ok) throw new Error('Failed to update task');
+      toast.success('Tags updated successfully');
       navigate('/');
     } catch (err) {
       console.error(err);
+      toast.error('Failed to update tags');
     }
   };
 

@@ -48,7 +48,7 @@ function FourQuadrants({ hideTable, setHideTable }) {
   const activeTasks = useMemo(() => tasks.filter(task =>
     task.status !== 'completed' &&
     task.status !== 'cancelled' &&
-    task.status !== 'deferred'
+    task.status !== 'delegated'
   ), [tasks]);
 
   const saveTaskHandler = async (task, isEdit) => {
@@ -98,6 +98,7 @@ function FourQuadrants({ hideTable, setHideTable }) {
       if (isFocusMode) {
         await logTaskChangeInFocusMode(t, saved);
       }
+      toast.success('Tags updated successfully!');
       setOpenTagEditor(false);
       setTaskToTagEdit(null);
     } catch (err) {

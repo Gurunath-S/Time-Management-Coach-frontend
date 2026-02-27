@@ -11,6 +11,10 @@ import useGlobalStore from '../../store/useGlobalStore';
 import { MdWork } from "react-icons/md";
 import { IoArrowBack } from "react-icons/io5";
 import { FaHome } from "react-icons/fa";
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
+import { DatePicker } from '@mui/x-date-pickers/DatePicker';
+import enGB from 'date-fns/locale/en-GB';
 
 export default function QuickTaskFormPage({ open, onClose }) {
   const [date, setDate] = useState('');
@@ -54,30 +58,40 @@ export default function QuickTaskFormPage({ open, onClose }) {
     "Other (Personal)"
   ];
 
-  const handleDateChange = (e) => {
-    const val = e.target.value;
-    if (!val) {
+  const getDateObject = (dateStr) => {
+    if (!dateStr) return null;
+    const parts = dateStr.split('-');
+    if (parts.length !== 3) return null;
+    const [y, m, d] = parts.map(Number);
+    const dObj = new Date(y, m - 1, d);
+    if (y < 100) {
+      dObj.setFullYear(y);
+    }
+    return dObj;
+  };
+
+  const handleDateChange = (newValue) => {
+    if (!newValue || isNaN(newValue)) {
       setDate('');
       return;
     }
 
-    // Prevent manual entry errors when date is incomplete (like typing '202' and getting NaN)
-    const selectedDate = new Date(val);
-    if (isNaN(selectedDate.getTime())) {
-      setDate(val); // allow partial typing to happen
-      return;
+    try {
+      const y = newValue.getFullYear();
+      const m = String(newValue.getMonth() + 1).padStart(2, '0');
+      const d = String(newValue.getDate()).padStart(2, '0');
+
+      if (y > 0 && y !== currentYear && String(y).length >= 4) {
+        // Only alert if a full, invalid year is typed
+        alert(`Please select a date from the current year (${currentYear}) only.`);
+        setDate('');
+        return;
+      }
+
+      setDate(`${y}-${m}-${d}`);
+    } catch (e) {
+      console.error("Date conversion error", e);
     }
-
-    const yearStr = parseInt(val.split('-')[0]);
-
-    if (!isNaN(yearStr) && yearStr > 0 && yearStr !== currentYear && val.length >= 4) {
-      // Only alert if a full, invalid year is typed
-      alert(`Please select a date from the current year (${currentYear}) only.`);
-      setDate('');
-      return;
-    }
-
-    setDate(val);
   };
 
   const handleCheckbox = (task, type) => {
@@ -174,168 +188,173 @@ export default function QuickTaskFormPage({ open, onClose }) {
 
   return (
     <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth scroll="paper">
-      <DialogTitle style={{ padding: '24px 32px 16px', margin: 0 }}>
-        <div
-          className="quick-task-header"
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center', /* Center content relatively */
-            marginBottom: '20px',
-            position: 'relative' /* For absolute positioning of back button */
-          }}
-        >
-          <button
-            onClick={onClose || (() => window.history.back())}
+      <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={enGB}>
+        <DialogTitle style={{ padding: '24px 32px 16px', margin: 0 }}>
+          <div
+            className="quick-task-header"
             style={{
-              background: '#f1f5f9',
-              border: '1px solid #cbd5e1',
-              borderRadius: '20px',
-              padding: '6px 14px',
-              cursor: 'pointer',
-              fontSize: '0.95rem',
-              fontWeight: '600',
               display: 'flex',
               alignItems: 'center',
-              color: '#334155',
-              position: 'absolute',
-              left: 0,
-              transition: 'all 0.2s ease'
+              justifyContent: 'center', /* Center content relatively */
+              marginBottom: '20px',
+              position: 'relative' /* For absolute positioning of back button */
             }}
-            onMouseOver={(e) => {
-              e.currentTarget.style.backgroundColor = '#e2e8f0';
-              e.currentTarget.style.color = '#0f172a';
-            }}
-            onMouseOut={(e) => {
-              e.currentTarget.style.backgroundColor = '#f1f5f9';
-              e.currentTarget.style.color = '#334155';
-            }}
-            aria-label="Go back"
           >
-            <IoArrowBack style={{ marginRight: '6px' }} />
-            Back
-          </button>
+            <button
+              onClick={onClose || (() => window.history.back())}
+              style={{
+                background: '#f1f5f9',
+                border: '1px solid #cbd5e1',
+                borderRadius: '20px',
+                padding: '6px 14px',
+                cursor: 'pointer',
+                fontSize: '0.95rem',
+                fontWeight: '600',
+                display: 'flex',
+                alignItems: 'center',
+                color: '#334155',
+                position: 'absolute',
+                left: 0,
+                transition: 'all 0.2s ease'
+              }}
+              onMouseOver={(e) => {
+                e.currentTarget.style.backgroundColor = '#e2e8f0';
+                e.currentTarget.style.color = '#0f172a';
+              }}
+              onMouseOut={(e) => {
+                e.currentTarget.style.backgroundColor = '#f1f5f9';
+                e.currentTarget.style.color = '#334155';
+              }}
+              aria-label="Go back"
+            >
+              <IoArrowBack style={{ marginRight: '6px' }} />
+              Back
+            </button>
 
-          <h2 style={{ margin: 0, textAlign: 'center', fontSize: '1.5rem', fontWeight: '700', color: '#0f172a' }}>Time Log for Completion</h2>
-        </div>
-      </DialogTitle>
+            <h2 style={{ margin: 0, textAlign: 'center', fontSize: '1.5rem', fontWeight: '700', color: '#0f172a' }}>Time Log for Completion</h2>
+          </div>
+        </DialogTitle>
 
-      <form onSubmit={handleSubmit} className="quick-task-form" style={{ padding: 0, gap: 0, boxShadow: 'none' }}>
-        <DialogContent dividers style={{ padding: '24px 32px', display: 'flex', flexDirection: 'column', gap: '32px' }}>
+        <form onSubmit={handleSubmit} className="quick-task-form" style={{ padding: 0, gap: 0, boxShadow: 'none' }}>
+          <DialogContent dividers style={{ padding: '24px 32px', display: 'flex', flexDirection: 'column', gap: '32px' }}>
 
-          {/* Header Group: Date & Time */}
-          <div className="form-header-group">
-            <div className="form-input-wrapper" style={{ position: 'relative' }}>
-              <label>Date</label>
-              <div style={{ display: 'flex', gap: '8px' }}>
+            {/* Header Group: Date & Time */}
+            <div className="form-header-group">
+              <div className="form-input-wrapper" style={{ position: 'relative' }}>
+                <label>Date</label>
+                <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                  <DatePicker
+                    format="dd/MM/yyyy"
+                    value={getDateObject(date)}
+                    onChange={handleDateChange}
+                    slotProps={{ textField: { fullWidth: true, required: true } }}
+                    sx={{ flex: 1, backgroundColor: '#fff', borderRadius: '4px' }}
+                  />
+                  {date && (
+                    <button
+                      type="button"
+                      onClick={() => setDate('')}
+                      style={{
+                        padding: '8px 12px',
+                        backgroundColor: '#f1f5f9',
+                        border: '1px solid #cbd5e1',
+                        borderRadius: '4px',
+                        cursor: 'pointer',
+                        color: '#475569',
+                        fontWeight: '500',
+                        height: '56px'
+                      }}
+                    >
+                      Clear
+                    </button>
+                  )}
+                </div>
+              </div>
+
+              <div className="form-input-wrapper">
+                <label>Time Spent (min)</label>
                 <input
-                  type="date"
-                  value={date}
-                  onChange={handleDateChange}
+                  type="number"
+                  min="1"
+                  value={timeSpent}
+                  placeholder="e.g. 30"
+                  onChange={(e) => setTimeSpent(e.target.value)}
                   required
-                  style={{ flex: 1 }}
                 />
-                <button
-                  type="button"
-                  onClick={() => setDate('')}
-                  style={{
-                    padding: '8px 12px',
-                    backgroundColor: '#f1f5f9',
-                    border: '1px solid #cbd5e1',
-                    borderRadius: '4px',
-                    cursor: 'pointer',
-                    color: '#475569',
-                    fontWeight: '500'
-                  }}
-                >
-                  Clear
-                </button>
               </div>
             </div>
 
-            <div className="form-input-wrapper">
-              <label>Time Spent (min)</label>
-              <input
-                type="number"
-                min="1"
-                value={timeSpent}
-                placeholder="e.g. 30"
-                onChange={(e) => setTimeSpent(e.target.value)}
-                required
-              />
+            {/* Work Tasks Section */}
+            <div className="form-section work-section">
+              <h4>
+                <span className="section-icon"><MdWork /></span>
+                Select Tasks (Work)
+              </h4>
+              <div className="checkbox-group">
+                {workTasks.map((task, idx) => (
+                  <label key={idx} className={`chip ${selectedWorkTasks.includes(task) ? 'active' : ''}`}>
+                    <input
+                      type="checkbox"
+                      checked={selectedWorkTasks.includes(task)}
+                      onChange={() => handleCheckbox(task, 'work')}
+                    />
+                    <span>{task}</span>
+                  </label>
+                ))}
+              </div>
             </div>
-          </div>
 
-          {/* Work Tasks Section */}
-          <div className="form-section work-section">
-            <h4>
-              <span className="section-icon"><MdWork /></span>
-              Select Tasks (Work)
-            </h4>
-            <div className="checkbox-group">
-              {workTasks.map((task, idx) => (
-                <label key={idx} className={`chip ${selectedWorkTasks.includes(task) ? 'active' : ''}`}>
-                  <input
-                    type="checkbox"
-                    checked={selectedWorkTasks.includes(task)}
-                    onChange={() => handleCheckbox(task, 'work')}
-                  />
-                  <span>{task}</span>
-                </label>
-              ))}
+            {/* Personal Tasks Section */}
+            <div className="form-section personal-section">
+              <h4>
+                <span className="section-icon"><FaHome /></span>
+                Select Tasks (Personal)
+              </h4>
+              <div className="checkbox-group">
+                {personalTasks.map((task, idx) => (
+                  <label key={idx} className={`chip ${selectedPersonalTasks.includes(task) ? 'active' : ''}`}>
+                    <input
+                      type="checkbox"
+                      checked={selectedPersonalTasks.includes(task)}
+                      onChange={() => handleCheckbox(task, 'personal')}
+                    />
+                    <span>{task}</span>
+                  </label>
+                ))}
+              </div>
             </div>
-          </div>
 
-          {/* Personal Tasks Section */}
-          <div className="form-section personal-section">
-            <h4>
-              <span className="section-icon"><FaHome /></span>
-              Select Tasks (Personal)
-            </h4>
-            <div className="checkbox-group">
-              {personalTasks.map((task, idx) => (
-                <label key={idx} className={`chip ${selectedPersonalTasks.includes(task) ? 'active' : ''}`}>
-                  <input
-                    type="checkbox"
-                    checked={selectedPersonalTasks.includes(task)}
-                    onChange={() => handleCheckbox(task, 'personal')}
-                  />
-                  <span>{task}</span>
-                </label>
-              ))}
+            {/* Notes Section */}
+            <div className="form-section">
+              <label>Notes</label>
+              <textarea
+                className="notes-input"
+                placeholder="Add any additional details..."
+                value={notes}
+                onChange={(e) => setNotes(e.target.value)}
+              ></textarea>
             </div>
-          </div>
+          </DialogContent>
 
-          {/* Notes Section */}
-          <div className="form-section">
-            <label>Notes</label>
-            <textarea
-              className="notes-input"
-              placeholder="Add any additional details..."
-              value={notes}
-              onChange={(e) => setNotes(e.target.value)}
-            ></textarea>
-          </div>
-        </DialogContent>
-
-        <DialogActions style={{ padding: '16px 32px', backgroundColor: '#f8fafc' }}>
-          <div className="btn-group" style={{
-            width: '100%',
-            borderTop: 'none',
-            paddingTop: 0,
-            margin: 0,
-            justifyContent: 'flex-end',
-            display: 'flex',
-            gap: '12px'
-          }}>
-            <button type="button" onClick={handleReset} className="btn-reset">Reset</button>
-            <button type="button" onClick={onClose || (() => window.history.back())} className="btn-cancel">Cancel</button>
-            <button type="submit" className="btn-save" disabled={isSubmitting}>
-              {isSubmitting ? 'Saving...' : 'Save Log'}
-            </button>
-          </div>
-        </DialogActions>
-      </form>
+          <DialogActions style={{ padding: '16px 32px', backgroundColor: '#f8fafc' }}>
+            <div className="btn-group" style={{
+              width: '100%',
+              borderTop: 'none',
+              paddingTop: 0,
+              margin: 0,
+              justifyContent: 'flex-end',
+              display: 'flex',
+              gap: '12px'
+            }}>
+              <button type="button" onClick={handleReset} className="btn-reset">Reset</button>
+              <button type="button" onClick={onClose || (() => window.history.back())} className="btn-cancel">Cancel</button>
+              <button type="submit" className="btn-save" disabled={isSubmitting}>
+                {isSubmitting ? 'Saving...' : 'Save Log'}
+              </button>
+            </div>
+          </DialogActions>
+        </form>
+      </LocalizationProvider>
     </Dialog>
   );
 }

@@ -191,11 +191,11 @@ tr:hover .td {
   border-bottom: 2px solid #576574;
 }
 
-.deferred-table .table-label {
+.delegated-table .table-label {
   border-left-color: #9b59b6;
 }
 
-.deferred-table .th {
+.delegated-table .th {
   background-color: #9b59b6;
   color: #ffffff;
   border-top: none;

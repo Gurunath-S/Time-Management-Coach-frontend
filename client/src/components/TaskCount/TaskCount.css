@@ -84,18 +84,18 @@
   transform: translateY(2px);
 }
 
-.deferred {
+.delegated {
   background-color: #9b59b6;
   cursor: pointer;
   transition: background-color 0.3s ease, transform 0.1s ease;
 }
 
-.deferred:hover {
+.delegated:hover {
   background-color: #8e44ad;
   cursor: pointer;
 }
 
-.deferred:active {
+.delegated:active {
   background-color: #732d91;
   transform: translateY(2px);
 }

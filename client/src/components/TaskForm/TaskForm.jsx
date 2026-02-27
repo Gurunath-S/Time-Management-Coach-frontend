@@ -219,7 +219,7 @@ function TaskForm({ open, onSave, onClose, editTask = null, setTask }) {
                     <MenuItem value="pending">Pending</MenuItem>
                     <MenuItem value="in progress">In Progress</MenuItem>
                     <MenuItem value="cancelled">Cancelled</MenuItem>
-                    <MenuItem value="deferred">Deferred</MenuItem>
+                    <MenuItem value="delegated">Delegated</MenuItem>
                   </Select>
                 </div>
               </div>

@@ -29,8 +29,8 @@ function TaskReport({ tasks, setTask, filterStatus }) {
       filtered = tasks.filter((task) => task.status === 'in progress');
     } else if (filterStatus === 'cancelled') {
       filtered = tasks.filter((task) => task.status === 'cancelled');
-    } else if (filterStatus === 'deferred') {
-      filtered = tasks.filter((task) => task.status === 'deferred');
+    } else if (filterStatus === 'delegated') {
+      filtered = tasks.filter((task) => task.status === 'delegated');
     } else {
       filtered = tasks.filter((task) => task.status !== 'completed');
     }
@@ -85,7 +85,7 @@ function TaskReport({ tasks, setTask, filterStatus }) {
         return '#ffc107'; // yellow
       case 'cancelled':
         return '#7f8c8d'; // grey
-      case 'deferred':
+      case 'delegated':
         return '#9b59b6'; // purple
       default:
         return '#335f8d'; // default blue for 'all'
@@ -119,8 +119,8 @@ function TaskReport({ tasks, setTask, filterStatus }) {
                   ? 'In Progress Tasks'
                   : filterStatus === 'cancelled'
                     ? 'Cancelled Tasks'
-                    : filterStatus === 'deferred'
-                      ? 'Deferred Tasks'
+                    : filterStatus === 'delegated'
+                      ? 'Delegated Tasks'
                       : 'Tasks'}
         </h3>
 
